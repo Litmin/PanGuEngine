@@ -156,6 +156,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RenderCore\Camera.cpp" />
+    <ClCompile Include="RenderCore\Component.cpp" />
+    <ClCompile Include="RenderCore\GameObject.cpp" />
+    <ClCompile Include="RenderCore\Mesh.cpp" />
+    <ClCompile Include="RenderCore\MeshRenderer.cpp" />
+    <ClCompile Include="RenderCore\Renderer.cpp" />
+    <ClCompile Include="RenderCore\Scene.cpp" />
+    <ClCompile Include="RenderCore\Transform.cpp" />
+    <ClCompile Include="Singleton\Screen.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
     <ClCompile Include="Vertex.cpp" />
@@ -164,6 +173,15 @@
   <ItemGroup>
     <ClInclude Include="PanGuEngine.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="RenderCore\Camera.h" />
+    <ClInclude Include="RenderCore\Component.h" />
+    <ClInclude Include="RenderCore\GameObject.h" />
+    <ClInclude Include="RenderCore\Mesh.h" />
+    <ClInclude Include="RenderCore\MeshRenderer.h" />
+    <ClInclude Include="RenderCore\Renderer.h" />
+    <ClInclude Include="RenderCore\Scene.h" />
+    <ClInclude Include="RenderCore\Transform.h" />
+    <ClInclude Include="Singleton\Screen.h" />
     <ClInclude Include="Utility\d3dUtil.h" />
     <ClInclude Include="Utility\d3dx12.h" />
     <ClInclude Include="Utility\DxException.h" />

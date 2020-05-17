@@ -7,6 +7,15 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{b191ef9a-94c3-4040-b297-4a914d84a0c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RenderCore">
+      <UniqueIdentifier>{6d0ff1c5-01d6-453c-a9c9-0d992014b2f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{38361d77-3a8a-4fef-9004-124b50f62057}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Singleton">
+      <UniqueIdentifier>{c63a6374-ba09-40d1-a22b-1fee795eecff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -20,6 +29,33 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="RenderCore\GameObject.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Mesh.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Camera.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Transform.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Scene.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Renderer.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\MeshRenderer.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Component.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton\Screen.cpp">
+      <Filter>Singleton</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PanGuEngine.h" />
@@ -38,6 +74,33 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="RenderCore\GameObject.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Camera.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Transform.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Scene.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Renderer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\MeshRenderer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Mesh.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Component.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton\Screen.h">
+      <Filter>Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\shaders.hlsl">
