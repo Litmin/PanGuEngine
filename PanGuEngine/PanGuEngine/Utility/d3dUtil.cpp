@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "d3dUtil.h"
 
+using Microsoft::WRL::ComPtr;
+
 ComPtr<ID3DBlob> d3dUtil::CompileShader(
 	const std::wstring& filename,
 	const D3D_SHADER_MACRO* defines,

@@ -4,7 +4,7 @@
 _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	PanGuEngine engine;
+	Engine engine;
 	WindowsApplication application(hInstance, &engine);
 
 	try

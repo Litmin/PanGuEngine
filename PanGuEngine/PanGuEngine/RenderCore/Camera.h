@@ -1,9 +1,7 @@
 #pragma once
-#include "Component.h"
-using namespace DirectX;
 
 
-class Camera : public Component
+class Camera
 {
 public:
 private:
@@ -19,7 +17,7 @@ private:
 	float m_FieldOfView;
 
 	// Matrix
-	XMFLOAT4X4 m_View;
-	XMFLOAT4X4 m_Proj;
+	DirectX::XMFLOAT4X4 m_View;
+	DirectX::XMFLOAT4X4 m_Proj;
 };
 

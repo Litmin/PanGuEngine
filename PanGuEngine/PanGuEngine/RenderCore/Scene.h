@@ -6,6 +6,5 @@ class Scene
 public:
 
 private:
-	std::vector<Camera> m_Cameras;
 };
 

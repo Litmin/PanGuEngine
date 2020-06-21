@@ -6,7 +6,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 	return WindowsApplication::GetApp()->MsgProc(hWnd, message, wParam, lParam);
 }
 
-WindowsApplication::WindowsApplication(HINSTANCE hInstance, PanGuEngine* engine) :
+WindowsApplication::WindowsApplication(HINSTANCE hInstance, Engine* engine) :
 	m_appInst(hInstance),
 	m_engine(engine),
 	m_hwnd(nullptr)

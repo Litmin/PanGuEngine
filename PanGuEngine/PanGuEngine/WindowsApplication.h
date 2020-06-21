@@ -1,12 +1,12 @@
 #pragma once
 
-#include "PanGuEngine.h"
+#include "Engine.h"
 
 
 class WindowsApplication
 {
 public:
-    WindowsApplication(HINSTANCE hInstance, PanGuEngine* engine);
+    WindowsApplication(HINSTANCE hInstance, Engine* engine);
     ~WindowsApplication();
 
 public:
@@ -23,7 +23,7 @@ private:
 
     HINSTANCE m_appInst;
     HWND m_hwnd;
-    PanGuEngine* m_engine;
+    Engine* m_engine;
 
 
     bool m_resizing = false;

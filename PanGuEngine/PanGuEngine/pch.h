@@ -31,8 +31,10 @@
 #include "Utility/DxException.h"
 #include "Utility/PathUtil.h"
 #include "Utility/d3dUtil.h"
+#include "Utility/MathHelper.h"
 
 #include <vector>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <exception>

@@ -19,7 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="PanGuEngine.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="WindowsApplication.cpp" />
     <ClCompile Include="Utility\DxException.cpp">
@@ -28,37 +27,34 @@
     <ClCompile Include="Utility\d3dUtil.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Vertex.cpp" />
-    <ClCompile Include="RenderCore\GameObject.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="RenderCore\Mesh.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
     <ClCompile Include="RenderCore\Camera.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
-    <ClCompile Include="RenderCore\Transform.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="RenderCore\Scene.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Renderer.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\MeshRenderer.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Component.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
     <ClCompile Include="Singleton\Screen.cpp">
       <Filter>Singleton</Filter>
     </ClCompile>
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="RenderCore\Renderer.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Material.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\SubMesh.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="RenderCore\FrameResource.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PanGuEngine.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="WindowsApplication.h" />
     <ClInclude Include="Utility\d3dx12.h">
@@ -73,38 +69,46 @@
     <ClInclude Include="Utility\d3dUtil.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="RenderCore\GameObject.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="RenderCore\Camera.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\Transform.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="RenderCore\Scene.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\Renderer.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\MeshRenderer.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="RenderCore\Mesh.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\Component.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="Singleton\Screen.h">
       <Filter>Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="RenderCore\Renderer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\MathHelper.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Material.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\SubMesh.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="RenderCore\FrameResource.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\UploadBuffer.h">
+      <Filter>RenderCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\shaders.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PanGuEngine.rc" />
   </ItemGroup>
 </Project>

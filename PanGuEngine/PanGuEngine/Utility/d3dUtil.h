@@ -1,8 +1,5 @@
 #pragma once
 
-//using namespace DirectX;
-using Microsoft::WRL::ComPtr;
-
 class d3dUtil
 {
 public:
