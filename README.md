@@ -7,6 +7,7 @@ TODO:<br>
 - [ ] PBR<br>
 - [ ] Deferred Rendering<br>
 - [ ] Clustered forward renderer<br>
+- [ ] Global Illumination
 - [ ] Shadow？<br>
 - [ ] Bloom<br>
 - [ ] SSAO<br>
