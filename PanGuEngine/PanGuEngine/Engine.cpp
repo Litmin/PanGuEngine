@@ -7,6 +7,11 @@ using namespace DirectX;
 const int gNumFrameResources = 3;
 
 
+Engine::~Engine()
+{
+    FlushCommandQueue();
+}
+
 void Engine::Initialize(UINT width, UINT height, HWND hwnd)
 {
     m_Width = width;
@@ -16,6 +21,10 @@ void Engine::Initialize(UINT width, UINT height, HWND hwnd)
     m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
     m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 	InitialDirect3D(hwnd);
+
+    OnResize();
+    
+    m_Initialized = true;
 }
 
 void Engine::Tick()
@@ -33,7 +42,6 @@ void Engine::Update()
 // Render
 void Engine::Render()
 {
-
     // Execute the command list.
     ID3D12CommandList* ppCommandLists[] = { m_CommandList.Get() };
     m_CommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -240,6 +248,15 @@ void Engine::OnResize()
     m_Viewport.MaxDepth = 1.0f;
 
     m_ScissorRect = CD3DX12_RECT(0, 0, m_Width, m_Height);
+}
+
+void Engine::BuildFrameResources()
+{
+    for (int i = 0; i < gNumFrameResources; ++i)
+    {
+        m_FrameResources.push_back(std::make_unique<FrameResource>(m_Device.Get(),
+            1, (UINT)mAllRitems.size(), (UINT)mMaterials.size()));
+    }
 }
 
 void Engine::FlushCommandQueue()

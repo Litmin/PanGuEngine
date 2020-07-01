@@ -1,15 +1,16 @@
 #pragma once
 #include "GameTimer.h"
-
+#include "RenderCore/FrameResource.h"
 
 class Engine
 {
 public:
 	Engine() = default;
-	virtual ~Engine() = default;
+	virtual ~Engine();
 
 public:
 	void Initialize(UINT width, UINT height, HWND hwnd);
+	bool IsInitialized() { return m_Initialized; }
 	void Tick();
 	void Destroy();
 
@@ -30,10 +31,14 @@ private:
 	void CreateSwapChain();
 	void CreateRtvAndDsvDescriptorHeaps();
 
+	void BuildFrameResources();
+
 	void FlushCommandQueue();
 
 private:
 	static const int SwapChainBufferCount = 2;
+
+	bool m_Initialized = false;
 
 	HWND m_MainWnd;
 	GameTimer m_Timer;
@@ -70,4 +75,6 @@ private:
 	HANDLE m_FenceEvent;
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence;
 	UINT64 m_FenceValue;
+
+	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
 };

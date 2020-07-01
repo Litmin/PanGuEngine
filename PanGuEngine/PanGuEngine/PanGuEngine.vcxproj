@@ -160,11 +160,13 @@
     </ClCompile>
     <ClCompile Include="RenderCore\Camera.cpp" />
     <ClCompile Include="RenderCore\FrameResource.cpp" />
+    <ClCompile Include="RenderCore\Light.cpp" />
     <ClCompile Include="RenderCore\Material.cpp" />
     <ClCompile Include="RenderCore\Mesh.cpp" />
-    <ClCompile Include="RenderCore\Renderer.cpp" />
+    <ClCompile Include="RenderCore\MeshRenderer.cpp" />
     <ClCompile Include="RenderCore\Scene.cpp" />
-    <ClCompile Include="RenderCore\SubMesh.cpp" />
+    <ClCompile Include="RenderCore\Texture.cpp" />
+    <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Singleton\Screen.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
@@ -176,13 +178,16 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="RenderCore\Camera.h" />
     <ClInclude Include="RenderCore\FrameResource.h" />
+    <ClInclude Include="RenderCore\Light.h" />
     <ClInclude Include="RenderCore\Material.h" />
     <ClInclude Include="RenderCore\Mesh.h" />
-    <ClInclude Include="RenderCore\Renderer.h" />
+    <ClInclude Include="RenderCore\MeshRenderer.h" />
     <ClInclude Include="RenderCore\Scene.h" />
-    <ClInclude Include="RenderCore\SubMesh.h" />
+    <ClInclude Include="RenderCore\Texture.h" />
     <ClInclude Include="RenderCore\UploadBuffer.h" />
+    <ClInclude Include="RenderCore\Vertex.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Resource\ResourceManager.h" />
     <ClInclude Include="Singleton\Screen.h" />
     <ClInclude Include="Utility\d3dUtil.h" />
     <ClInclude Include="Utility\d3dx12.h" />
