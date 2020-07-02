@@ -35,6 +35,7 @@
 #include "Utility/MathHelper.h"
 
 #include <vector>
+#include <queue>
 #include <unordered_map>
 #include <memory>
 #include <string>

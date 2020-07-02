@@ -1,6 +1,9 @@
 #pragma once
 #include "GameTimer.h"
 #include "RenderCore/FrameResource.h"
+#include "RenderCore/MeshRenderer.h"
+#include "RenderCore/Light.h"
+#include "RenderCore/Material.h"
 
 class Engine
 {
@@ -19,6 +22,12 @@ public:
 	void Resume();
 	void OnResize();
 	void SetScreenSize(UINT width, UINT height);
+
+public:
+	PBRMaterial* CreateMaterial(float albedo, float metallic, float smoothness);
+	MeshRenderer CreateRenderer(DirectX::XMFLOAT4X4 worldTransform, Mesh* mesh, PBRMaterial* material);
+
+	void UpdateConstantBuffer();
 
 private:
 	void Update();
@@ -77,4 +86,10 @@ private:
 	UINT64 m_FenceValue;
 
 	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
+
+	std::vector<PBRMaterial*> m_PBRMaterialUpdateConstantQueue;
+	std::vector<MeshRenderer*> m_MeshRendererUpdateConstantQueue;
+
+	std::vector<MeshRenderer*> m_AllRenderer;
+	std::vector<Light*> m_Lights;
 };

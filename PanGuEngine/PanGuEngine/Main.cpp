@@ -11,6 +11,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	{
 		application.Initialize(720, 720);
 		engine.Initialize(720, 720, application.GetHwnd());
+
+		// Create Scene
+		//engine.AddRenderer();
+		//engine.AddLight();
+
 		return application.Run();
 	}
 	catch (DxException& e)

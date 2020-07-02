@@ -36,8 +36,10 @@ void Engine::Tick()
 // Update Logic
 void Engine::Update()
 {
-
+    UpdateConstantBuffer();
 }
+
+
 
 // Render
 void Engine::Render()
@@ -276,3 +278,24 @@ void Engine::FlushCommandQueue()
         CloseHandle(eventHandle);
     }
 }
+
+
+// TODO: Move To ResourceManager and SceneManager
+//********************************************************************************************************
+PBRMaterial* Engine::CreateMaterial(float albedo, float metallic, float smoothness)
+{
+    PBRMaterial* material{ new PBRMaterial{albedo, metallic, smoothness} };
+    m_PBRMaterialUpdateConstantQueue.push(material);
+    return material;
+}
+
+MeshRenderer Engine::CreateRenderer(DirectX::XMFLOAT4X4 worldTransform, Mesh* mesh, PBRMaterial* material)
+{
+    return MeshRenderer();
+}
+void Engine::UpdateConstantBuffer()
+{
+    std::queue<PBRMaterial*>::
+}
+//********************************************************************************************************
+
