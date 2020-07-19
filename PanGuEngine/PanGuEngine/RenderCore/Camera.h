@@ -1,9 +1,12 @@
 #pragma once
+#include "MovableObject.h"
 
-
-class Camera
+class Camera : public MoveableObject
 {
 public:
+	Camera();
+	virtual ~Camera();
+
 private:
 	bool m_IsOrthographic;
 	float m_Aspect;

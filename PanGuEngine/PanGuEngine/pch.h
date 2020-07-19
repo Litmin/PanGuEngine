@@ -33,6 +33,7 @@
 #include "Utility/PathUtil.h"
 #include "Utility/d3dUtil.h"
 #include "Utility/MathHelper.h"
+#include "Utility/Singleton.h"
 
 #include <vector>
 #include <queue>

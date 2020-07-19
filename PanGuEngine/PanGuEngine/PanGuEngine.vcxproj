@@ -164,10 +164,13 @@
     <ClCompile Include="RenderCore\Material.cpp" />
     <ClCompile Include="RenderCore\Mesh.cpp" />
     <ClCompile Include="RenderCore\MeshRenderer.cpp" />
-    <ClCompile Include="RenderCore\Scene.cpp" />
+    <ClCompile Include="RenderCore\MovableObject.cpp" />
+    <ClCompile Include="RenderCore\Renderer.cpp" />
+    <ClCompile Include="RenderCore\RenderQueue.cpp" />
+    <ClCompile Include="RenderCore\SceneManager.cpp" />
+    <ClCompile Include="RenderCore\SceneNode.cpp" />
     <ClCompile Include="RenderCore\Texture.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
-    <ClCompile Include="Singleton\Screen.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
     <ClCompile Include="WindowsApplication.cpp" />
@@ -182,18 +185,22 @@
     <ClInclude Include="RenderCore\Material.h" />
     <ClInclude Include="RenderCore\Mesh.h" />
     <ClInclude Include="RenderCore\MeshRenderer.h" />
-    <ClInclude Include="RenderCore\Scene.h" />
+    <ClInclude Include="RenderCore\MovableObject.h" />
+    <ClInclude Include="RenderCore\Renderer.h" />
+    <ClInclude Include="RenderCore\RenderQueue.h" />
+    <ClInclude Include="RenderCore\SceneManager.h" />
+    <ClInclude Include="RenderCore\SceneNode.h" />
     <ClInclude Include="RenderCore\Texture.h" />
     <ClInclude Include="RenderCore\UploadBuffer.h" />
     <ClInclude Include="RenderCore\Vertex.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resource\ResourceManager.h" />
-    <ClInclude Include="Singleton\Screen.h" />
     <ClInclude Include="Utility\d3dUtil.h" />
     <ClInclude Include="Utility\d3dx12.h" />
     <ClInclude Include="Utility\DxException.h" />
     <ClInclude Include="Utility\MathHelper.h" />
     <ClInclude Include="Utility\PathUtil.h" />
+    <ClInclude Include="Utility\Singleton.h" />
     <ClInclude Include="WindowsApplication.h" />
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@
 MeshRenderer::MeshRenderer(DirectX::XMFLOAT4X4 transform, PBRMaterial* material) :
 	m_Transform{transform},
 	m_Material{material},
-	m_ObjConstantIndex{-1},
+	m_ObjConstantIndex{0},
 	m_NumFramesDirty{0}
 {
 

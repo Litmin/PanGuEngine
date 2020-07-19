@@ -13,9 +13,6 @@
     <Filter Include="Math">
       <UniqueIdentifier>{38361d77-3a8a-4fef-9004-124b50f62057}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Singleton">
-      <UniqueIdentifier>{c63a6374-ba09-40d1-a22b-1fee795eecff}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource">
       <UniqueIdentifier>{97676efa-02d4-4134-a2e5-94600735a362}</UniqueIdentifier>
     </Filter>
@@ -35,12 +32,6 @@
     </ClCompile>
     <ClCompile Include="RenderCore\Camera.cpp">
       <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Scene.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="Singleton\Screen.cpp">
-      <Filter>Singleton</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="RenderCore\Material.cpp">
@@ -62,6 +53,21 @@
     <ClCompile Include="RenderCore\MeshRenderer.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
+    <ClCompile Include="RenderCore\SceneNode.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\MovableObject.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Renderer.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\SceneManager.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\RenderQueue.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -81,14 +87,8 @@
     <ClInclude Include="RenderCore\Camera.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\Scene.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="RenderCore\Mesh.h">
       <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton\Screen.h">
-      <Filter>Singleton</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="resource.h" />
@@ -118,6 +118,24 @@
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="RenderCore\MeshRenderer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Singleton.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\SceneNode.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\MovableObject.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Renderer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\SceneManager.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\RenderQueue.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
   </ItemGroup>
