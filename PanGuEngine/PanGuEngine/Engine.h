@@ -4,6 +4,8 @@
 #include "RenderCore/MeshRenderer.h"
 #include "RenderCore/Light.h"
 #include "RenderCore/Material.h"
+#include "RenderCore/Scene.h"
+#include "RenderCore/UploadBuffer.h"
 
 class Engine
 {
@@ -64,13 +66,20 @@ private:
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
 
+	//<-------------------------------Command Object------------------------------------------------->
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_CommandList;
+	//<-------------------------------Command Object------------------------------------------------->
 
+	//<-------------------------------Render State------------------------------------------->
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineState;
+	ComPtr<ID3DBlob> mvsByteCode = nullptr;
+	ComPtr<ID3DBlob> mpsByteCode = nullptr;
+	//<-------------------------------Render State------------------------------------------->
 
+	//<--------------------------------Resource Binding------------------------------------------------------>
 	UINT m_RtvDescriptorSize;
 	UINT m_DsvDescriptorSize = 0;
 	UINT m_CbvSrvUavDescriptorSize = 0;
@@ -80,16 +89,29 @@ private:
 	int m_CurrBackBuffer = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_SwapChainBuffer[SwapChainBufferCount];
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_DepthStencilBuffer;
+	//<-------------------------------Resource Binding-------------------------------------------->
 
+	//<-------------------------------Sync---------------------------------------------->
 	HANDLE m_FenceEvent;
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence;
 	UINT64 m_FenceValue;
+	//<-------------------------------Sync---------------------------------------------->
 
+	// TODO:实现FrameResource
 	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
 
+	// TODO:实现材质系统
 	std::vector<PBRMaterial*> m_PBRMaterialUpdateConstantQueue;
 	std::vector<MeshRenderer*> m_MeshRendererUpdateConstantQueue;
 
 	std::vector<MeshRenderer*> m_AllRenderer;
+	// TODO:实现光照
 	std::vector<Light*> m_Lights;
+
+	//<--------------------------------Constant Buffer--------------------------------------->
+	std::unique_ptr<UploadBuffer<ObjectConstants>> m_ObjCB;
+	//<--------------------------------Constant Buffer--------------------------------------->
+
+	// 当前的场景
+	std::shared_ptr<Scene> m_Scene;
 };

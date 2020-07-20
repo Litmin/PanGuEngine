@@ -44,6 +44,12 @@ void Engine::Update()
 // Render
 void Engine::Render()
 {
+    ThrowIfFailed(m_CommandAllocator->Reset());
+    ThrowIfFailed(m_CommandList->Reset(m_CommandAllocator.Get(), nullptr));
+
+
+    // For each mesh renderer
+
     // Execute the command list.
     ID3D12CommandList* ppCommandLists[] = { m_CommandList.Get() };
     m_CommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -173,6 +179,7 @@ void Engine::OnResize()
 {
     FlushCommandQueue();
 
+    // 修改资源前先同步CPU/GPU
     ThrowIfFailed(m_CommandList->Reset(m_CommandAllocator.Get(), nullptr));
 
     // 释放资源
@@ -295,7 +302,10 @@ MeshRenderer Engine::CreateRenderer(DirectX::XMFLOAT4X4 worldTransform, Mesh* me
 }
 void Engine::UpdateConstantBuffer()
 {
-    std::queue<PBRMaterial*>::
+    if (m_Scene != nullptr)
+    {
+
+    }
 }
 //********************************************************************************************************
 
