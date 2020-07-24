@@ -4,13 +4,13 @@
 #include "RenderCore/MeshRenderer.h"
 #include "RenderCore/Light.h"
 #include "RenderCore/Material.h"
-#include "RenderCore/Scene.h"
 #include "RenderCore/UploadBuffer.h"
+#include "RenderCore/SceneManager.h"
 
 class Engine
 {
 public:
-	Engine() = default;
+	Engine();
 	virtual ~Engine();
 
 public:
@@ -112,6 +112,5 @@ private:
 	std::unique_ptr<UploadBuffer<ObjectConstants>> m_ObjCB;
 	//<--------------------------------Constant Buffer--------------------------------------->
 
-	// 当前的场景
-	std::shared_ptr<Scene> m_Scene;
+	std::unique_ptr<SceneManager> m_SceneManager;
 };

@@ -7,6 +7,12 @@ using namespace DirectX;
 const int gNumFrameResources = 3;
 
 
+Engine::Engine()
+{
+    // Initilize Managers
+    m_SceneManager = std::make_unique<SceneManager>();
+}
+
 Engine::~Engine()
 {
     FlushCommandQueue();
