@@ -68,6 +68,21 @@
     <ClCompile Include="RenderCore\RenderQueue.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
+    <ClCompile Include="RenderCore\GraphicContext.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\ShaderManager.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Shader.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\StandardShader.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\PipelineStateDesc.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -108,9 +123,6 @@
     <ClInclude Include="RenderCore\Texture.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\Vertex.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="Resource\ResourceManager.h">
       <Filter>Resource</Filter>
     </ClInclude>
@@ -136,6 +148,21 @@
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="RenderCore\RenderQueue.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\GraphicContext.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\ShaderManager.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Shader.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\StandardShader.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\PipelineStateDesc.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
   </ItemGroup>

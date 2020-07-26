@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Engine.h"
 
+using namespace std;
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
@@ -9,8 +10,7 @@ const int gNumFrameResources = 3;
 
 Engine::Engine()
 {
-    // Initilize Managers
-    m_SceneManager = std::make_unique<SceneManager>();
+
 }
 
 Engine::~Engine()
@@ -30,6 +30,13 @@ void Engine::Initialize(UINT width, UINT height, HWND hwnd)
 
     OnResize();
     
+    // Initilize Managers
+    m_ResourceManager = make_unique<ResourceManager>();
+    m_SceneManager = make_unique<SceneManager>();
+    m_ShaderManager = make_unique<ShaderManager>();
+
+    m_GraphicContext = make_unique<GraphicContext>(m_Device.Get(), m_CommandList.Get());
+
     m_Initialized = true;
 }
 

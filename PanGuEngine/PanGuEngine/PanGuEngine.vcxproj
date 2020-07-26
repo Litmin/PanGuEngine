@@ -106,6 +106,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\PanGuEngine</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,15 +161,20 @@
     </ClCompile>
     <ClCompile Include="RenderCore\Camera.cpp" />
     <ClCompile Include="RenderCore\FrameResource.cpp" />
+    <ClCompile Include="RenderCore\GraphicContext.cpp" />
     <ClCompile Include="RenderCore\Light.cpp" />
     <ClCompile Include="RenderCore\Material.cpp" />
     <ClCompile Include="RenderCore\Mesh.cpp" />
     <ClCompile Include="RenderCore\MeshRenderer.cpp" />
     <ClCompile Include="RenderCore\MovableObject.cpp" />
+    <ClCompile Include="RenderCore\PipelineStateDesc.cpp" />
     <ClCompile Include="RenderCore\Renderer.cpp" />
     <ClCompile Include="RenderCore\RenderQueue.cpp" />
     <ClCompile Include="RenderCore\SceneManager.cpp" />
     <ClCompile Include="RenderCore\SceneNode.cpp" />
+    <ClCompile Include="RenderCore\Shader.cpp" />
+    <ClCompile Include="RenderCore\ShaderManager.cpp" />
+    <ClCompile Include="RenderCore\StandardShader.cpp" />
     <ClCompile Include="RenderCore\Texture.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
@@ -181,18 +187,22 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="RenderCore\Camera.h" />
     <ClInclude Include="RenderCore\FrameResource.h" />
+    <ClInclude Include="RenderCore\GraphicContext.h" />
     <ClInclude Include="RenderCore\Light.h" />
     <ClInclude Include="RenderCore\Material.h" />
     <ClInclude Include="RenderCore\Mesh.h" />
     <ClInclude Include="RenderCore\MeshRenderer.h" />
     <ClInclude Include="RenderCore\MovableObject.h" />
+    <ClInclude Include="RenderCore\PipelineStateDesc.h" />
     <ClInclude Include="RenderCore\Renderer.h" />
     <ClInclude Include="RenderCore\RenderQueue.h" />
     <ClInclude Include="RenderCore\SceneManager.h" />
     <ClInclude Include="RenderCore\SceneNode.h" />
+    <ClInclude Include="RenderCore\Shader.h" />
+    <ClInclude Include="RenderCore\ShaderManager.h" />
+    <ClInclude Include="RenderCore\StandardShader.h" />
     <ClInclude Include="RenderCore\Texture.h" />
     <ClInclude Include="RenderCore\UploadBuffer.h" />
-    <ClInclude Include="RenderCore\Vertex.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resource\ResourceManager.h" />
     <ClInclude Include="Utility\d3dUtil.h" />

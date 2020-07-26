@@ -2,6 +2,20 @@
 #include "GraphicContext.h"
 using namespace std;
 
+GraphicContext::GraphicContext()
+{
+}
+
+GraphicContext::GraphicContext(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) :
+	m_Device(device),
+	m_CommandList(commandList)
+{
+}
+
+GraphicContext::~GraphicContext()
+{
+}
+
 UINT GraphicContext::GetInputLayoutIndex(
 	bool hasColor, 
 	bool hasNormal, 
@@ -9,8 +23,7 @@ UINT GraphicContext::GetInputLayoutIndex(
 	bool hasuv0, 
 	bool hasuv1, 
 	bool hasuv2, 
-	bool hasuv3, 
-	bool hasuv4)
+	bool hasuv3)
 {
 	USHORT mask = 0;
 	if (hasColor)
@@ -27,14 +40,12 @@ UINT GraphicContext::GetInputLayoutIndex(
 		mask |= (1 << 5);
 	if (hasuv3)
 		mask |= (1 << 6);
-	if (hasuv4)
-		mask |= (1 << 7);
 
 	auto&& ite = m_InputLayoutMap.find(mask);
 	if (ite == m_InputLayoutMap.end())
 	{
 		unique_ptr<vector<D3D12_INPUT_ELEMENT_DESC>> desc = make_unique<vector<D3D12_INPUT_ELEMENT_DESC>>();
-		GenerateInputElementDesc(*desc.get(), hasColor, hasNormal, hasTangent, hasuv0, hasuv1, hasuv2, hasuv3, hasuv4);
+		GenerateInputElementDesc(*desc.get(), hasColor, hasNormal, hasTangent, hasuv0, hasuv1, hasuv2, hasuv3);
 
 		UINT index = m_InputLayouts.size();
 		m_InputLayoutMap[mask] = index;
@@ -59,8 +70,7 @@ void GraphicContext::GenerateInputElementDesc(
 	bool hasuv0, 
 	bool hasuv1, 
 	bool hasuv2, 
-	bool hasuv3, 
-	bool hasuv4)
+	bool hasuv3)
 {
 	desc.reserve(8);
 	desc.push_back(
@@ -157,19 +167,6 @@ void GraphicContext::GenerateInputElementDesc(
 	{
 		desc.push_back(
 			{ "TEXCOORD", 3, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-		);
-	}
-	if (hasuv4)
-	{
-		desc.push_back(
-			{ "TEXCOORD", 4, DXGI_FORMAT_R32G32_FLOAT, 0, offset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-		);
-		offset += 8;
-	}
-	else
-	{
-		desc.push_back(
-			{ "TEXCOORD", 4, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		);
 	}
 }

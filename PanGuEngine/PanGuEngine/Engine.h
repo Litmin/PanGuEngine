@@ -6,6 +6,9 @@
 #include "RenderCore/Material.h"
 #include "RenderCore/UploadBuffer.h"
 #include "RenderCore/SceneManager.h"
+#include "RenderCore/ShaderManager.h"
+#include "Resource/ResourceManager.h"
+#include "RenderCore/GraphicContext.h"
 
 class Engine
 {
@@ -101,7 +104,6 @@ private:
 	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
 
 	// TODO:实现材质系统
-	std::vector<PBRMaterial*> m_PBRMaterialUpdateConstantQueue;
 	std::vector<MeshRenderer*> m_MeshRendererUpdateConstantQueue;
 
 	std::vector<MeshRenderer*> m_AllRenderer;
@@ -113,4 +115,8 @@ private:
 	//<--------------------------------Constant Buffer--------------------------------------->
 
 	std::unique_ptr<SceneManager> m_SceneManager;
+	std::unique_ptr<ShaderManager> m_ShaderManager;
+	std::unique_ptr<ResourceManager> m_ResourceManager;
+
+	std::unique_ptr<GraphicContext> m_GraphicContext;
 };

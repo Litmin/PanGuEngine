@@ -1,32 +1,26 @@
 #pragma once
+#include "Shader.h"
+#include <unordered_map>
 
-extern const int gNumFrameResources;
-
-struct PBRMaterialConstant
-{
-	PBRMaterialConstant(float albedo, float metallic, float smoothness) :
-		albedo(albedo),
-		metallic(metallic),
-		smoothness(smoothness)
-	{}
-
-	float albedo;
-	float metallic;
-	float smoothness;
-};
-
-class PBRMaterial
+//**********************************************
+// 描述一个表面的属性:
+//		使用的Shader
+//		Shader参数值
+//**********************************************
+class Material
 {
 public:
-	PBRMaterial(float albedo, float metallic, float smoothness);
-	PBRMaterial() : PBRMaterial(0.5, 0.5, 0.5){ }
+	Material(Shader* shader);
+	~Material();
 
-	// 数据更新到Constant Buffer，如果所有帧资源的Buffer都更新了（也就是NumFramesDirty==0），就返回True表示更新完成
-	bool UpdateToConstantBuffer();
+	void SetDescriptorTable(UINT propertyID, CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTable);
+	void SetDescriptorTable(const std::string& property, CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTable);
+	void SetConstantBuffer(UINT propertyID, D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetConstantBuffer(const std::string& property, D3D12_GPU_VIRTUAL_ADDRESS address);
+	void BindParameters(ID3D12GraphicsCommandList* commandList);
 
 private:
-	PBRMaterialConstant m_ConstantData;
-	UINT m_ConstantIndex;
-
-	int m_NumFramesDirty;
+	Shader* m_Shader;
+	std::unordered_map<UINT, CD3DX12_GPU_DESCRIPTOR_HANDLE> m_DescriptorTables;
+	std::unordered_map<UINT, D3D12_GPU_VIRTUAL_ADDRESS> m_ConstantBuffers;
 };

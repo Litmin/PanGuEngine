@@ -1,22 +1,44 @@
 #include "pch.h"
 #include "Material.h"
+#include "ShaderManager.h"
 
-PBRMaterial::PBRMaterial(float albedo, float metallic, float smoothness) : 
-	m_ConstantData{ albedo, metallic, smoothness },
-	m_NumFramesDirty{0},
-	m_ConstantIndex{0}
+Material::Material(Shader* shader) :
+	m_Shader(shader)
 {
-
 }
 
-bool PBRMaterial::UpdateToConstantBuffer()
+Material::~Material()
 {
-	if (m_NumFramesDirty > 0)
+}
+
+void Material::SetDescriptorTable(UINT propertyID, CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTable)
+{
+	m_DescriptorTables[propertyID] = descriptorTable;
+}
+
+void Material::SetDescriptorTable(const std::string& property, CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTable)
+{
+	m_DescriptorTables[ShaderManager::GetSingleton().PropertyToID(property)] = descriptorTable;
+}
+
+void Material::SetConstantBuffer(UINT propertyID, D3D12_GPU_VIRTUAL_ADDRESS address)
+{
+	m_ConstantBuffers[propertyID] = address;
+}
+
+void Material::SetConstantBuffer(const std::string& property, D3D12_GPU_VIRTUAL_ADDRESS address)
+{
+	m_ConstantBuffers[ShaderManager::GetSingleton().PropertyToID(property)] = address;
+}
+
+void Material::BindParameters(ID3D12GraphicsCommandList* commandList)
+{
+	for (auto& [propertyID, descriptorTable] : m_DescriptorTables)
 	{
-		m_NumFramesDirty--;
-
-		return false;
+		m_Shader->SetDescriptorTable(commandList, propertyID, descriptorTable);
 	}
-
-	return true;
+	for (auto& [propertyID, cbv] : m_ConstantBuffers)
+	{
+		m_Shader->SetRootConstantBufferView(commandList, propertyID, cbv);
+	}
 }
