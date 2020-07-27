@@ -80,7 +80,7 @@
     <ClCompile Include="RenderCore\StandardShader.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
-    <ClCompile Include="RenderCore\PipelineStateDesc.cpp">
+    <ClCompile Include="RenderCore\RendererStateDesc.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
   </ItemGroup>
@@ -162,7 +162,7 @@
     <ClInclude Include="RenderCore\StandardShader.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\PipelineStateDesc.h">
+    <ClInclude Include="RenderCore\RendererStateDesc.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
   </ItemGroup>

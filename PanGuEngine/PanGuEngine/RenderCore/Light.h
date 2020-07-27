@@ -1,7 +1,7 @@
 #pragma once
 #include "MovableObject.h"
 
-class Light : public MoveableObject
+class Light : public MovableObject
 {
 public:
 

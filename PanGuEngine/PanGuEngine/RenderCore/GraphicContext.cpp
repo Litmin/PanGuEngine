@@ -170,3 +170,36 @@ void GraphicContext::GenerateInputElementDesc(
 		);
 	}
 }
+
+	ID3D12PipelineState* GraphicContext::GetPSO(RendererStateDesc& rendererStateDesc, RTStateDesc& rtStateDesc)
+	{
+		rendererStateDesc.GenerateHash();
+		rtStateDesc.GenerateHash();
+		auto&& ite = m_PSOs.find(pair<RTStateDesc, RendererStateDesc>(rtStateDesc, rendererStateDesc));
+		if (ite == m_PSOs.end())
+		{
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
+			ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+
+			// Input Layout
+			std::vector<D3D12_INPUT_ELEMENT_DESC>* inputLayout = GetInputElementDesc(rendererStateDesc.meshLayoutIndex);
+			psoDesc.InputLayout = { inputLayout->data(), inputLayout->size() };
+			// Shader
+			rendererStateDesc.shaderPtr->SetPSODesc(&psoDesc);
+			// Render Target
+			psoDesc.NumRenderTargets = rtStateDesc.rtCount;
+			memcpy(&psoDesc.RTVFormats, rtStateDesc.rtFormat, rtStateDesc.rtCount * sizeof(DXGI_FORMAT));
+			psoDesc.DSVFormat = rtStateDesc.depthFormat;
+			// Other
+			psoDesc.SampleMask = UINT_MAX;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.SampleDesc.Count = 1;
+			psoDesc.SampleDesc.Quality = 0;
+
+			Microsoft::WRL::ComPtr<ID3D12PipelineState> pso = nullptr;
+			ThrowIfFailed(m_Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(pso.GetAddressOf())));
+			m_PSOs.insert_or_assign(pair<RTStateDesc, RendererStateDesc>(rtStateDesc, rendererStateDesc), pso);
+			return pso.Get();
+		}
+		return ite->second.Get();
+	}

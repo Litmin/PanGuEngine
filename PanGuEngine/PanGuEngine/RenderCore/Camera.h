@@ -1,7 +1,7 @@
 #pragma once
 #include "MovableObject.h"
 
-class Camera : public MoveableObject
+class Camera : public MovableObject
 {
 public:
 	Camera();

@@ -167,7 +167,7 @@
     <ClCompile Include="RenderCore\Mesh.cpp" />
     <ClCompile Include="RenderCore\MeshRenderer.cpp" />
     <ClCompile Include="RenderCore\MovableObject.cpp" />
-    <ClCompile Include="RenderCore\PipelineStateDesc.cpp" />
+    <ClCompile Include="RenderCore\RendererStateDesc.cpp" />
     <ClCompile Include="RenderCore\Renderer.cpp" />
     <ClCompile Include="RenderCore\RenderQueue.cpp" />
     <ClCompile Include="RenderCore\SceneManager.cpp" />
@@ -193,7 +193,7 @@
     <ClInclude Include="RenderCore\Mesh.h" />
     <ClInclude Include="RenderCore\MeshRenderer.h" />
     <ClInclude Include="RenderCore\MovableObject.h" />
-    <ClInclude Include="RenderCore\PipelineStateDesc.h" />
+    <ClInclude Include="RenderCore\RendererStateDesc.h" />
     <ClInclude Include="RenderCore\Renderer.h" />
     <ClInclude Include="RenderCore\RenderQueue.h" />
     <ClInclude Include="RenderCore\SceneManager.h" />

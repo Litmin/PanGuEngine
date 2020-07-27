@@ -1,7 +1,7 @@
 #pragma once
 #include "MovableObject.h"
 
-class Renderer : public MoveableObject
+class Renderer : public MovableObject
 {
 public:
 	Renderer() = default;

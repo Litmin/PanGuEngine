@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "SceneNode.h"
+#include "MeshRenderer.h"
 
 using namespace DirectX;
+using namespace std;
 
-SceneNode::SceneNode(SceneNode* parent, SceneManager* sceneManager) :
-	m_SceneManager(sceneManager),
+SceneNode::SceneNode(SceneNode* parent) :
 	m_Parent(parent),
 	m_Transform(MathHelper::Identity4x4()),
 	m_CombinedTransform(MathHelper::Identity4x4())
@@ -49,6 +50,21 @@ void SceneNode::UpdateTransform()
 		m_CombinedTransform = m_Transform;
 	}
 
-	// 更新所有子节点的Transform
+	// TODO:更新所有子节点的Transform
 
+}
+
+void SceneNode::AttachObject(MovableObject* movableObject)
+{
+	m_Components.push_back(make_unique<MovableObject>(movableObject));
+	
+	MeshRenderer* meshRenderer = static_cast<MeshRenderer*>(movableObject);
+	if (nullptr != meshRenderer)
+		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
+
+	Camera* camera = static_cast<Camera*>(movableObject);
+	if (camera != nullptr)
+	{
+
+	}
 }

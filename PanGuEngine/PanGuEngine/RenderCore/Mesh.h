@@ -20,6 +20,7 @@ public:
 
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const { return m_VertexBufferView; }
 	D3D12_INDEX_BUFFER_VIEW IndexBufferView()const { return m_IndexBufferView; }
+	UINT GetLayoutIndex() { return m_LayoutIndex; }
 
 	void UpdateMeshData();
 

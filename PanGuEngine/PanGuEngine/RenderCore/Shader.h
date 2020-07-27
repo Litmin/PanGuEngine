@@ -26,10 +26,11 @@ public:
 	void SetDescriptorTable(ID3D12GraphicsCommandList* commandList, UINT paramID, CD3DX12_GPU_DESCRIPTOR_HANDLE handle);
 	void SetRootConstantBufferView(ID3D12GraphicsCommandList* commandList, UINT paramID, D3D12_GPU_VIRTUAL_ADDRESS address);
 
+	void SetPSODesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC* pso);
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
 	Microsoft::WRL::ComPtr<ID3DBlob> m_VS;
-	Microsoft::WRL::ComPtr<ID3D10Blob> m_PS;
+	Microsoft::WRL::ComPtr<ID3DBlob> m_PS;
 	D3D12_RASTERIZER_DESC m_RasterizerState;
 	D3D12_DEPTH_STENCIL_DESC m_DepthStencilState;
 	D3D12_BLEND_DESC m_BlendState;

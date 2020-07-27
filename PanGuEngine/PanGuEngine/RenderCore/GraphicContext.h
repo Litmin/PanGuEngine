@@ -1,5 +1,6 @@
 #pragma once
-#include "PipelineStateDesc.h"
+#include "RendererStateDesc.h"
+#include <unordered_map>
 
 class GraphicContext : public Singleton<GraphicContext>
 {
@@ -43,10 +44,10 @@ private:
 
 //***********************PSO*********************************
 public:
-
+	ID3D12PipelineState* GetPSO(RendererStateDesc& rendererStateDesc, RTStateDesc& rtStateDesc);
 
 private:
-
+	std::unordered_map<std::pair<RTStateDesc, RendererStateDesc>, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_PSOs;
 
 //***********************PSO*********************************
 };

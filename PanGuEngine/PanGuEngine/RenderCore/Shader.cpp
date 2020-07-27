@@ -98,6 +98,23 @@ void Shader::SetRootConstantBufferView(ID3D12GraphicsCommandList* commandList, U
 	commandList->SetGraphicsRootConstantBufferView(rootParamIndex, address);
 }
 
+void Shader::SetPSODesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc)
+{
+	psoDesc->VS =
+	{
+		reinterpret_cast<BYTE*>(m_VS->GetBufferPointer()),
+		m_VS->GetBufferSize()
+	};
+	psoDesc->PS =
+	{
+		reinterpret_cast<BYTE*>(m_PS->GetBufferPointer()),
+		m_PS->GetBufferSize()
+	};
+	psoDesc->RasterizerState = m_RasterizerState;
+	psoDesc->DepthStencilState = m_DepthStencilState;
+	psoDesc->BlendState = m_BlendState;
+}
+
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Shader::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
