@@ -50,7 +50,7 @@ UINT GraphicContext::GetInputLayoutIndex(
 		UINT index = m_InputLayouts.size();
 		m_InputLayoutMap[mask] = index;
 
-		m_InputLayouts.push_back(desc);
+		m_InputLayouts.push_back(move(desc));
 		return index;
 	}
 
@@ -182,8 +182,8 @@ void GraphicContext::GenerateInputElementDesc(
 			ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 
 			// Input Layout
-			std::vector<D3D12_INPUT_ELEMENT_DESC>* inputLayout = GetInputElementDesc(rendererStateDesc.meshLayoutIndex);
-			psoDesc.InputLayout = { inputLayout->data(), inputLayout->size() };
+			std::vector<D3D12_INPUT_ELEMENT_DESC>* inputLayout = GetInputElementDesc(rendererStateDesc.inputLayoutIndex);
+			psoDesc.InputLayout = { inputLayout->data(), (UINT)inputLayout->size() };
 			// Shader
 			rendererStateDesc.shaderPtr->SetPSODesc(&psoDesc);
 			// Render Target

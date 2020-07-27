@@ -3,9 +3,9 @@
 #include "MeshRenderer.h"
 #include "Camera.h"
 #include "RenderQueue.h"
-#include "SceneNode.h"
 #include "RendererStateDesc.h"
 
+class SceneNode;
 class SceneManager : public Singleton<SceneManager>
 {
 public:

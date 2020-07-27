@@ -29,9 +29,6 @@ public:
 	void SetScreenSize(UINT width, UINT height);
 
 public:
-	PBRMaterial* CreateMaterial(float albedo, float metallic, float smoothness);
-	MeshRenderer CreateRenderer(DirectX::XMFLOAT4X4 worldTransform, Mesh* mesh, PBRMaterial* material);
-
 	void UpdateConstantBuffer();
 
 private:
@@ -75,13 +72,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_CommandList;
 	//<-------------------------------Command Object------------------------------------------------->
 
-	//<-------------------------------Render State------------------------------------------->
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineState;
-	ComPtr<ID3DBlob> mvsByteCode = nullptr;
-	ComPtr<ID3DBlob> mpsByteCode = nullptr;
-	//<-------------------------------Render State------------------------------------------->
-
 	//<--------------------------------Resource Binding------------------------------------------------------>
 	UINT m_RtvDescriptorSize;
 	UINT m_DsvDescriptorSize = 0;
@@ -102,13 +92,6 @@ private:
 
 	// TODO:实现FrameResource
 	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
-
-	// TODO:实现材质系统
-	std::vector<MeshRenderer*> m_MeshRendererUpdateConstantQueue;
-
-	std::vector<MeshRenderer*> m_AllRenderer;
-	// TODO:实现光照
-	std::vector<Light*> m_Lights;
 
 	//<--------------------------------Constant Buffer--------------------------------------->
 	std::unique_ptr<UploadBuffer<ObjectConstants>> m_ObjCB;

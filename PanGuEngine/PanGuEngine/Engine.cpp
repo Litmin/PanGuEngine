@@ -61,9 +61,6 @@ void Engine::Render()
     ThrowIfFailed(m_CommandList->Reset(m_CommandAllocator.Get(), nullptr));
 
 
-    // For each mesh renderer
-
-    // Execute the command list.
     ID3D12CommandList* ppCommandLists[] = { m_CommandList.Get() };
     m_CommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
@@ -274,11 +271,7 @@ void Engine::OnResize()
 
 void Engine::BuildFrameResources()
 {
-    for (int i = 0; i < gNumFrameResources; ++i)
-    {
-        m_FrameResources.push_back(std::make_unique<FrameResource>(m_Device.Get(),
-            1, (UINT)mAllRitems.size(), (UINT)mMaterials.size()));
-    }
+    
 }
 
 void Engine::FlushCommandQueue()
@@ -300,25 +293,10 @@ void Engine::FlushCommandQueue()
 }
 
 
-// TODO: Move To ResourceManager and SceneManager
 //********************************************************************************************************
-PBRMaterial* Engine::CreateMaterial(float albedo, float metallic, float smoothness)
-{
-    PBRMaterial* material{ new PBRMaterial{albedo, metallic, smoothness} };
-    m_PBRMaterialUpdateConstantQueue.push(material);
-    return material;
-}
-
-MeshRenderer Engine::CreateRenderer(DirectX::XMFLOAT4X4 worldTransform, Mesh* mesh, PBRMaterial* material)
-{
-    return MeshRenderer();
-}
 void Engine::UpdateConstantBuffer()
 {
-    if (m_Scene != nullptr)
-    {
-
-    }
+    
 }
 //********************************************************************************************************
 

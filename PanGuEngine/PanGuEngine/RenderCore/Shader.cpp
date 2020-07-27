@@ -34,7 +34,7 @@ Shader::Shader(ID3D12Device* device)
 			CD3DX12_DESCRIPTOR_RANGE texTable;
 			texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, shaderParameter.descriptorNums, shaderParameter.baseRegister, shaderParameter.registerSpace);
 			texTables.push_back(texTable);
-			rootParameter.InitAsDescriptorTable(1, &texTables.back);
+			rootParameter.InitAsDescriptorTable(1, &texTables.back());
 			break;
 		}
 

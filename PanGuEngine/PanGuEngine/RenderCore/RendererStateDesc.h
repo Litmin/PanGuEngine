@@ -4,17 +4,22 @@
 struct RendererStateDesc
 {
 	Shader* shaderPtr;
-	UINT meshLayoutIndex;
+	UINT inputLayoutIndex;
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE topology;
+	RendererStateDesc(Shader* shaderPtr, UINT inputLayoutIndex, D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) :
+		shaderPtr(shaderPtr),
+		inputLayoutIndex(inputLayoutIndex),
+		topology(topology)
+	{
 
-	//RendererStateDesc() :
-	//	topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE){}
+	}
+
 	bool operator==(const RendererStateDesc& other)const;
 
 	size_t hash;
 	void GenerateHash()
 	{
-		size_t value = meshLayoutIndex;
+		size_t value = inputLayoutIndex;
 		value <<= 4;
 		value &= topology;
 		value <<= 4;

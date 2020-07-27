@@ -49,7 +49,6 @@ private:
     // GPU处理完命令后，我们才能更新Constant Buffer，所以每帧也得有一个
     std::unique_ptr<UploadBuffer<PassConstants>> m_PassCB = nullptr;
     // 材质常量缓冲区大小是不固定的，新增了材质需要扩容
-    std::unique_ptr<UploadBuffer<PBRMaterialConstant>> m_PBRMaterialCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
 
     // 每一帧的Fence，用来检查当前帧是否还没处理完

@@ -1,12 +1,13 @@
 #include "pch.h"
 #include "SceneManager.h"
+#include "SceneNode.h"
 
 using namespace std;
 
 SceneManager::SceneManager()
 {
 	// 创建场景根节点
-	m_RootNode = make_unique<SceneNode>(nullptr, this);
+	m_RootNode = make_unique<SceneNode>(nullptr);
 }
 
 SceneManager::~SceneManager()
@@ -54,7 +55,7 @@ void SceneManager::Render()
 		// Update Camera Constant
 
 		// for each rendererState
-		for()
+		//for()
 
 		//
 	}

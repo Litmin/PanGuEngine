@@ -2,6 +2,36 @@
 #include <unordered_map>
 #include "ShaderManager.h"
 
+enum class ShaderParamType
+{
+	ConstantBuffer,
+	SRVDescriptorHeap,
+	UAVDescriptorHeap,
+	StructuredBuffer
+};
+
+struct ShaderParameter
+{
+	std::string name;
+	ShaderParamType type;
+	UINT descriptorNums;
+	UINT baseRegister;
+	UINT registerSpace;
+
+	ShaderParameter() {}
+	ShaderParameter(
+		const std::string& name,
+		ShaderParamType type,
+		UINT descriptorNums,
+		UINT baseRegister,
+		UINT registerSpace) :
+		name(name),
+		type(type),
+		descriptorNums(descriptorNums),
+		baseRegister(baseRegister),
+		registerSpace(registerSpace) {}
+};
+
 //************************************************************
 // Shader基类：
 //		真正运行在GPU的Shader(VS、FS)
@@ -17,8 +47,8 @@ public:
 	Shader(ID3D12Device* device);
 	virtual ~Shader();
 
-	virtual void BindShaderFilePath() = 0;
-	virtual void BindShaderParam() = 0;
+	virtual void BindShaderFilePath(){}
+	virtual void BindShaderParam(){}
 
 	void BindRootSignature(ID3D12GraphicsCommandList* commandList);
 	// 绑定参数，材质通过该接口将保存的参数绑定到管线中
@@ -46,33 +76,5 @@ protected:
 	std::string m_PSEntry;
 };
 
-enum class ShaderParamType
-{
-	ConstantBuffer,
-	SRVDescriptorHeap,
-	UAVDescriptorHeap,
-	StructuredBuffer
-};
 
-struct ShaderParameter
-{
-	std::string name;
-	ShaderParamType type;
-	UINT descriptorNums;
-	UINT baseRegister;
-	UINT registerSpace;
-
-	ShaderParameter(){}
-	ShaderParameter(
-		const std::string& name,
-		ShaderParamType type,
-		UINT descriptorNums,
-		UINT baseRegister,
-		UINT registerSpace)	:
-		name(name),
-		type(type),
-		descriptorNums(descriptorNums),
-		baseRegister(baseRegister),
-		registerSpace(registerSpace){}
-};
 

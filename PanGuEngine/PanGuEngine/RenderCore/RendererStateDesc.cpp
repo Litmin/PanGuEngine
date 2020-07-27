@@ -4,7 +4,7 @@
 bool RendererStateDesc::operator==(const RendererStateDesc& other) const
 {
 	return other.shaderPtr == shaderPtr 
-		&& other.meshLayoutIndex == meshLayoutIndex 
+		&& other.inputLayoutIndex == inputLayoutIndex 
 		&& other.topology == topology;
 }
 

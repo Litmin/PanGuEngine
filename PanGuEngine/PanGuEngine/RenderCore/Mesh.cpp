@@ -50,7 +50,7 @@ Mesh::Mesh(
 	{
 		if (ptr)
 		{
-			for (int i = 0; i < vertexCount; ++i)
+			for (UINT i = 0; i < vertexCount; ++i)
 			{
 				memcpy(buffer + i * m_VertexByteStride + offset, ptr + size * i, size);
 			}

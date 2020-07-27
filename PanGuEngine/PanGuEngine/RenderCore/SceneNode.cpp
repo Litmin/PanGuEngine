@@ -56,7 +56,8 @@ void SceneNode::UpdateTransform()
 
 void SceneNode::AttachObject(MovableObject* movableObject)
 {
-	m_Components.push_back(make_unique<MovableObject>(movableObject));
+	//m_Components.push_back((make_unique<MovableObject>(*movableObject)));
+	m_Components.push_back(unique_ptr<MovableObject>(movableObject));
 	
 	MeshRenderer* meshRenderer = static_cast<MeshRenderer*>(movableObject);
 	if (nullptr != meshRenderer)
