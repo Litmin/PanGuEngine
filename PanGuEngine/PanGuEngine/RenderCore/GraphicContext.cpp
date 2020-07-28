@@ -1,19 +1,39 @@
 #include "pch.h"
 #include "GraphicContext.h"
+#include "SceneManager.h"
 using namespace std;
 
-GraphicContext::GraphicContext()
-{
-}
-
-GraphicContext::GraphicContext(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) :
+GraphicContext::GraphicContext(
+	ID3D12Device* device, 
+	ID3D12GraphicsCommandList* commandList,
+	ID3D12CommandQueue* commandQueue,
+	ID3D12Fence* fence) :
 	m_Device(device),
-	m_CommandList(commandList)
+	m_CommandList(commandList),
+	m_CommandQueue(commandQueue),
+	m_Fence(fence)
 {
 }
 
 GraphicContext::~GraphicContext()
 {
+}
+
+void GraphicContext::Update()
+{
+	// Cycle through the circular frame resource array.
+	m_CurrFrameResourceIndex = (m_CurrFrameResourceIndex + 1) % gNumFrameResources;
+	m_CurrFrameResource = m_FrameResources[m_CurrFrameResourceIndex].get();
+
+	// Has the GPU finished processing the commands of the current frame resource?
+	// If not, wait until the GPU has completed commands up to this fence point.
+	if (m_CurrFrameResource->Fence != 0 && m_Fence->GetCompletedValue() < m_CurrFrameResource->Fence)
+	{
+		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		ThrowIfFailed(m_Fence->SetEventOnCompletion(m_CurrFrameResource->Fence, eventHandle));
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
 }
 
 UINT GraphicContext::GetInputLayoutIndex(
@@ -202,4 +222,15 @@ void GraphicContext::GenerateInputElementDesc(
 			return pso.Get();
 		}
 		return ite->second.Get();
+	}
+
+	void GraphicContext::BuildFrameResource()
+	{
+		m_FrameResources.clear();
+
+		UINT rendererCount = SceneManager::GetSingleton().GetRendererCount();
+		for (int i = 0; i < gNumFrameResources; ++i)
+		{
+			m_FrameResources.push_back(make_unique<FrameResource>(m_Device, 1, rendererCount));
+		}
 	}

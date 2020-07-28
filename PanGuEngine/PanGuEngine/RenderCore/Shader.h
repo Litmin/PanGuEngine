@@ -5,6 +5,7 @@
 enum class ShaderParamType
 {
 	ConstantBuffer,
+	CBVDescriptorHeap,
 	SRVDescriptorHeap,
 	UAVDescriptorHeap,
 	StructuredBuffer
@@ -47,8 +48,8 @@ public:
 	Shader(ID3D12Device* device);
 	virtual ~Shader();
 
-	virtual void BindShaderFilePath(){}
-	virtual void BindShaderParam(){}
+	virtual void BindShaderFilePath() {}
+	virtual void BindShaderParam();
 
 	void BindRootSignature(ID3D12GraphicsCommandList* commandList);
 	// 绑定参数，材质通过该接口将保存的参数绑定到管线中

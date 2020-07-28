@@ -30,6 +30,9 @@ Shader::Shader(ID3D12Device* device)
 		case ShaderParamType::ConstantBuffer:
 			rootParameter.InitAsConstantBufferView(shaderParameter.baseRegister, shaderParameter.registerSpace);
 			break;
+		case ShaderParamType::CBVDescriptorHeap:
+			// TODO: CBV Table
+			break;
 		case ShaderParamType::SRVDescriptorHeap:
 			CD3DX12_DESCRIPTOR_RANGE texTable;
 			texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, shaderParameter.descriptorNums, shaderParameter.baseRegister, shaderParameter.registerSpace);
@@ -67,6 +70,15 @@ Shader::Shader(ID3D12Device* device)
 
 Shader::~Shader()
 {
+}
+
+// TODO: 绑定通用的Shader参数
+void Shader::BindShaderParam()
+{
+	// Per Object Buffer
+
+	// Per Pass Buffer
+
 }
 
 void Shader::BindRootSignature(ID3D12GraphicsCommandList* commandList)

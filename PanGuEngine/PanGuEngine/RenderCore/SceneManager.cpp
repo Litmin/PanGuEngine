@@ -36,27 +36,43 @@ void SceneManager::UpdateSceneNodeTransform()
 	m_RootNode->UpdateTransform();
 }
 
+void SceneManager::UpdateRendererCBs()
+{
+	for (auto [rendererStateDesc, meshRenderers] : m_RenderQueue)
+	{
+		for (auto meshRenderer : meshRenderers)
+		{
+			meshRenderer->UpdateRendererCBs();
+		}
+	}
+}
+
+void SceneManager::UpdateMainPassBuffer()
+{
+	m_Camera->UpdateCameraCBs();
+}
+
 void SceneManager::AddMeshRenderer(MeshRenderer* meshRenderer)
 {
 	RendererStateDesc rendererStateDesc = meshRenderer->GetRendererStateDesc();
 	m_RenderQueue[rendererStateDesc].push_back(meshRenderer);
 }
 
+UINT SceneManager::GetRendererCount()
+{
+	UINT count = 0;
+	for (auto& [rendererStateDesc, meshRenderers] : m_RenderQueue)
+	{
+		count += meshRenderers.size();
+	}
+}
+
 void SceneManager::AddCamera(Camera* camera)
 {
-	m_Cameras.push_back(camera);
+	m_Camera = camera;
 }
 
 void SceneManager::Render()
 {
-	// for each camera
-	for (auto camera : m_Cameras)
-	{
-		// Update Camera Constant
 
-		// for each rendererState
-		//for()
-
-		//
-	}
 }

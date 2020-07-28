@@ -15,7 +15,8 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-    FlushCommandQueue();
+    if (m_Device != nullptr)
+        FlushCommandQueue();
 }
 
 void Engine::Initialize(UINT width, UINT height, HWND hwnd)

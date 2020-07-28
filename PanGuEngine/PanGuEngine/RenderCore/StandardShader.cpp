@@ -10,6 +10,8 @@ void StandardShader::BindShaderFilePath()
 
 void StandardShader::BindShaderParam()
 {
+	Shader::BindShaderParam();
+
 	// 变化频率高的参数放在前面
 
 	m_ParamMap.reserve(4);

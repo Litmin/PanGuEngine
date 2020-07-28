@@ -20,14 +20,19 @@ public:
 	void DestroySceneNode(SceneNode* sceneNode);
 	// 更新所有的节点的Transform
 	void UpdateSceneNodeTransform();
+	// 更新每个Renderer的Constant Buffer
+	void UpdateRendererCBs();
+	// 更新Main Pass的Constant Buffer
+	void UpdateMainPassBuffer();
 
 	void AddMeshRenderer(MeshRenderer* meshRenderer);
+	UINT GetRendererCount();
 	void AddCamera(Camera* camera);
 	void Render();
 private:
 	std::unique_ptr<SceneNode> m_RootNode;
 
-	std::vector<Camera*> m_Cameras;
+	Camera* m_Camera;
 	// 按照渲染状态排序
 	std::unordered_map<RendererStateDesc, std::vector<MeshRenderer*>> m_RenderQueue;
 };

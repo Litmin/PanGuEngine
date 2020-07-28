@@ -16,7 +16,7 @@ MeshRenderer::MeshRenderer(Mesh* mesh, Material* material) :
 	);
 }
 
-bool MeshRenderer::UpdateToConstantBuffer()
+bool MeshRenderer::UpdateRendererCBs()
 {
 	return true;
 }

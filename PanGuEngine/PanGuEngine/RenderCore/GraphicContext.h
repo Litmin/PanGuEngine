@@ -1,20 +1,30 @@
 #pragma once
 #include "RendererStateDesc.h"
+#include "FrameResource.h"
 #include <unordered_map>
+
+const int gNumFrameResources = 3;
 
 class GraphicContext : public Singleton<GraphicContext>
 {
 public:
-	GraphicContext();
-	GraphicContext(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
+	GraphicContext(
+		ID3D12Device* device,
+		ID3D12GraphicsCommandList* commandList,
+		ID3D12CommandQueue* commandQueue,
+		ID3D12Fence* fence);
 	~GraphicContext();
 
 	ID3D12Device* Device() { return m_Device; }
 	ID3D12GraphicsCommandList* CommandList() { return m_CommandList; }
 
+	void Update();
+
 private:
 	ID3D12Device* m_Device;
 	ID3D12GraphicsCommandList* m_CommandList;
+	ID3D12CommandQueue* m_CommandQueue;
+	ID3D12Fence* m_Fence;
 
 //*******************InputLayout*****************************
 public:
@@ -50,5 +60,15 @@ private:
 	std::unordered_map<std::pair<RTStateDesc, RendererStateDesc>, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_PSOs;
 
 //***********************PSO*********************************
+
+//*******************FrameResource***************************
+public:
+	void BuildFrameResource();
+
+private:
+	int m_CurrFrameResourceIndex = 0;
+	FrameResource* m_CurrFrameResource = nullptr;
+	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
+//*******************FrameResource***************************
 };
 

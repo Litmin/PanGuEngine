@@ -25,15 +25,10 @@ struct PassConstants
     float FarZ = 0.0f;
     float TotalTime = 0.0f;
     float DeltaTime = 0.0f;
-
-    DirectX::XMFLOAT4 AmbientLight = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-    // Light
-    //Light Lights[MaxLights];
 };
 
 
-class FrameResource
+struct FrameResource
 {
 public:
     FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount);
@@ -42,7 +37,6 @@ public:
     ~FrameResource();
 
 
-private:
     // GPU处理完命令后才能ResetAllocator，所以每一帧都需要单独的CommandAllocator
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CmdListAlloc;
 

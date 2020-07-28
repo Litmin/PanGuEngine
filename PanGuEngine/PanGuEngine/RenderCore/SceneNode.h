@@ -30,6 +30,13 @@ private:
 	// 子节点
 	std::vector<std::unique_ptr<SceneNode>> m_Children;
 
+	// TODO:
+	// Position
+	// Rotation
+	// Scale
+	// Right
+	// Up
+	// Forward
 	// 模型空间到世界空间的变换矩阵
 	DirectX::XMFLOAT4X4 m_Transform;
 	// 自己和所有父节点的Transform的组合
