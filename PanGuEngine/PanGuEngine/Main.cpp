@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "WindowsApplication.h"
 #include "RenderCore/SceneNode.h"
+#include "RenderCore/GeometryFactory.h"
+#include "RenderCore/Mesh.h"
+#include "RenderCore/StandardShader.h"
+
+using namespace std;
+using namespace DirectX;
 
 _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
@@ -13,7 +19,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		application.Initialize(720, 720);
 		engine.Initialize(720, 720, application.GetHwnd());
 
-		// Create Scene
+		// Setup Scene
 		// Create Camera
 		SceneNode* rootNode = SceneManager::GetSingleton().GetRootNode();
 		SceneNode* cameraNode = rootNode->CreateChildNode();
@@ -23,14 +29,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 		SceneNode* boxNode = rootNode->CreateChildNode();
 		// Mesh
-
-
+		UINT boxVertexCount, boxIndicesCount;
+		vector<XMFLOAT3> boxPositions;
+		vector<XMFLOAT4> boxColors;
+		vector<uint16_t> boxIndices;
+		GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 1, boxVertexCount, boxPositions, boxColors, boxIndicesCount, boxIndices);
+		unique_ptr<Mesh> boxMesh = make_unique<Mesh>(boxVertexCount, boxPositions.data(), boxColors.data(),
+			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+			boxIndicesCount, boxIndices.data());
+		// Shader
+		unique_ptr<StandardShader> standardShader = make_unique<StandardShader>(GraphicContext::GetSingleton().Device());
 		// Material
+		unique_ptr<Material> material = make_unique<Material>(standardShader.get());
 
 		// MeshRenderer
-
+		MeshRenderer* meshRenderer = new MeshRenderer(boxMesh.get(), material.get());
+		boxNode->AttachObject(meshRenderer);
 
 		return application.Run();
+		// TODO: Clean
 	}
 	catch (DxException& e)
 	{

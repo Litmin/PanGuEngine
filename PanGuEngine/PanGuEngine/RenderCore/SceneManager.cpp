@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SceneManager.h"
 #include "SceneNode.h"
+#include "GraphicContext.h"
 
 using namespace std;
 
@@ -8,6 +9,10 @@ SceneManager::SceneManager()
 {
 	// 创建场景根节点
 	m_RootNode = make_unique<SceneNode>(nullptr);
+
+	m_RTState.depthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	m_RTState.rtCount = 1;
+	m_RTState.rtFormat[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 }
 
 SceneManager::~SceneManager()
@@ -74,5 +79,11 @@ void SceneManager::AddCamera(Camera* camera)
 
 void SceneManager::Render()
 {
+	for (auto& [rendererStateDesc, meshRenderers] : m_RenderQueue)
+	{
+		auto pso = GraphicContext::GetSingleton().GetPSO(rendererStateDesc, m_RTState);
+		GraphicContext::GetSingleton().CommandList()->SetPipelineState(pso);
+		
 
+	}
 }

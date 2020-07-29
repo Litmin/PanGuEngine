@@ -33,6 +33,7 @@ private:
 	std::unique_ptr<SceneNode> m_RootNode;
 
 	Camera* m_Camera;
+	RTStateDesc m_RTState;
 	// ∞¥’’‰÷»æ◊¥Ã¨≈≈–Ú
 	std::unordered_map<RendererStateDesc, std::vector<MeshRenderer*>> m_RenderQueue;
 };

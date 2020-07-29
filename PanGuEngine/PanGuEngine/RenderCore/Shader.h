@@ -44,7 +44,6 @@ struct ShaderParameter
 class Shader
 {
 public:
-	Shader();
 	Shader(ID3D12Device* device);
 	virtual ~Shader();
 

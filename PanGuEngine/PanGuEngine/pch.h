@@ -22,6 +22,7 @@
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
 #include <DirectXColors.h>
+#include <DirectXPackedVector.h>
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")

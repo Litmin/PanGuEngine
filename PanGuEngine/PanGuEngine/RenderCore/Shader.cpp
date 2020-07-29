@@ -4,10 +4,6 @@
 
 using Microsoft::WRL::ComPtr;
 
-Shader::Shader()
-{
-}
-
 Shader::Shader(ID3D12Device* device)
 {
 	BindShaderFilePath();
