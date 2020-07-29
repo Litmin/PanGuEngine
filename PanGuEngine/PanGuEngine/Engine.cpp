@@ -36,7 +36,7 @@ void Engine::Initialize(UINT width, UINT height, HWND hwnd)
     m_SceneManager = make_unique<SceneManager>();
     m_ShaderManager = make_unique<ShaderManager>();
 
-    m_GraphicContext = make_unique<GraphicContext>(m_Device.Get(), m_CommandList.Get());
+    m_GraphicContext = make_unique<GraphicContext>(m_Device.Get(), m_CommandList.Get(), m_CommandQueue.Get(), m_Fence.Get());
 
     m_Initialized = true;
 }
@@ -47,26 +47,64 @@ void Engine::Tick()
 	Render();
 }
 
-// Update Logic
 void Engine::Update()
 {
-    UpdateConstantBuffer();
+    // CPU、GPU同步
+    m_GraphicContext->Update();
+    // 更新Constant Buffer
+    m_SceneManager->UpdateSceneNodeTransform();
+    m_SceneManager->UpdateRendererCBs();
+    m_SceneManager->UpdateMainPassBuffer();
 }
 
-
-
-// Render
 void Engine::Render()
 {
-    ThrowIfFailed(m_CommandAllocator->Reset());
-    ThrowIfFailed(m_CommandList->Reset(m_CommandAllocator.Get(), nullptr));
+    auto cmdListAlloc = m_GraphicContext->GetCurrFrameResource()->m_CmdListAlloc;
 
+    // Reuse the memory associated with command recording.
+    // We can only reset when the associated command lists have finished execution on the GPU.
+    ThrowIfFailed(cmdListAlloc->Reset());
+
+    ThrowIfFailed(m_CommandList->Reset(cmdListAlloc.Get(), nullptr));
+
+    m_CommandList->RSSetViewports(1, &m_Viewport);
+    m_CommandList->RSSetScissorRects(1, &m_ScissorRect);
+
+    // Indicate a state transition on the resource usage.
+    m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+        D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+    // Clear the back buffer and depth buffer.
+    m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+    // Specify the buffers we are going to render to.
+    m_CommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+
+    // 渲染场景
+    m_SceneManager->Render();
+
+    // Indicate a state transition on the resource usage.
+    m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+    // Done recording commands.
+    ThrowIfFailed(m_CommandList->Close());
 
     ID3D12CommandList* ppCommandLists[] = { m_CommandList.Get() };
     m_CommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
     // Present the frame.
     ThrowIfFailed(m_SwapChain->Present(1, 0));
+    m_CurrBackBuffer = (m_CurrBackBuffer + 1) % SwapChainBufferCount;
+
+    // Advance the fence value to mark commands up to this fence point.
+    m_GraphicContext->GetCurrFrameResource()->Fence = ++m_FenceValue;
+
+    // Add an instruction to the command queue to set a new fence point. 
+    // Because we are on the GPU timeline, the new fence point won't be 
+    // set until the GPU finishes processing all the commands prior to this Signal().
+    m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
 }
 
 void Engine::Destroy()
@@ -270,9 +308,22 @@ void Engine::OnResize()
     m_ScissorRect = CD3DX12_RECT(0, 0, m_Width, m_Height);
 }
 
-void Engine::BuildFrameResources()
+ID3D12Resource* Engine::CurrentBackBuffer()const
 {
-    
+    return m_SwapChainBuffer[m_CurrBackBuffer].Get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::CurrentBackBufferView() const
+{
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+        m_RtvHeap->GetCPUDescriptorHandleForHeapStart(),
+        m_CurrBackBuffer,
+        m_RtvDescriptorSize);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::DepthStencilView()const
+{
+    return m_DsvHeap->GetCPUDescriptorHandleForHeapStart();
 }
 
 void Engine::FlushCommandQueue()
@@ -293,11 +344,4 @@ void Engine::FlushCommandQueue()
     }
 }
 
-
-//********************************************************************************************************
-void Engine::UpdateConstantBuffer()
-{
-    
-}
-//********************************************************************************************************
 

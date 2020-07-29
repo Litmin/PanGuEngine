@@ -28,8 +28,10 @@ public:
 	void OnResize();
 	void SetScreenSize(UINT width, UINT height);
 
-public:
-	void UpdateConstantBuffer();
+	ID3D12Resource* CurrentBackBuffer() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
+
 
 private:
 	void Update();
@@ -42,7 +44,6 @@ private:
 	void CreateSwapChain();
 	void CreateRtvAndDsvDescriptorHeaps();
 
-	void BuildFrameResources();
 
 	void FlushCommandQueue();
 

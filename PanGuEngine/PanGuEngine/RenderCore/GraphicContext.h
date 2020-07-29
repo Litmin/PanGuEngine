@@ -3,7 +3,6 @@
 #include "FrameResource.h"
 #include <unordered_map>
 
-const int gNumFrameResources = 3;
 
 class GraphicContext : public Singleton<GraphicContext>
 {
@@ -64,6 +63,7 @@ private:
 //*******************FrameResource***************************
 public:
 	void BuildFrameResource();
+	FrameResource* GetCurrFrameResource() { return m_CurrFrameResource; }
 
 private:
 	int m_CurrFrameResourceIndex = 0;

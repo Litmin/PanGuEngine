@@ -161,6 +161,8 @@
     </ClCompile>
     <ClCompile Include="RenderCore\Camera.cpp" />
     <ClCompile Include="RenderCore\FrameResource.cpp" />
+    <ClCompile Include="RenderCore\GeometryFactory.cpp" />
+    <ClCompile Include="RenderCore\GeometryGenerator.cpp" />
     <ClCompile Include="RenderCore\GraphicContext.cpp" />
     <ClCompile Include="RenderCore\Light.cpp" />
     <ClCompile Include="RenderCore\Material.cpp" />
@@ -187,6 +189,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="RenderCore\Camera.h" />
     <ClInclude Include="RenderCore\FrameResource.h" />
+    <ClInclude Include="RenderCore\GeometryFactory.h" />
+    <ClInclude Include="RenderCore\GeometryGenerator.h" />
     <ClInclude Include="RenderCore\GraphicContext.h" />
     <ClInclude Include="RenderCore\Light.h" />
     <ClInclude Include="RenderCore\Material.h" />

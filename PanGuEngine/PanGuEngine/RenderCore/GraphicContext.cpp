@@ -3,6 +3,9 @@
 #include "SceneManager.h"
 using namespace std;
 
+// 不要再头文件中定义常量,编译器会认为它们是不同的符号常量，为每个编译单元分别分配存储空间
+const int gNumFrameResources = 3;
+
 GraphicContext::GraphicContext(
 	ID3D12Device* device, 
 	ID3D12GraphicsCommandList* commandList,

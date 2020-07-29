@@ -50,8 +50,16 @@ void SceneNode::UpdateTransform()
 		m_CombinedTransform = m_Transform;
 	}
 
-	// TODO:更新所有子节点的Transform
+	for (auto& child : m_Children)
+	{
+		child->UpdateTransform();
+	}
+}
 
+void SceneNode::Translate(float x, float y, float z)
+{
+	XMMATRIX newTransform = XMLoadFloat4x4(&m_Transform) * XMMatrixTranslation(x, y, z);
+	XMStoreFloat4x4(&m_Transform, newTransform);
 }
 
 void SceneNode::AttachObject(MovableObject* movableObject)

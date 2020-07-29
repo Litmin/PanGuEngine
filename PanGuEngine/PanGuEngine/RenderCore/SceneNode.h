@@ -19,6 +19,7 @@ public:
 	const DirectX::XMFLOAT4X4& GetCombinedTransform();
 	// 更新自己和所有子节点的Transform
 	void UpdateTransform();
+	void Translate(float x, float y, float z);
 
 	void AttachObject(MovableObject* movableObject);
 
