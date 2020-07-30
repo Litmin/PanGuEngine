@@ -16,7 +16,9 @@ Mesh::Mesh(
 	DirectX::XMFLOAT2* uv2, 
 	DirectX::XMFLOAT2* uv3,
 	UINT indexCount,
-	uint16_t* indices)
+	uint16_t* indices) :
+	m_VertexCount(vertexCount),
+	m_IndexCount(indexCount)
 {
 	m_LayoutIndex = GraphicContext::GetSingleton().GetInputLayoutIndex(
 		colors != nullptr,

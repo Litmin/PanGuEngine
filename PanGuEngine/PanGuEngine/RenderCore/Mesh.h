@@ -20,6 +20,8 @@ public:
 
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const { return m_VertexBufferView; }
 	D3D12_INDEX_BUFFER_VIEW IndexBufferView()const { return m_IndexBufferView; }
+	UINT VertexCount() const { return m_VertexCount; }
+	UINT IndexCount() const { return m_IndexCount; }
 	UINT GetLayoutIndex() { return m_LayoutIndex; }
 
 	void UpdateMeshData();
@@ -35,6 +37,9 @@ private:
 	UINT m_IndexBufferByteSize = 0;
 	D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
+
+	UINT m_VertexCount = 0;
+	UINT m_IndexCount;
 
 	UINT m_LayoutIndex;
 };

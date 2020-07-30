@@ -10,11 +10,13 @@ GraphicContext::GraphicContext(
 	ID3D12Device* device, 
 	ID3D12GraphicsCommandList* commandList,
 	ID3D12CommandQueue* commandQueue,
-	ID3D12Fence* fence) :
+	ID3D12Fence* fence,
+	UINT CbvSrvUavDescriptorSize) :
 	m_Device(device),
 	m_CommandList(commandList),
 	m_CommandQueue(commandQueue),
-	m_Fence(fence)
+	m_Fence(fence),
+	m_CbvSrvUavDescriptorSize(CbvSrvUavDescriptorSize)
 {
 }
 

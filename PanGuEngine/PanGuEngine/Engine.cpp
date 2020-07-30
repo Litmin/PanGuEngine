@@ -33,7 +33,7 @@ void Engine::Initialize(UINT width, UINT height, HWND hwnd)
     m_SceneManager = make_unique<SceneManager>();
     m_ShaderManager = make_unique<ShaderManager>();
 
-    m_GraphicContext = make_unique<GraphicContext>(m_Device.Get(), m_CommandList.Get(), m_CommandQueue.Get(), m_Fence.Get());
+    m_GraphicContext = make_unique<GraphicContext>(m_Device.Get(), m_CommandList.Get(), m_CommandQueue.Get(), m_Fence.Get(), m_CbvSrvUavDescriptorSize);
 
     m_Initialized = true;
 }

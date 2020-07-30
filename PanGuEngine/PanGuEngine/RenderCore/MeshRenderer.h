@@ -11,8 +11,10 @@ class MeshRenderer : public Renderer
 public:
 	MeshRenderer(Mesh* mesh, Material* material);
 
-	// 数据更新到Constant Buffer，如果所有帧资源的Buffer都更新了（也就是NumFramesDirty==0），就返回True表示更新完成
-	bool UpdateRendererCBs();
+	void SetConstantBufferIndex(UINT index) { m_ObjCBIndex = index; }
+	void UpdateRendererCBs();
+
+	void Render(ID3D12GraphicsCommandList* commandList, ID3D12DescriptorHeap* cbvHeap, UINT rendererCount);
 
 	const RendererStateDesc& GetRendererStateDesc() { return *m_StateDesc.get(); }
 private:

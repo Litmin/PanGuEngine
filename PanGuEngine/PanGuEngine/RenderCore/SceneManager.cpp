@@ -62,12 +62,12 @@ void SceneManager::BuildConstantBuffer()
 	ThrowIfFailed(GraphicContext::GetSingleton().Device()->CreateDescriptorHeap(&cbvHeapDesc,
 		IID_PPV_ARGS(&m_RendererAndPassCBVHeap)));
 
-
+	// 每个Renderer的CBV
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	// Need a CBV descriptor for each object for each frame resource.
 	for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
 	{
-		auto objectCB = mFrameResources[frameIndex]->ObjectCB->Resource();
+		auto objectCB = GraphicContext::GetSingleton().GetFrameResource(frameIndex)->m_ObjectCB->Resource();
 		for (UINT i = 0; i < objCount; ++i)
 		{
 			D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
@@ -77,17 +77,47 @@ void SceneManager::BuildConstantBuffer()
 
 			// Offset to the object cbv in the descriptor heap.
 			int heapIndex = frameIndex * objCount + i;
-			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
-			handle.Offset(heapIndex, mCbvSrvUavDescriptorSize);
+			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_RendererAndPassCBVHeap->GetCPUDescriptorHandleForHeapStart());
+			handle.Offset(heapIndex, GraphicContext::GetSingleton().GetCbvSrvUavDescriptorSize());
 
 			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
 			cbvDesc.BufferLocation = cbAddress;
 			cbvDesc.SizeInBytes = objCBByteSize;
 
-			md3dDevice->CreateConstantBufferView(&cbvDesc, handle);
+			GraphicContext::GetSingleton().Device()->CreateConstantBufferView(&cbvDesc, handle);
 		}
 	}
 
+	// MainPass的CBV
+	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+	// Last three descriptors are the pass CBVs for each frame resource.
+	for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
+	{
+		auto passCB = GraphicContext::GetSingleton().GetFrameResource(frameIndex)->m_PassCB->Resource();
+		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
+
+		// Offset to the pass cbv in the descriptor heap.
+		int heapIndex = mPassCbvOffset + frameIndex;
+		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_RendererAndPassCBVHeap->GetCPUDescriptorHandleForHeapStart());
+		handle.Offset(heapIndex, GraphicContext::GetSingleton().GetCbvSrvUavDescriptorSize());
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+		cbvDesc.BufferLocation = cbAddress;
+		cbvDesc.SizeInBytes = passCBByteSize;
+
+		GraphicContext::GetSingleton().Device()->CreateConstantBufferView(&cbvDesc, handle);
+	}
+
+	// MeshRenderer的CBV index
+	UINT objCBVIndex = 0;
+	for (auto& [rendererStateDesc, meshRenderers] : m_RenderQueue)
+	{
+		for (auto meshRenderer : meshRenderers)
+		{
+			meshRenderer->SetConstantBufferIndex(objCBVIndex);
+			objCBVIndex++;
+		}
+	}
 }
 
 void SceneManager::UpdateRendererCBs()
@@ -132,9 +162,29 @@ void SceneManager::Render()
 {
 	for (auto& [rendererStateDesc, meshRenderers] : m_RenderQueue)
 	{
-		auto pso = GraphicContext::GetSingleton().GetPSO(rendererStateDesc, m_RTState);
-		GraphicContext::GetSingleton().CommandList()->SetPipelineState(pso);
-		
+		auto commandList = GraphicContext::GetSingleton().CommandList();
 
+		// 设置Pipeline State
+		auto pso = GraphicContext::GetSingleton().GetPSO(rendererStateDesc, m_RTState);
+		commandList->SetPipelineState(pso);
+		
+		// 绑定CBV Heap
+		ID3D12DescriptorHeap* descriptorHeaps[] = { m_RendererAndPassCBVHeap.Get() };
+		commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+		// 绑定根签名
+		rendererStateDesc.shaderPtr->BindRootSignature(commandList);
+
+		// 绑定MainPass CB
+		int passCbvIndex = GetRendererCount() * gNumFrameResources + GraphicContext::GetSingleton().GetCurrFrameResourceIndex();
+		auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_RendererAndPassCBVHeap->GetGPUDescriptorHandleForHeapStart());
+		passCbvHandle.Offset(passCbvIndex, GraphicContext::GetSingleton().GetCbvSrvUavDescriptorSize());
+		rendererStateDesc.shaderPtr->SetDescriptorTable(commandList, ShaderManager::GetSingleton().PropertyToID("cbPass"), passCbvHandle);
+
+		// 渲染每个MeshRenderer
+		for (auto meshRenderer : meshRenderers)
+		{
+			meshRenderer->Render(commandList, m_RendererAndPassCBVHeap.Get(), GetRendererCount());
+		}
 	}
 }

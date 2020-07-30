@@ -11,11 +11,13 @@ public:
 		ID3D12Device* device,
 		ID3D12GraphicsCommandList* commandList,
 		ID3D12CommandQueue* commandQueue,
-		ID3D12Fence* fence);
+		ID3D12Fence* fence,
+		UINT CbvSrvUavDescriptorSize);
 	~GraphicContext();
 
 	ID3D12Device* Device() { return m_Device; }
 	ID3D12GraphicsCommandList* CommandList() { return m_CommandList; }
+	UINT GetCbvSrvUavDescriptorSize() { return m_CbvSrvUavDescriptorSize; }
 
 	void Update();
 
@@ -24,7 +26,7 @@ private:
 	ID3D12GraphicsCommandList* m_CommandList;
 	ID3D12CommandQueue* m_CommandQueue;
 	ID3D12Fence* m_Fence;
-
+	UINT m_CbvSrvUavDescriptorSize = 0;
 //*******************InputLayout*****************************
 public:
 	// 每种输入顶点的布局对应唯一的索引
@@ -63,7 +65,9 @@ private:
 //*******************FrameResource***************************
 public:
 	void BuildFrameResource();
+	int GetCurrFrameResourceIndex() { return m_CurrFrameResourceIndex; }
 	FrameResource* GetCurrFrameResource() { return m_CurrFrameResource; }
+	FrameResource* GetFrameResource(int index) { return m_FrameResources[index].get(); }
 
 private:
 	int m_CurrFrameResourceIndex = 0;

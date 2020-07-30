@@ -1,5 +1,6 @@
 #pragma once
 #include "MovableObject.h"
+#include "FrameResource.h"
 
 extern const int gNumFrameResources;
 class Camera : public MovableObject
@@ -27,5 +28,6 @@ protected:
 
 
 	int m_NumFramesDirty = gNumFrameResources;
+	PassConstants m_MainPassCB;
 };
 
