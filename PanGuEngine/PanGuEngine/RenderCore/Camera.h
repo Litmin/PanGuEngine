@@ -1,6 +1,7 @@
 #pragma once
 #include "MovableObject.h"
 
+extern const int gNumFrameResources;
 class Camera : public MovableObject
 {
 public:

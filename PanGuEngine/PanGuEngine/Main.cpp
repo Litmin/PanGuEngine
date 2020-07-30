@@ -46,6 +46,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		MeshRenderer* meshRenderer = new MeshRenderer(boxMesh.get(), material.get());
 		boxNode->AttachObject(meshRenderer);
 
+
+		GraphicContext::GetSingleton().BuildFrameResource();
+		engine.FlushCommandQueue();
+
 		return application.Run();
 		// TODO: Clean
 	}

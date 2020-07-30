@@ -19,7 +19,6 @@ struct ShaderParameter
 	UINT baseRegister;
 	UINT registerSpace;
 
-	ShaderParameter() {}
 	ShaderParameter(
 		const std::string& name,
 		ShaderParamType type,

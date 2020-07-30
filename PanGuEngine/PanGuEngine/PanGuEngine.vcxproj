@@ -181,6 +181,7 @@
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
+    <ClCompile Include="Utility\MathHelper.cpp" />
     <ClCompile Include="WindowsApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -216,12 +217,6 @@
     <ClInclude Include="Utility\PathUtil.h" />
     <ClInclude Include="Utility\Singleton.h" />
     <ClInclude Include="WindowsApplication.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shaders\shaders.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PanGuEngine.rc" />

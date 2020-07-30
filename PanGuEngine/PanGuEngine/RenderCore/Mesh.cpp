@@ -4,6 +4,7 @@
 
 using namespace DirectX;
 
+// TODO:修改传入的顶点布局
 Mesh::Mesh(
 	UINT vertexCount, 
 	DirectX::XMFLOAT3* positions, 
@@ -79,7 +80,7 @@ Mesh::Mesh(
 	m_IndexBufferView.Format = m_IndexFormat;
 	m_IndexBufferView.SizeInBytes = m_IndexBufferByteSize;
 
-	// TODO:同步CPU、GPU，释放UploadBuffer
+	// TODO:提交CommandList，同步CPU、GPU，释放UploadBuffer
 }
 
 Mesh::~Mesh()

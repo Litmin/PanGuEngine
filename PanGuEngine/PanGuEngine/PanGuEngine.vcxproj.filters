@@ -4,9 +4,6 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{a312e714-6491-4257-a0cb-7ea797486021}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{b191ef9a-94c3-4040-b297-4a914d84a0c1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="RenderCore">
       <UniqueIdentifier>{6d0ff1c5-01d6-453c-a9c9-0d992014b2f0}</UniqueIdentifier>
     </Filter>
@@ -88,6 +85,9 @@
     </ClCompile>
     <ClCompile Include="RenderCore\GeometryFactory.cpp">
       <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\MathHelper.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -177,11 +177,6 @@
     <ClInclude Include="RenderCore\GeometryFactory.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shaders\shaders.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PanGuEngine.rc" />

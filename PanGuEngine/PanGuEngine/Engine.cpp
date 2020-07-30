@@ -5,9 +5,6 @@ using namespace std;
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
-const int gNumFrameResources = 3;
-
-
 Engine::Engine()
 {
 

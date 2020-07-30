@@ -9,7 +9,7 @@ void GeometryFactory::CreateBox(float width, float height, float depth, std::uin
 	UINT& indexCount, std::vector<uint16_t>& indices)
 {
 	GeometryGenerator geoGen;
-	GeometryGenerator::MeshData box = geoGen.CreateBox(width, height, depth);
+	GeometryGenerator::MeshData box = geoGen.CreateBox(width, height, depth, numSubdivisions);
 
 	XMFLOAT4 color(1.0f, 0.0f, 0.0f, 1.0f);
 

@@ -33,6 +33,7 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 
 
+	void FlushCommandQueue();
 private:
 	void Update();
 	void Render();
@@ -45,7 +46,6 @@ private:
 	void CreateRtvAndDsvDescriptorHeaps();
 
 
-	void FlushCommandQueue();
 
 private:
 	static const int SwapChainBufferCount = 2;

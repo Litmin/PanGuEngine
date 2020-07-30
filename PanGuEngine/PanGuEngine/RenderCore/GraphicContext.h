@@ -53,7 +53,7 @@ private:
 
 //***********************PSO*********************************
 public:
-	ID3D12PipelineState* GetPSO(RendererStateDesc& rendererStateDesc, RTStateDesc& rtStateDesc);
+	ID3D12PipelineState* GetPSO(const RendererStateDesc& rendererStateDesc, RTStateDesc& rtStateDesc);
 
 private:
 	std::unordered_map<std::pair<RTStateDesc, RendererStateDesc>, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_PSOs;

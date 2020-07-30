@@ -194,10 +194,8 @@ void GraphicContext::GenerateInputElementDesc(
 	}
 }
 
-	ID3D12PipelineState* GraphicContext::GetPSO(RendererStateDesc& rendererStateDesc, RTStateDesc& rtStateDesc)
+	ID3D12PipelineState* GraphicContext::GetPSO(const RendererStateDesc& rendererStateDesc, RTStateDesc& rtStateDesc)
 	{
-		rendererStateDesc.GenerateHash();
-		rtStateDesc.GenerateHash();
 		auto&& ite = m_PSOs.find(pair<RTStateDesc, RendererStateDesc>(rtStateDesc, rendererStateDesc));
 		if (ite == m_PSOs.end())
 		{

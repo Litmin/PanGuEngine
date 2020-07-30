@@ -1,7 +1,7 @@
 //***************************************************************************************
 // GeometryGenerator.cpp by Frank Luna (C) 2011 All Rights Reserved.
 //***************************************************************************************
-
+#include "pch.h"
 #include "GeometryGenerator.h"
 #include <algorithm>
 

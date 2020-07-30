@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "StandardShader.h"
 
+StandardShader::StandardShader(ID3D12Device* device) :
+	Shader(device)
+{
+}
+
 void StandardShader::BindShaderFilePath()
 {
 	m_FilePath = L"Shaders\\Standard.hlsl";
@@ -14,8 +19,8 @@ void StandardShader::BindShaderParam()
 
 	// 变化频率高的参数放在前面
 
-	m_ParamMap.reserve(4);
-	m_Params.reserve(4);
+	m_ParamMap.reserve(m_ParamMap.size() + 4);
+	m_Params.reserve(m_ParamMap.size() + 4);
 	
 	// Albedo
 	ShaderParameter albedo("_Albedo", ShaderParamType::SRVDescriptorHeap, 1, 0, 0);

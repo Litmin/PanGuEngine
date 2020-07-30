@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include <array>
 
+using namespace std;
 using Microsoft::WRL::ComPtr;
 
 Shader::Shader(ID3D12Device* device)
@@ -14,8 +15,9 @@ Shader::Shader(ID3D12Device* device)
 	m_PS = d3dUtil::CompileShader(m_FilePath, nullptr, m_PSEntry, "ps_5_0");
 
 	// 根据参数创建根签名
-	std::vector<CD3DX12_ROOT_PARAMETER> rootParameters;
-	std::vector<CD3DX12_DESCRIPTOR_RANGE> texTables;
+	vector<CD3DX12_ROOT_PARAMETER> rootParameters;
+	vector<CD3DX12_DESCRIPTOR_RANGE> texTables;
+	vector< CD3DX12_DESCRIPTOR_RANGE> constantTables;
 
 	for (auto& shaderParameter : m_Params)
 	{
@@ -27,7 +29,10 @@ Shader::Shader(ID3D12Device* device)
 			rootParameter.InitAsConstantBufferView(shaderParameter.baseRegister, shaderParameter.registerSpace);
 			break;
 		case ShaderParamType::CBVDescriptorHeap:
-			// TODO: CBV Table
+			CD3DX12_DESCRIPTOR_RANGE constantTable;
+			constantTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, shaderParameter.descriptorNums, shaderParameter.baseRegister, shaderParameter.registerSpace);
+			constantTables.push_back(constantTable);
+			rootParameter.InitAsDescriptorTable(1, &constantTables.back());
 			break;
 		case ShaderParamType::SRVDescriptorHeap:
 			CD3DX12_DESCRIPTOR_RANGE texTable;
@@ -68,13 +73,17 @@ Shader::~Shader()
 {
 }
 
-// TODO: 绑定通用的Shader参数
 void Shader::BindShaderParam()
 {
 	// Per Object Buffer
-
+	ShaderParameter perObject("cbPerObject", ShaderParamType::CBVDescriptorHeap, 1, 0, 0);
+	m_ParamMap[ShaderManager::GetSingleton().PropertyToID("cbPerObject")] = m_Params.size();
+	m_Params.push_back(perObject);
+	
 	// Per Pass Buffer
-
+	ShaderParameter perPass("cbPass", ShaderParamType::SRVDescriptorHeap, 1, 1, 0);
+	m_ParamMap[ShaderManager::GetSingleton().PropertyToID("cbPass")] = m_Params.size();
+	m_Params.push_back(perPass);
 }
 
 void Shader::BindRootSignature(ID3D12GraphicsCommandList* commandList)
