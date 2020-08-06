@@ -48,7 +48,7 @@ Mesh::Mesh(
 	char* buffer = new char[bufferSize];
 	std::unique_ptr<char> dataPtrGuard(buffer);	// 用来释放buffer指向的内存
 
-	UINT offset;
+	UINT offset = 0;
 	auto vertBufferCopy = [&](char* buffer, char* ptr, UINT size, UINT& offset) -> void
 	{
 		if (ptr)

@@ -24,7 +24,7 @@ void GeometryFactory::CreateBox(float width, float height, float depth, std::uin
 
 	indexCount = box.Indices32.size();
 	auto& boxIndices = box.GetIndices16();
-	for (auto& index : indices)
+	for (auto& index : boxIndices)
 	{
 		indices.push_back(index);
 	}

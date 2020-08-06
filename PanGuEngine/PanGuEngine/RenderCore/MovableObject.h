@@ -5,6 +5,9 @@ class SceneNode;
 class MovableObject
 {
 public:
+	MovableObject(){}
+	virtual ~MovableObject(){}
+
 	void SetNode(SceneNode* node);
 
 	// TODO:OnAttachedEvent: Update Camera View Matrix

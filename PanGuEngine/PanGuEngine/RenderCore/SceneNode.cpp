@@ -19,7 +19,9 @@ SceneNode::~SceneNode()
 
 SceneNode* SceneNode::CreateChildNode()
 {
-	return nullptr;
+	SceneNode* child = new SceneNode(this);
+	m_Children.push_back(unique_ptr<SceneNode>(child));
+	return child;
 }
 
 void SceneNode::DestroyChildNode()
@@ -67,7 +69,8 @@ void SceneNode::AttachObject(MovableObject* movableObject)
 	//m_Components.push_back((make_unique<MovableObject>(*movableObject)));
 	m_Components.push_back(unique_ptr<MovableObject>(movableObject));
 	
-	MeshRenderer* meshRenderer = static_cast<MeshRenderer*>(movableObject);
+	// TODO:Remove dynamic_cast
+	MeshRenderer* meshRenderer = dynamic_cast<MeshRenderer*>(movableObject);
 	if (nullptr != meshRenderer)
 		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
 
