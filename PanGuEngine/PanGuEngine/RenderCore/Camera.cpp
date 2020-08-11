@@ -6,6 +6,9 @@ using namespace DirectX;
 
 Camera::Camera()
 {
+	m_View = MathHelper::Identity4x4();
+	m_Proj = MathHelper::Identity4x4();
+
 	SetProjection(1.0f, 1.0f, 1000.0f, MathHelper::Pi / 3.0f);
 }
 
@@ -40,6 +43,7 @@ void Camera::UpdateCameraCBs()
 	XMStoreFloat4x4(&m_MainPassCB.InvProj, XMMatrixTranspose(invProj));
 	XMStoreFloat4x4(&m_MainPassCB.ViewProj, XMMatrixTranspose(viewProj));
 	XMStoreFloat4x4(&m_MainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+
 	//m_MainPassCB.EyePosW = mEyePos;
 	//m_MainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)mClientHeight);
 	//m_MainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);

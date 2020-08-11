@@ -23,8 +23,8 @@ protected:
 	float m_FieldOfView;
 
 	// Matrix
-	DirectX::XMFLOAT4X4 m_View;
-	DirectX::XMFLOAT4X4 m_Proj;
+	DirectX::XMFLOAT4X4 m_View;// = MathHelper::Identity4x4();
+	DirectX::XMFLOAT4X4 m_Proj;// = MathHelper::Identity4x4();
 
 
 	int m_NumFramesDirty = gNumFrameResources;

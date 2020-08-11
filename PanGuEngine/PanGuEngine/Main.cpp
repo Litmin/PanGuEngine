@@ -19,6 +19,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		application.Initialize(720, 720);
 		engine.Initialize(720, 720, application.GetHwnd());
 
+		// TODO:
+		GraphicContext::GetSingleton().ResetCommandList();
+
+
 		// Setup Scene
 		// Create Camera
 		SceneNode* rootNode = SceneManager::GetSingleton().GetRootNode();
@@ -28,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		cameraNode->Translate(0.0f, 0.0f, -10.0f);
 
 		SceneNode* boxNode = rootNode->CreateChildNode();
-		// Mesh
+		//// Mesh
 		UINT boxVertexCount, boxIndicesCount;
 		vector<XMFLOAT3> boxPositions;
 		vector<XMFLOAT4> boxColors;
@@ -38,16 +42,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 			boxIndicesCount, boxIndices.data());
 		// Shader
-		unique_ptr<StandardShader> standardShader = make_unique<StandardShader>(GraphicContext::GetSingleton().Device());
+		unique_ptr<StandardShader> standardShader = make_unique<StandardShader>();
+		standardShader->Initialize(GraphicContext::GetSingleton().Device());
 		// Material
 		unique_ptr<Material> material = make_unique<Material>(standardShader.get());
 
 		// MeshRenderer
 		MeshRenderer* meshRenderer = new MeshRenderer(boxMesh.get(), material.get());
 		boxNode->AttachObject(meshRenderer);
-
+		// TODO:
+		meshRenderer->SetNode(boxNode);
 
 		GraphicContext::GetSingleton().BuildFrameResource();
+		SceneManager::GetSingleton().BuildConstantBuffer();
+
+		GraphicContext::GetSingleton().ExecuteCommandList();
 		engine.FlushCommandQueue();
 
 		return application.Run();

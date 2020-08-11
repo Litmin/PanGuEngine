@@ -4,9 +4,6 @@
 class StandardShader : public Shader
 {
 public:
-	StandardShader(ID3D12Device* device);
+	StandardShader();
 	virtual ~StandardShader() = default;
-private:
-	void BindShaderFilePath() override;
-	void BindShaderParam() override;
 };

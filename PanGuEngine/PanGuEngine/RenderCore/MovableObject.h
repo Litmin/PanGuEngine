@@ -5,14 +5,14 @@ class SceneNode;
 class MovableObject
 {
 public:
-	MovableObject(){}
-	virtual ~MovableObject(){}
+	MovableObject() = default;
+	virtual ~MovableObject() = default;
 
 	void SetNode(SceneNode* node);
 
 	// TODO:OnAttachedEvent: Update Camera View Matrix
 
 protected:
-	SceneNode* m_Node;
+	SceneNode* m_Node = nullptr;
 };
 

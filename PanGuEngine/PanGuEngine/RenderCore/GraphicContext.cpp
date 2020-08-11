@@ -9,11 +9,13 @@ const int gNumFrameResources = 3;
 GraphicContext::GraphicContext(
 	ID3D12Device* device, 
 	ID3D12GraphicsCommandList* commandList,
+	ID3D12CommandAllocator* commandAllocator,
 	ID3D12CommandQueue* commandQueue,
 	ID3D12Fence* fence,
 	UINT CbvSrvUavDescriptorSize) :
 	m_Device(device),
 	m_CommandList(commandList),
+	m_CommandAllocator(commandAllocator),
 	m_CommandQueue(commandQueue),
 	m_Fence(fence),
 	m_CbvSrvUavDescriptorSize(CbvSrvUavDescriptorSize)
@@ -22,6 +24,18 @@ GraphicContext::GraphicContext(
 
 GraphicContext::~GraphicContext()
 {
+}
+
+void GraphicContext::ResetCommandList()
+{
+	m_CommandList->Reset(m_CommandAllocator, nullptr);
+}
+
+void GraphicContext::ExecuteCommandList()
+{
+	ThrowIfFailed(m_CommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { m_CommandList };
+	m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 }
 
 void GraphicContext::Update()
@@ -215,12 +229,12 @@ void GraphicContext::GenerateInputElementDesc(
 			psoDesc.DSVFormat = rtStateDesc.depthFormat;
 			// Other
 			psoDesc.SampleMask = UINT_MAX;
-			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 			psoDesc.SampleDesc.Count = 1;
 			psoDesc.SampleDesc.Quality = 0;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-			Microsoft::WRL::ComPtr<ID3D12PipelineState> pso = nullptr;
-			ThrowIfFailed(m_Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(pso.GetAddressOf())));
+			Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
+			ThrowIfFailed(m_Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso)));
 			m_PSOs.insert_or_assign(pair<RTStateDesc, RendererStateDesc>(rtStateDesc, rendererStateDesc), pso);
 			return pso.Get();
 		}

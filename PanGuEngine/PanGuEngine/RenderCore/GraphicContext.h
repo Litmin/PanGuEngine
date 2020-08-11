@@ -10,6 +10,7 @@ public:
 	GraphicContext(
 		ID3D12Device* device,
 		ID3D12GraphicsCommandList* commandList,
+		ID3D12CommandAllocator* commandAllocator,
 		ID3D12CommandQueue* commandQueue,
 		ID3D12Fence* fence,
 		UINT CbvSrvUavDescriptorSize);
@@ -18,12 +19,15 @@ public:
 	ID3D12Device* Device() { return m_Device; }
 	ID3D12GraphicsCommandList* CommandList() { return m_CommandList; }
 	UINT GetCbvSrvUavDescriptorSize() { return m_CbvSrvUavDescriptorSize; }
+	void ResetCommandList();
+	void ExecuteCommandList();
 
 	void Update();
 
 private:
 	ID3D12Device* m_Device;
 	ID3D12GraphicsCommandList* m_CommandList;
+	ID3D12CommandAllocator* m_CommandAllocator;
 	ID3D12CommandQueue* m_CommandQueue;
 	ID3D12Fence* m_Fence;
 	UINT m_CbvSrvUavDescriptorSize = 0;

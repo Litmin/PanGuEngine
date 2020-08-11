@@ -43,11 +43,9 @@ struct ShaderParameter
 class Shader
 {
 public:
-	Shader(ID3D12Device* device);
+	Shader();
 	virtual ~Shader();
-
-	virtual void BindShaderFilePath() {}
-	virtual void BindShaderParam();
+	void Initialize(ID3D12Device* device);
 
 	void BindRootSignature(ID3D12GraphicsCommandList* commandList);
 	// 绑定参数，材质通过该接口将保存的参数绑定到管线中

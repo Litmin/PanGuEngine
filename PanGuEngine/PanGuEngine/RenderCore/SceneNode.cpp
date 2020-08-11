@@ -72,11 +72,13 @@ void SceneNode::AttachObject(MovableObject* movableObject)
 	// TODO:Remove dynamic_cast
 	MeshRenderer* meshRenderer = dynamic_cast<MeshRenderer*>(movableObject);
 	if (nullptr != meshRenderer)
-		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
-
-	Camera* camera = static_cast<Camera*>(movableObject);
-	if (camera != nullptr)
 	{
+		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
+	}
 
+	Camera* camera = dynamic_cast<Camera*>(movableObject);
+	if (nullptr != camera)
+	{
+		SceneManager::GetSingleton().AddCamera(camera);
 	}
 }
