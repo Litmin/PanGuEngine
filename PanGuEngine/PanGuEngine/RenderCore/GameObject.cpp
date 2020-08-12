@@ -1,44 +1,44 @@
 #include "pch.h"
-#include "SceneNode.h"
+#include "GameObject.h"
 #include "MeshRenderer.h"
 
 using namespace DirectX;
 using namespace std;
 
-SceneNode::SceneNode(SceneNode* parent) :
+GameObject::GameObject(GameObject* parent) :
 	m_Parent(parent),
 	m_Transform(MathHelper::Identity4x4()),
 	m_CombinedTransform(MathHelper::Identity4x4())
 {
 }
 
-SceneNode::~SceneNode()
+GameObject::~GameObject()
 {
 
 }
 
-SceneNode* SceneNode::CreateChildNode()
+GameObject* GameObject::CreateChild()
 {
-	SceneNode* child = new SceneNode(this);
-	m_Children.push_back(unique_ptr<SceneNode>(child));
+	GameObject* child = new GameObject(this);
+	m_Children.push_back(unique_ptr<GameObject>(child));
 	return child;
 }
 
-void SceneNode::DestroyChildNode()
+void GameObject::DestroyChildren()
 {
 }
 
-const DirectX::XMFLOAT4X4& SceneNode::GetTransform()
+const DirectX::XMFLOAT4X4& GameObject::GetTransform()
 {
 	return m_Transform;
 }
 
-const DirectX::XMFLOAT4X4& SceneNode::GetCombinedTransform()
+const DirectX::XMFLOAT4X4& GameObject::GetCombinedTransform()
 {
 	return m_CombinedTransform;
 }
 
-void SceneNode::UpdateTransform()
+void GameObject::UpdateTransform()
 {
 	if (m_Parent)
 	{
@@ -58,16 +58,16 @@ void SceneNode::UpdateTransform()
 	}
 }
 
-void SceneNode::Translate(float x, float y, float z)
+void GameObject::Translate(float x, float y, float z)
 {
 	XMMATRIX newTransform = XMLoadFloat4x4(&m_Transform) * XMMatrixTranslation(x, y, z);
 	XMStoreFloat4x4(&m_Transform, newTransform);
 }
 
-void SceneNode::AttachObject(MovableObject* movableObject)
+void GameObject::AttachObject(Component* movableObject)
 {
 	//m_Components.push_back((make_unique<MovableObject>(*movableObject)));
-	m_Components.push_back(unique_ptr<MovableObject>(movableObject));
+	m_Components.push_back(unique_ptr<Component>(movableObject));
 	
 	// TODO:Remove dynamic_cast
 	MeshRenderer* meshRenderer = dynamic_cast<MeshRenderer*>(movableObject);

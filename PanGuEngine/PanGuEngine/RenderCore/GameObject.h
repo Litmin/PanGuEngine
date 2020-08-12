@@ -1,17 +1,21 @@
 #pragma once
 #include "SceneManager.h"
-#include "MovableObject.h"
+#include "Component.h"
 
-class SceneNode
+/*----------------------------------------------------------
+	GameObject是场景的组织方式，构成场景图
+------------------------------------------------------------*/
+
+class GameObject
 {
 public:
-	SceneNode(SceneNode* parent);
-	~SceneNode();
+	GameObject(GameObject* parent);
+	~GameObject();
 
 	// 创建子节点
-	SceneNode* CreateChildNode();
+	GameObject* CreateChild();
 	// 删除所有子节点
-	void DestroyChildNode();
+	void DestroyChildren();
 
 	// 自己的Transform
 	const DirectX::XMFLOAT4X4& GetTransform();
@@ -21,15 +25,15 @@ public:
 	void UpdateTransform();
 	void Translate(float x, float y, float z);
 
-	void AttachObject(MovableObject* movableObject);
+	void AttachObject(Component* movableObject);
 
 private:
 	// 场景管理器
 	SceneManager* m_SceneManager;
 	// 父节点
-	SceneNode* m_Parent;
+	GameObject* m_Parent;
 	// 子节点
-	std::vector<std::unique_ptr<SceneNode>> m_Children;
+	std::vector<std::unique_ptr<GameObject>> m_Children;
 
 	// TODO:
 	// Position
@@ -46,6 +50,6 @@ private:
 	UINT m_ObjCBIndex = -1;
 
 	// Components
-	std::vector<std::unique_ptr<MovableObject>> m_Components;
+	std::vector<std::unique_ptr<Component>> m_Components;
 };
 

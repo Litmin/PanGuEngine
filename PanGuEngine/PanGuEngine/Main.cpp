@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "WindowsApplication.h"
-#include "RenderCore/SceneNode.h"
+#include "RenderCore/GameObject.h"
 #include "RenderCore/GeometryFactory.h"
 #include "RenderCore/Mesh.h"
 #include "RenderCore/StandardShader.h"
@@ -25,13 +25,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 		// Setup Scene
 		// Create Camera
-		SceneNode* rootNode = SceneManager::GetSingleton().GetRootNode();
-		SceneNode* cameraNode = rootNode->CreateChildNode();
+		GameObject* rootNode = SceneManager::GetSingleton().GetRootNode();
+		GameObject* cameraNode = rootNode->CreateChild();
 		Camera* camera = new Camera();
 		cameraNode->AttachObject(camera);
 		cameraNode->Translate(0.0f, 0.0f, -10.0f);
 
-		SceneNode* boxNode = rootNode->CreateChildNode();
+		GameObject* boxNode = rootNode->CreateChild();
 		//// Mesh
 		UINT boxVertexCount, boxIndicesCount;
 		vector<XMFLOAT3> boxPositions;
@@ -51,7 +51,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		MeshRenderer* meshRenderer = new MeshRenderer(boxMesh.get(), material.get());
 		boxNode->AttachObject(meshRenderer);
 		// TODO:
-		meshRenderer->SetNode(boxNode);
+		meshRenderer->SetGameObject(boxNode);
 
 		GraphicContext::GetSingleton().BuildFrameResource();
 		SceneManager::GetSingleton().BuildConstantBuffer();

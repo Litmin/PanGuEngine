@@ -50,12 +50,6 @@
     <ClCompile Include="RenderCore\MeshRenderer.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
-    <ClCompile Include="RenderCore\SceneNode.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\MovableObject.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="RenderCore\Renderer.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
@@ -88,6 +82,12 @@
     </ClCompile>
     <ClCompile Include="Utility\MathHelper.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\GameObject.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCore\Component.cpp">
+      <Filter>RenderCore</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -141,12 +141,6 @@
     <ClInclude Include="Utility\Singleton.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\SceneNode.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\MovableObject.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="RenderCore\Renderer.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
@@ -175,6 +169,12 @@
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="RenderCore\GeometryFactory.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\GameObject.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCore\Component.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
   </ItemGroup>

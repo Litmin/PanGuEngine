@@ -5,21 +5,21 @@
 #include "RenderQueue.h"
 #include "RendererStateDesc.h"
 
-class SceneNode;
+class GameObject;
 class SceneManager : public Singleton<SceneManager>
 {
 public:
 	SceneManager();
 	~SceneManager();
 
-	SceneNode* GetRootNode() { return m_RootNode.get(); }
+	GameObject* GetRootNode() { return m_Root.get(); }
 
 	// 创建SceneNode，默认的父节点是RootNode
-	SceneNode* CreateSceneNode();
-	SceneNode* CreateSceneNode(SceneNode* parent);
-	void DestroySceneNode(SceneNode* sceneNode);
+	GameObject* CreateGameObject();
+	GameObject* CreateGameObject(GameObject* parent);
+	void DestroyGameObject(GameObject* gameObject);
 	// 更新所有的节点的Transform
-	void UpdateSceneNodeTransform();
+	void UpdateTransform();
 	void BuildConstantBuffer();
 	// 更新每个Renderer的Constant Buffer
 	void UpdateRendererCBs();
@@ -31,7 +31,7 @@ public:
 	void AddCamera(Camera* camera);
 	void Render();
 private:
-	std::unique_ptr<SceneNode> m_RootNode;
+	std::unique_ptr<GameObject> m_Root;
 
 	Camera* m_Camera;
 	RTStateDesc m_RTState;

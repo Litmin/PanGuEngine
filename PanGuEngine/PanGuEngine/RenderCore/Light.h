@@ -1,7 +1,7 @@
 #pragma once
-#include "MovableObject.h"
+#include "Component.h"
 
-class Light : public MovableObject
+class Light : public Component
 {
 public:
 

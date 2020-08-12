@@ -1,9 +1,9 @@
 #pragma once
-#include "MovableObject.h"
+#include "Component.h"
 #include "FrameResource.h"
 
 extern const int gNumFrameResources;
-class Camera : public MovableObject
+class Camera : public Component
 {
 public:
 	Camera();

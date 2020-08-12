@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "SceneManager.h"
-#include "SceneNode.h"
+#include "GameObject.h"
 #include "GraphicContext.h"
 
 using namespace std;
@@ -10,7 +10,7 @@ extern const int gNumFrameResources;
 SceneManager::SceneManager()
 {
 	// 创建场景根节点
-	m_RootNode = make_unique<SceneNode>(nullptr);
+	m_Root = make_unique<GameObject>(nullptr);
 
 	m_RTState.depthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	m_RTState.rtCount = 1;
@@ -22,25 +22,25 @@ SceneManager::~SceneManager()
 
 }
 
-SceneNode* SceneManager::CreateSceneNode()
+GameObject* SceneManager::CreateGameObject()
 {
-	return CreateSceneNode(m_RootNode.get());
+	return CreateGameObject(m_Root.get());
 }
 
-SceneNode* SceneManager::CreateSceneNode(SceneNode* parent)
+GameObject* SceneManager::CreateGameObject(GameObject* parent)
 {
-	return parent->CreateChildNode();
+	return parent->CreateChild();
 }
 
 
-void SceneManager::DestroySceneNode(SceneNode* sceneNode)
+void SceneManager::DestroyGameObject(GameObject* gameObject)
 {
 
 }
 
-void SceneManager::UpdateSceneNodeTransform()
+void SceneManager::UpdateTransform()
 {
-	m_RootNode->UpdateTransform();
+	m_Root->UpdateTransform();
 }
 
 void SceneManager::BuildConstantBuffer()

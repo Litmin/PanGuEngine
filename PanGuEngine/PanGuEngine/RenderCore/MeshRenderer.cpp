@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "MeshRenderer.h"
 #include "GraphicContext.h"
-#include "SceneNode.h"
+#include "GameObject.h"
 
 using namespace std;
 using namespace DirectX;
@@ -25,7 +25,7 @@ void MeshRenderer::UpdateRendererCBs()
 	// This needs to be tracked per frame resource.
 	if (m_NumFramesDirty > 0)
 	{
-		XMMATRIX world = XMLoadFloat4x4(&m_Node->GetCombinedTransform());
+		XMMATRIX world = XMLoadFloat4x4(&m_GameObject->GetCombinedTransform());
 
 		ObjectConstants objConstants;
 		XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));

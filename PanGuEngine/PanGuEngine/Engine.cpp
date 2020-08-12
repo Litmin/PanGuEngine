@@ -49,7 +49,7 @@ void Engine::Update()
     // CPU、GPU同步
     m_GraphicContext->Update();
     // 更新Constant Buffer
-    m_SceneManager->UpdateSceneNodeTransform();
+    m_SceneManager->UpdateTransform();
     m_SceneManager->UpdateRendererCBs();
     m_SceneManager->UpdateMainPassBuffer();
 }
