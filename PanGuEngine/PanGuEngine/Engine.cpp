@@ -5,9 +5,16 @@ using namespace std;
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
+Engine* Engine::m_Engine = nullptr;
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    return Engine::Get()->MsgProc(hWnd, message, wParam, lParam);
+}
+
 Engine::Engine()
 {
-
+    assert(m_Engine == nullptr);
+    m_Engine = this;
 }
 
 Engine::~Engine()
@@ -16,15 +23,16 @@ Engine::~Engine()
         FlushCommandQueue();
 }
 
-void Engine::Initialize(UINT width, UINT height, HWND hwnd)
+void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 {
     m_Width = width;
     m_Height = height;
-    m_MainWnd = hwnd;
+    m_AppInst = hInstance;
     m_Aspect = static_cast<float>(width) / static_cast<float>(height);
     m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
     m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
-	InitialDirect3D(hwnd);
+    InitialMainWindow();
+	InitialDirect3D();
 
     OnResize();
     
@@ -36,6 +44,26 @@ void Engine::Initialize(UINT width, UINT height, HWND hwnd)
     m_GraphicContext = make_unique<GraphicContext>(m_Device.Get(), m_CommandList.Get(), m_CommandAllocator.Get(), m_CommandQueue.Get(), m_Fence.Get(), m_CbvSrvUavDescriptorSize);
 
     m_Initialized = true;
+}
+
+int Engine::Run()
+{
+    MSG msg = {};
+    while (msg.message != WM_QUIT)
+    {
+        // Process any messages in the queue.
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        Tick();
+    }
+
+    Destroy();
+
+    return (int)msg.wParam;
 }
 
 void Engine::Tick()
@@ -104,6 +132,140 @@ void Engine::Render()
     m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
 }
 
+LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (m_Initialized)
+    {
+        switch (msg)
+        {
+            // WM_ACTIVATE is sent when the window is activated or deactivated.  
+            // We pause the game when the window is deactivated and unpause it 
+            // when it becomes active.  
+        case WM_ACTIVATE:
+            if (LOWORD(wParam) == WA_INACTIVE)
+            {
+                // Pause
+                Pause();
+            }
+            else
+            {
+                // Resume
+                Resume();
+            }
+            return 0;
+
+            // WM_SIZE is sent when the user resizes the window.  
+        case WM_SIZE:
+            // Save the new client area dimensions.
+            SetScreenSize(LOWORD(lParam), HIWORD(lParam));
+            if (wParam == SIZE_MINIMIZED)
+            {
+                Pause();
+                m_minimized = true;
+                m_maximized = false;
+            }
+            else if (wParam == SIZE_MAXIMIZED)
+            {
+                Resume();
+                m_minimized = false;
+                m_maximized = true;
+                OnResize();
+            }
+            else if (wParam == SIZE_RESTORED)
+            {
+
+                // Restoring from minimized state?
+                if (m_minimized)
+                {
+                    Resume();
+                    m_minimized = false;
+                    OnResize();
+                }
+
+                // Restoring from maximized state?
+                else if (m_maximized)
+                {
+                    Resume();
+                    m_maximized = false;
+                    OnResize();
+                }
+                else if (m_resizing)
+                {
+                    // If user is dragging the resize bars, we do not resize 
+                    // the buffers here because as the user continuously 
+                    // drags the resize bars, a stream of WM_SIZE messages are
+                    // sent to the window, and it would be pointless (and slow)
+                    // to resize for each WM_SIZE message received from dragging
+                    // the resize bars.  So instead, we reset after the user is 
+                    // done resizing the window and releases the resize bars, which 
+                    // sends a WM_EXITSIZEMOVE message.
+                }
+                else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
+                {
+                    OnResize();
+                }
+            }
+            return 0;
+
+            // WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
+        case WM_ENTERSIZEMOVE:
+            Pause();
+            m_resizing = true;
+            return 0;
+
+            // WM_EXITSIZEMOVE is sent when the user releases the resize bars.
+            // Here we reset everything based on the new window dimensions.
+        case WM_EXITSIZEMOVE:
+            Resume();
+            m_resizing = false;
+            OnResize();
+            return 0;
+
+            // WM_DESTROY is sent when the window is being destroyed.
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            return 0;
+
+            // The WM_MENUCHAR message is sent when a menu is active and the user presses 
+            // a key that does not correspond to any mnemonic or accelerator key. 
+        case WM_MENUCHAR:
+            // Don't beep when we alt-enter.
+            return MAKELRESULT(0, MNC_CLOSE);
+
+            // Catch this message so to prevent the window from becoming too small.
+        case WM_GETMINMAXINFO:
+            ((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
+            ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
+            return 0;
+
+            /*case WM_LBUTTONDOWN:
+            case WM_MBUTTONDOWN:
+            case WM_RBUTTONDOWN:
+                OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                return 0;
+            case WM_LBUTTONUP:
+            case WM_MBUTTONUP:
+            case WM_RBUTTONUP:
+                OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                return 0;
+            case WM_MOUSEMOVE:
+                OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                return 0;
+            case WM_KEYUP:
+                if (wParam == VK_ESCAPE)
+                {
+                    PostQuitMessage(0);
+                }
+                else if ((int)wParam == VK_F2)
+                    Set4xMsaaState(!m4xMsaaState);
+
+                return 0;*/
+        }
+    }
+    
+    return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
 void Engine::Destroy()
 {
 
@@ -118,7 +280,7 @@ void Engine::Resume()
 }
 
 
-void Engine::InitialDirect3D(HWND hwnd)
+void Engine::InitialDirect3D()
 {
     // 开启调试
 #if defined(DEBUG) || defined(_DEBUG) 
@@ -142,6 +304,78 @@ void Engine::InitialDirect3D(HWND hwnd)
     CreateCommandObjects();
     CreateSwapChain();
     CreateRtvAndDsvDescriptorHeaps();
+}
+
+void Engine::InitialMainWindow()
+{
+    //// 命令行参数
+    //int argc;
+    //LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    //LocalFree(argv);
+
+    //// 创建Windows窗口
+    //WNDCLASSEX windowsClass = { 0 };
+    //windowsClass.cbSize = sizeof(WNDCLASSEX);
+    //windowsClass.style = CS_HREDRAW | CS_VREDRAW;
+    //windowsClass.lpfnWndProc = WindowProc;
+    //windowsClass.hInstance = m_AppInst;
+    //windowsClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    //windowsClass.lpszClassName = L"PanGu";
+
+    //RegisterClassEx(&windowsClass);
+
+    //RECT windowRect = { 0, 0, static_cast<LONG>(m_Width), static_cast<LONG>(m_Height) };
+    //AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+
+    //m_MainWnd = CreateWindow(
+    //    windowsClass.lpszClassName,
+    //    L"PanGu",
+    //    WS_OVERLAPPEDWINDOW,
+    //    CW_USEDEFAULT,
+    //    CW_USEDEFAULT,
+    //    windowRect.right - windowRect.left,
+    //    windowRect.bottom - windowRect.top,
+    //    nullptr,        // We have no parent window.
+    //    nullptr,        // We aren't using menus.
+    //    m_AppInst,
+    //    nullptr);
+
+    //ShowWindow(m_MainWnd, SW_SHOW);
+
+
+
+    WNDCLASS wc;
+    wc.style = CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc = WindowProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = m_AppInst;
+    wc.hIcon = LoadIcon(0, IDI_APPLICATION);
+    wc.hCursor = LoadCursor(0, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
+    wc.lpszMenuName = 0;
+    wc.lpszClassName = L"MainWnd";
+
+    if (!RegisterClass(&wc))
+    {
+        MessageBox(0, L"RegisterClass Failed.", 0, 0);
+    }
+
+    // Compute window rectangle dimensions based on requested client area dimensions.
+    RECT R = { 0, 0, m_Width, m_Height };
+    AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
+    int width = R.right - R.left;
+    int height = R.bottom - R.top;
+
+    m_MainWnd = CreateWindow(L"MainWnd", L"PanGu",
+        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, m_AppInst, 0);
+    if (!m_MainWnd)
+    {
+        MessageBox(0, L"CreateWindow Failed.", 0, 0);
+    }
+
+    ShowWindow(m_MainWnd, SW_SHOW);
+    UpdateWindow(m_MainWnd);
 }
 
 void Engine::CreateCommandObjects()

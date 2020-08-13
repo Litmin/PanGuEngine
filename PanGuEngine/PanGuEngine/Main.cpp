@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "WindowsApplication.h"
+#include "Engine.h"
 #include "RenderCore/GameObject.h"
 #include "RenderCore/GeometryFactory.h"
 #include "RenderCore/Mesh.h"
@@ -12,12 +12,10 @@ _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
 	Engine engine;
-	WindowsApplication application(hInstance, &engine);
 
 	try
 	{
-		application.Initialize(720, 720);
-		engine.Initialize(720, 720, application.GetHwnd());
+		engine.Initialize(720, 720, hInstance);
 
 		// TODO:
 		GraphicContext::GetSingleton().ResetCommandList();
@@ -59,7 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		GraphicContext::GetSingleton().ExecuteCommandList();
 		engine.FlushCommandQueue();
 
-		return application.Run();
+		return engine.Run();
 		// TODO: Clean
 	}
 	catch (DxException& e)
