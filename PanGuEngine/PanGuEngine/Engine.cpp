@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Engine.h"
+#include "Input.h"
 
 using namespace std;
 using Microsoft::WRL::ComPtr;
@@ -238,28 +239,47 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
             return 0;
 
-            /*case WM_LBUTTONDOWN:
-            case WM_MBUTTONDOWN:
-            case WM_RBUTTONDOWN:
-                OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                return 0;
-            case WM_LBUTTONUP:
-            case WM_MBUTTONUP:
-            case WM_RBUTTONUP:
-                OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                return 0;
-            case WM_MOUSEMOVE:
-                OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                return 0;
-            case WM_KEYUP:
-                if (wParam == VK_ESCAPE)
-                {
-                    PostQuitMessage(0);
-                }
-                else if ((int)wParam == VK_F2)
-                    Set4xMsaaState(!m4xMsaaState);
 
-                return 0;*/
+        case WM_LBUTTONDOWN:
+            Input::m_KeyStates[(int)KeyCode::Mouse0] = KeyState::KeyDown;
+            return 0;
+
+        case WM_MBUTTONDOWN:
+            Input::m_KeyStates[(int)KeyCode::Mouse1] = KeyState::KeyDown;
+            return 0;
+
+        case WM_RBUTTONDOWN:
+            Input::m_KeyStates[(int)KeyCode::Mouse2] = KeyState::KeyDown;
+            return 0;
+
+        case WM_LBUTTONUP:
+            Input::m_KeyStates[(int)KeyCode::Mouse0] = KeyState::KeyUp;
+            return 0;
+
+        case WM_MBUTTONUP:
+            Input::m_KeyStates[(int)KeyCode::Mouse1] = KeyState::KeyUp;
+            return 0;
+
+        case WM_RBUTTONUP:
+            Input::m_KeyStates[(int)KeyCode::Mouse2] = KeyState::KeyUp;
+            return 0;
+
+        case WM_MOUSEMOVE:
+            // TODO: On Mouse Move
+            //OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+
+        case WM_KEYDOWN:
+            Input::OnKeyDown(wParam);
+            return 0;
+
+        case WM_KEYUP:
+            if (wParam == VK_ESCAPE)
+            {
+                PostQuitMessage(0);
+            }
+            Input::OnKeyUp(wParam);
+            return 0;
         }
     }
     
