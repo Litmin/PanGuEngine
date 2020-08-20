@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Engine.h"
 #include "Input.h"
+#include <WindowsX.h>
 
 using namespace std;
 using Microsoft::WRL::ComPtr;
@@ -265,8 +266,7 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_MOUSEMOVE:
-            // TODO: On Mouse Move
-            //OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            Input::OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             return 0;
 
         case WM_KEYDOWN:
@@ -328,42 +328,6 @@ void Engine::InitialDirect3D()
 
 void Engine::InitialMainWindow()
 {
-    //// 命令行参数
-    //int argc;
-    //LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-    //LocalFree(argv);
-
-    //// 创建Windows窗口
-    //WNDCLASSEX windowsClass = { 0 };
-    //windowsClass.cbSize = sizeof(WNDCLASSEX);
-    //windowsClass.style = CS_HREDRAW | CS_VREDRAW;
-    //windowsClass.lpfnWndProc = WindowProc;
-    //windowsClass.hInstance = m_AppInst;
-    //windowsClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    //windowsClass.lpszClassName = L"PanGu";
-
-    //RegisterClassEx(&windowsClass);
-
-    //RECT windowRect = { 0, 0, static_cast<LONG>(m_Width), static_cast<LONG>(m_Height) };
-    //AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
-
-    //m_MainWnd = CreateWindow(
-    //    windowsClass.lpszClassName,
-    //    L"PanGu",
-    //    WS_OVERLAPPEDWINDOW,
-    //    CW_USEDEFAULT,
-    //    CW_USEDEFAULT,
-    //    windowRect.right - windowRect.left,
-    //    windowRect.bottom - windowRect.top,
-    //    nullptr,        // We have no parent window.
-    //    nullptr,        // We aren't using menus.
-    //    m_AppInst,
-    //    nullptr);
-
-    //ShowWindow(m_MainWnd, SW_SHOW);
-
-
-
     WNDCLASS wc;
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WindowProc;

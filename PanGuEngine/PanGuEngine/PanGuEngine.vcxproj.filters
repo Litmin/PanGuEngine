@@ -89,6 +89,9 @@
       <Filter>RenderCore</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="RenderCore\Transform.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -177,6 +180,9 @@
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="Input.h" />
+    <ClInclude Include="RenderCore\Transform.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PanGuEngine.rc" />

@@ -73,11 +73,14 @@ public:
 	static bool GetKey(KeyCode keyCode);
 	static bool GetKeyUp(KeyCode keyCode);
 	static bool GetKeyDown(KeyCode keyCode);
+	static DirectX::XMINT2 GetMousePosition();
 
 private:
 	static void OnKeyUp(int key);
 	static void OnKeyDown(int key);
+	static void OnMouseMove(int x, int y);
 
 private:
 	static std::array<KeyState, (size_t)KeyCode::COUNT> m_KeyStates;
+	static DirectX::XMINT2 m_MousePosition;
 };

@@ -179,6 +179,7 @@
     <ClCompile Include="RenderCore\ShaderManager.cpp" />
     <ClCompile Include="RenderCore\StandardShader.cpp" />
     <ClCompile Include="RenderCore\Texture.cpp" />
+    <ClCompile Include="RenderCore\Transform.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="RenderCore\ShaderManager.h" />
     <ClInclude Include="RenderCore\StandardShader.h" />
     <ClInclude Include="RenderCore\Texture.h" />
+    <ClInclude Include="RenderCore\Transform.h" />
     <ClInclude Include="RenderCore\UploadBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resource\ResourceManager.h" />

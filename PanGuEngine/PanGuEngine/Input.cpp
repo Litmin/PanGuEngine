@@ -2,8 +2,10 @@
 #include "Input.h"
 
 using namespace std;
+using namespace DirectX;
 
 std::array<KeyState, (size_t)KeyCode::COUNT> Input::m_KeyStates = {};
+XMINT2 Input::m_MousePosition = XMINT2(0, 0);
 
 void Input::Update()
 {
@@ -34,6 +36,11 @@ bool Input::GetKeyUp(KeyCode keyCode)
 bool Input::GetKeyDown(KeyCode keyCode)
 {
 	return ((int)m_KeyStates[(int)keyCode] & (int)KeyState::KeyDown) != 0;
+}
+
+XMINT2 Input::GetMousePosition()
+{
+	return m_MousePosition;
 }
 
 void Input::OnKeyUp(int key)
@@ -118,4 +125,9 @@ void Input::OnKeyDown(int key)
 		m_KeyStates[(int)KeyCode::D] = KeyState::KeyDown;
 		break;
 	}
+}
+
+void Input::OnMouseMove(int x, int y)
+{
+	m_MousePosition = XMINT2(x, y);
 }
