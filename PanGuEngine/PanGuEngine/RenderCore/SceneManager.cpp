@@ -38,11 +38,6 @@ void SceneManager::DestroyGameObject(GameObject* gameObject)
 
 }
 
-void SceneManager::UpdateTransform()
-{
-	m_Root->UpdateTransform();
-}
-
 void SceneManager::BuildConstantBuffer()
 {
 	UINT objCount = GetRendererCount();

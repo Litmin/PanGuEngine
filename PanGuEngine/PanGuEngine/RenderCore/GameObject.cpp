@@ -2,13 +2,12 @@
 #include "GameObject.h"
 #include "MeshRenderer.h"
 
-using namespace DirectX;
 using namespace std;
+using namespace DirectX;
+using namespace Math;
 
 GameObject::GameObject(GameObject* parent) :
-	m_Parent(parent),
-	m_Transform(MathHelper::Identity4x4()),
-	m_CombinedTransform(MathHelper::Identity4x4())
+	m_Parent(parent)
 {
 }
 
@@ -28,45 +27,8 @@ void GameObject::DestroyChildren()
 {
 }
 
-const DirectX::XMFLOAT4X4& GameObject::GetTransform()
-{
-	return m_Transform;
-}
-
-const DirectX::XMFLOAT4X4& GameObject::GetCombinedTransform()
-{
-	return m_CombinedTransform;
-}
-
-void GameObject::UpdateTransform()
-{
-	if (m_Parent)
-	{
-		XMMATRIX parentCombinedMatrix = XMLoadFloat4x4(&m_Parent->GetCombinedTransform());
-		XMMATRIX selfMatrix = XMLoadFloat4x4(&m_Transform);
-
-		XMStoreFloat4x4(&m_CombinedTransform, XMMatrixMultiply(parentCombinedMatrix, selfMatrix));
-	}
-	else
-	{
-		m_CombinedTransform = m_Transform;
-	}
-
-	for (auto& child : m_Children)
-	{
-		child->UpdateTransform();
-	}
-}
-
-void GameObject::Translate(float x, float y, float z)
-{
-	XMMATRIX newTransform = XMLoadFloat4x4(&m_Transform) * XMMatrixTranslation(x, y, z);
-	XMStoreFloat4x4(&m_Transform, newTransform);
-}
-
 void GameObject::AttachObject(Component* movableObject)
 {
-	//m_Components.push_back((make_unique<MovableObject>(*movableObject)));
 	m_Components.push_back(unique_ptr<Component>(movableObject));
 	
 	// TODO:Remove dynamic_cast
@@ -81,4 +43,65 @@ void GameObject::AttachObject(Component* movableObject)
 	{
 		SceneManager::GetSingleton().AddCamera(camera);
 	}
+}
+
+void GameObject::Translate(float x, float y, float z, Space relativeTo)
+{
+	if (relativeTo == Space::Self)
+	{
+
+	}
+	else if(relativeTo == Space::World)
+	{
+		m_Position 
+	}
+}
+
+void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relativeTo)
+{
+	if (relativeTo == Space::Self)
+	{
+
+	}
+	else if (relativeTo == Space::World)
+	{
+
+	}
+}
+
+DirectX::XMFLOAT4X4 GameObject::LocalToWorldMatrix()
+{
+	if (m_TransformDirty)
+		_UpdateFromParent();
+
+	return m_LocalToWorldMatrix;
+}
+
+void GameObject::_UpdateFromParent()
+{
+	Vector3 parentScale(1.0f, 1.0f, 1.0f);
+	Quaternion parentRotation;
+	Vector3 parentPosition(0.0f, 0.0f, 0.0f);
+	
+	if (m_Parent)
+	{
+		m_Parent->_UpdateFromParent();
+		parentScale = m_Parent->m_DerivedScale;
+		parentRotation = m_Parent->m_DerivedRotation;
+		parentPosition = m_Parent->m_DerivedPosition;
+	}
+
+	m_DerivedScale = parentScale * m_Scale;
+	m_DerivedRotation = parentRotation * m_Rotation;
+	// 子节点的Position跟父节点的Scale、Rotation有关
+	m_DerivedPosition = parentRotation * (parentScale * m_Position);
+	m_DerivedPosition += parentPosition;
+
+	// 计算矩阵 TODO:优化，去掉三个矩阵的乘法，只需要从四元数构造一个矩阵
+	XMMATRIX scale = XMMatrixScalingFromVector(m_DerivedScale);
+	XMMATRIX rotate = XMMatrixRotationQuaternion(m_DerivedRotation);
+	XMMATRIX translation = XMMatrixTranslationFromVector(m_DerivedPosition);
+
+	XMMATRIX localToWorldMatrix = scale * rotate * translation;
+	XMStoreFloat4x4(&m_LocalToWorldMatrix, localToWorldMatrix);
 }

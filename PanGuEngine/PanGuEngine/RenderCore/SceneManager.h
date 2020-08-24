@@ -18,8 +18,6 @@ public:
 	GameObject* CreateGameObject();
 	GameObject* CreateGameObject(GameObject* parent);
 	void DestroyGameObject(GameObject* gameObject);
-	// 更新所有的节点的Transform
-	void UpdateTransform();
 	void BuildConstantBuffer();
 	// 更新每个Renderer的Constant Buffer
 	void UpdateRendererCBs();

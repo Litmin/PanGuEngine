@@ -1,12 +1,20 @@
 #pragma once
 #include "SceneManager.h"
 #include "Component.h"
+#include "Math/Vector.h"
+#include "Math/Quaternion.h"
 
 /*
 ------------------------------------------------------------
 	GameObject是场景的组织方式，构成场景图
 ------------------------------------------------------------
 */
+
+enum class Space
+{
+	World,
+	Self
+};
 
 class GameObject
 {
@@ -19,15 +27,25 @@ public:
 	// 删除所有子节点
 	void DestroyChildren();
 
-	// 自己的Transform
-	const DirectX::XMFLOAT4X4& GetTransform();
-	// 自己和所有父节点的Transform的组合
-	const DirectX::XMFLOAT4X4& GetCombinedTransform();
-	// 更新自己和所有子节点的Transform
-	void UpdateTransform();
-	void Translate(float x, float y, float z);
-
 	void AttachObject(Component* movableObject);
+
+	void Translate(float x, float y, float z, Space relativeTo = Space::Self);
+	void Translate(DirectX::XMFLOAT3 translation, Space relativeTo = Space::Self);
+	void Rotate(DirectX::XMFLOAT3 eulers, Space relativeTo = Space::Self);
+	void Rotate(float xAngle, float yAngle, float zAngle, Space relativeTo = Space::Self);
+	void Rotate(DirectX::XMFLOAT3 axis, float angle, Space relativeTo = Space::Self);
+
+	Math::Vector3 LocalPosition() const { return m_Position; }
+	Math::Vector3 WorldPosition() const { return m_DerivedPosition; }
+	Math::Quaternion LocalRotation() const { return m_Rotation; }
+	Math::Quaternion WorldRotation() const { return m_DerivedRotation; }
+	Math::Vector3 LocalScale() const { return m_Scale; }
+	Math::Vector3 WorldScale() const { return m_DerivedScale; }
+
+	DirectX::XMFLOAT4X4 LocalToWorldMatrix();
+
+private:
+	void _UpdateFromParent();
 
 private:
 	// 场景管理器
@@ -37,17 +55,18 @@ private:
 	// 子节点
 	std::vector<std::unique_ptr<GameObject>> m_Children;
 
-	// TODO:
-	// Position
-	// Rotation
-	// Scale
-	// Right
-	// Up
-	// Forward
-	// 模型空间到世界空间的变换矩阵
-	DirectX::XMFLOAT4X4 m_Transform;
-	// 自己和所有父节点的Transform的组合
-	DirectX::XMFLOAT4X4 m_CombinedTransform;
+	// Transform
+	Math::Vector3 m_Position;
+	Math::Quaternion m_Rotation;
+	Math::Vector3 m_Scale;
+	Math::Vector3 m_DerivedPosition;
+	Math::Quaternion m_DerivedRotation;
+	Math::Vector3 m_DerivedScale;
+	
+	DirectX::XMFLOAT4X4 m_LocalToWorldMatrix;
+	DirectX::XMFLOAT4X4 m_WorldToLocalMatrix;
+
+	bool m_TransformDirty = true;
 	// 每个物体的Constant Buffer索引
 	UINT m_ObjCBIndex = -1;
 

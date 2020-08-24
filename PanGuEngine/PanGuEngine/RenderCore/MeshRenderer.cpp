@@ -25,7 +25,7 @@ void MeshRenderer::UpdateRendererCBs()
 	// This needs to be tracked per frame resource.
 	if (m_NumFramesDirty > 0)
 	{
-		XMMATRIX world = XMLoadFloat4x4(&m_GameObject->GetCombinedTransform());
+		XMMATRIX world = XMLoadFloat4x4(&m_GameObject->LocalToWorldMatrix());
 
 		ObjectConstants objConstants;
 		XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
