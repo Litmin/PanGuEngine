@@ -56,9 +56,9 @@ private:
 	std::vector<std::unique_ptr<GameObject>> m_Children;
 
 	// Transform
-	Math::Vector3 m_Position;
+	Math::Vector3 m_Position = { 0.0f,0.0f,0.0f };
 	Math::Quaternion m_Rotation;
-	Math::Vector3 m_Scale;
+	Math::Vector3 m_Scale = { 1.0f,1.0f,1.0f };
 	Math::Vector3 m_DerivedPosition;
 	Math::Quaternion m_DerivedRotation;
 	Math::Vector3 m_DerivedScale;

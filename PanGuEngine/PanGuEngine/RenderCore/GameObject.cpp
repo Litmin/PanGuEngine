@@ -49,11 +49,18 @@ void GameObject::Translate(float x, float y, float z, Space relativeTo)
 {
 	if (relativeTo == Space::Self)
 	{
-
+		m_Position += (m_Rotation * Vector3(x, y, z));
 	}
 	else if(relativeTo == Space::World)
 	{
-		m_Position 
+		if (m_Parent)
+		{
+			m_Position += (~m_Parent->m_DerivedRotation * Vector3(x, y, z)) / m_Parent->m_DerivedScale;
+		}
+		else
+		{
+			m_Position += Vector3(x, y, z);
+		}
 	}
 }
 
@@ -61,11 +68,11 @@ void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relative
 {
 	if (relativeTo == Space::Self)
 	{
-
+		m_Rotation = m_Rotation * Quaternion(xAngle, yAngle, zAngle);
 	}
 	else if (relativeTo == Space::World)
 	{
-
+		m_Rotation = m_Rotation * ~m_DerivedRotation * Quaternion(xAngle, yAngle, zAngle) * m_DerivedRotation;
 	}
 }
 

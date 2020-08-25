@@ -30,6 +30,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		cameraNode->Translate(0.0f, 0.0f, -10.0f);
 
 		GameObject* boxNode = rootNode->CreateChild();
+
+		rootNode->Rotate(20.0f, 0.0f, 0.0f);
+		boxNode->Translate(0.0f, 1.0f, 0.0f, Space::World);
+		//boxNode->Rotate(0.0f, 0.0f, 20.0f);
+
 		//// Mesh
 		UINT boxVertexCount, boxIndicesCount;
 		vector<XMFLOAT3> boxPositions;
