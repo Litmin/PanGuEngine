@@ -9,6 +9,7 @@ public:
 	virtual ~Component() = default;
 
 	void SetGameObject(GameObject* gameObject);
+	GameObject* GetGameObject() { return m_GameObject; }
 
 	// TODO:OnAttachedEvent: Update Camera View Matrix
 

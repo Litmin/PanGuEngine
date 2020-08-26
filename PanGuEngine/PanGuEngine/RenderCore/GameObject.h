@@ -3,7 +3,6 @@
 #include "Component.h"
 #include "Math/Vector.h"
 #include "Math/Quaternion.h"
-
 /*
 ------------------------------------------------------------
 	GameObject是场景的组织方式，构成场景图
@@ -28,6 +27,8 @@ public:
 	void DestroyChildren();
 
 	void AttachObject(Component* movableObject);
+	template<typename T> T* AddComponent();
+	template<typename T> T* GetComponent();
 
 	void Translate(float x, float y, float z, Space relativeTo = Space::Self);
 	void Translate(DirectX::XMFLOAT3 translation, Space relativeTo = Space::Self);
@@ -74,3 +75,36 @@ private:
 	std::vector<std::unique_ptr<Component>> m_Components;
 };
 
+template<typename T>
+inline T* GameObject::AddComponent()
+{
+	static_assert(std::is_base_of<Component, T>::value,
+		"T must be classes derived from Component..");
+
+	T* component = GetComponent<T>();
+
+	if (component != nullptr)
+	{
+		std::cout << "Warning: Already have Component" << std::endl;
+		return component;
+	}
+
+	component = new T();
+	component->SetGameObject(this);
+	m_Components.push_back(std::unique_ptr<T>(component));
+	return component;
+}
+
+template<typename T>
+inline T* GameObject::GetComponent()
+{
+	for (int i = 0; i < m_Components.size(); ++i)
+	{
+		Component* baseComponent = m_Components[i].get();
+		T* concreteComponent = dynamic_cast<T*>(component);
+		if (concreteComponent != nullptr)
+			return concreteComponent;
+	}
+
+	return nullptr;
+}

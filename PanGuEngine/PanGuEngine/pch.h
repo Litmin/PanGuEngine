@@ -45,5 +45,6 @@
 #include <wrl.h>
 #include <shellapi.h>
 #include <cassert>
+#include <iostream>
 
 #endif //PCH_H

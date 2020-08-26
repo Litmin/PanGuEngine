@@ -25,7 +25,7 @@ public:
 
 private:
 	void Tick();
-	void Update();
+	void Update(float deltaTime);
 	void Render();
 	void Destroy();
 
@@ -33,6 +33,7 @@ private:
 	void Resume();
 	void OnResize();
 	void SetScreenSize(UINT width, UINT height);
+	void CalculateFrameStats();
 
 public:
 	ID3D12Resource* CurrentBackBuffer() const;
@@ -53,6 +54,7 @@ private:
 	static const int SwapChainBufferCount = 2;
 
 	bool m_Initialized = false;
+	wstring m_Title;
 
 	//<--------------------------------Windows------------------------------------------>
 	HINSTANCE m_AppInst;
@@ -60,6 +62,7 @@ private:
 	//<--------------------------------Windows------------------------------------------>
 
 	GameTimer m_Timer;
+	bool m_Paused = false;
 
 	UINT m_Width;
 	UINT m_Height;

@@ -19,6 +19,7 @@ public:
 	GameObject* CreateGameObject(GameObject* parent);
 	void DestroyGameObject(GameObject* gameObject);
 	void BuildConstantBuffer();
+	void UpdateCameraMovement(float deltaTime);
 	// 更新每个Renderer的Constant Buffer
 	void UpdateRendererCBs();
 	// 更新Main Pass的Constant Buffer
@@ -32,6 +33,8 @@ private:
 	std::unique_ptr<GameObject> m_Root;
 
 	Camera* m_Camera;
+	DirectX::XMINT2 m_LastMousePos;
+
 	RTStateDesc m_RTState;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RendererAndPassCBVHeap;
 	// 按照渲染状态排序

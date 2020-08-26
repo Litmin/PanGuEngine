@@ -47,12 +47,16 @@ void GameObject::AttachObject(Component* movableObject)
 
 void GameObject::Translate(float x, float y, float z, Space relativeTo)
 {
+	m_TransformDirty = true;
+
 	if (relativeTo == Space::Self)
 	{
 		m_Position += (m_Rotation * Vector3(x, y, z));
 	}
 	else if(relativeTo == Space::World)
 	{
+		_UpdateFromParent();
+
 		if (m_Parent)
 		{
 			m_Position += (~m_Parent->m_DerivedRotation * Vector3(x, y, z)) / m_Parent->m_DerivedScale;
@@ -66,49 +70,57 @@ void GameObject::Translate(float x, float y, float z, Space relativeTo)
 
 void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relativeTo)
 {
+	m_TransformDirty = true;
+
 	if (relativeTo == Space::Self)
 	{
 		m_Rotation = m_Rotation * Quaternion(xAngle, yAngle, zAngle);
 	}
 	else if (relativeTo == Space::World)
 	{
+		_UpdateFromParent();
+
 		m_Rotation = m_Rotation * ~m_DerivedRotation * Quaternion(xAngle, yAngle, zAngle) * m_DerivedRotation;
 	}
 }
 
 DirectX::XMFLOAT4X4 GameObject::LocalToWorldMatrix()
 {
-	if (m_TransformDirty)
-		_UpdateFromParent();
+	_UpdateFromParent();
 
 	return m_LocalToWorldMatrix;
 }
 
 void GameObject::_UpdateFromParent()
 {
-	Vector3 parentScale(1.0f, 1.0f, 1.0f);
-	Quaternion parentRotation;
-	Vector3 parentPosition(0.0f, 0.0f, 0.0f);
-	
-	if (m_Parent)
+	if (m_TransformDirty)
 	{
-		m_Parent->_UpdateFromParent();
-		parentScale = m_Parent->m_DerivedScale;
-		parentRotation = m_Parent->m_DerivedRotation;
-		parentPosition = m_Parent->m_DerivedPosition;
+		m_TransformDirty = false;
+
+		Vector3 parentScale(1.0f, 1.0f, 1.0f);
+		Quaternion parentRotation;
+		Vector3 parentPosition(0.0f, 0.0f, 0.0f);
+
+		if (m_Parent)
+		{
+			m_Parent->_UpdateFromParent();
+			parentScale = m_Parent->m_DerivedScale;
+			parentRotation = m_Parent->m_DerivedRotation;
+			parentPosition = m_Parent->m_DerivedPosition;
+		}
+
+		m_DerivedScale = parentScale * m_Scale;
+		m_DerivedRotation = parentRotation * m_Rotation;
+		// 子节点的Position跟父节点的Scale、Rotation有关
+		m_DerivedPosition = parentRotation * (parentScale * m_Position);
+		m_DerivedPosition += parentPosition;
+
+		// 计算矩阵 TODO:优化，去掉三个矩阵的乘法，只需要从四元数构造一个矩阵
+		XMMATRIX scale = XMMatrixScalingFromVector(m_DerivedScale);
+		XMMATRIX rotate = XMMatrixRotationQuaternion(m_DerivedRotation);
+		XMMATRIX translation = XMMatrixTranslationFromVector(m_DerivedPosition);
+
+		XMMATRIX localToWorldMatrix = scale * rotate * translation;
+		XMStoreFloat4x4(&m_LocalToWorldMatrix, localToWorldMatrix);
 	}
-
-	m_DerivedScale = parentScale * m_Scale;
-	m_DerivedRotation = parentRotation * m_Rotation;
-	// 子节点的Position跟父节点的Scale、Rotation有关
-	m_DerivedPosition = parentRotation * (parentScale * m_Position);
-	m_DerivedPosition += parentPosition;
-
-	// 计算矩阵 TODO:优化，去掉三个矩阵的乘法，只需要从四元数构造一个矩阵
-	XMMATRIX scale = XMMatrixScalingFromVector(m_DerivedScale);
-	XMMATRIX rotate = XMMatrixRotationQuaternion(m_DerivedRotation);
-	XMMATRIX translation = XMMatrixTranslationFromVector(m_DerivedPosition);
-
-	XMMATRIX localToWorldMatrix = scale * rotate * translation;
-	XMStoreFloat4x4(&m_LocalToWorldMatrix, localToWorldMatrix);
 }

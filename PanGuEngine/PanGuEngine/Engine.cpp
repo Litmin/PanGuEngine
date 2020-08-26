@@ -13,7 +13,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     return Engine::Get()->MsgProc(hWnd, message, wParam, lParam);
 }
 
-Engine::Engine()
+Engine::Engine() :
+    m_Title(L"PanGu")
 {
     assert(m_Engine == nullptr);
     m_Engine = this;
@@ -50,6 +51,8 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 
 int Engine::Run()
 {
+    m_Timer.Reset();
+
     MSG msg = {};
     while (msg.message != WM_QUIT)
     {
@@ -60,6 +63,7 @@ int Engine::Run()
             DispatchMessage(&msg);
         }
 
+        m_Timer.Tick();
         Tick();
     }
 
@@ -70,15 +74,21 @@ int Engine::Run()
 
 void Engine::Tick()
 {
-	Update();
-	Render();
+    if (!m_Paused)
+    {
+	    Update(m_Timer.DeltaTime());
+	    Render();
+    }
 }
 
-void Engine::Update()
+void Engine::Update(float deltaTime)
 {
+    CalculateFrameStats();
+
     // CPU、GPU同步
     m_GraphicContext->Update();
     // 更新Constant Buffer
+    m_SceneManager->UpdateCameraMovement(deltaTime);
     m_SceneManager->UpdateRendererCBs();
     m_SceneManager->UpdateMainPassBuffer();
 }
@@ -145,12 +155,10 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_ACTIVATE:
             if (LOWORD(wParam) == WA_INACTIVE)
             {
-                // Pause
                 Pause();
             }
             else
             {
-                // Resume
                 Resume();
             }
             return 0;
@@ -292,10 +300,14 @@ void Engine::Destroy()
 
 void Engine::Pause()
 {
+    m_Paused = true;
+    m_Timer.Stop();
 }
 
 void Engine::Resume()
 {
+    m_Paused = false;
+    m_Timer.Start();
 }
 
 
@@ -350,7 +362,7 @@ void Engine::InitialMainWindow()
     int width = R.right - R.left;
     int height = R.bottom - R.top;
 
-    m_MainWnd = CreateWindow(L"MainWnd", L"PanGu",
+    m_MainWnd = CreateWindow(L"MainWnd", m_Title.c_str(),
         WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, m_AppInst, 0);
     if (!m_MainWnd)
     {
@@ -436,6 +448,34 @@ void Engine::SetScreenSize(UINT width, UINT height)
     m_Aspect = static_cast<float>(width) / static_cast<float>(height);
     m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
     m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
+}
+
+void Engine::CalculateFrameStats()
+{
+    static int frameCnt = 0;
+    static float timeElapsed = 0.0f;
+
+    frameCnt++;
+
+    // Compute averages over one second period.
+    if ((m_Timer.TotalTime() - timeElapsed) >= 1.0f)
+    {
+        float fps = (float)frameCnt; // fps = frameCnt / 1
+        float mspf = 1000.0f / fps;
+
+        wstring fpsStr = to_wstring(fps);
+        wstring mspfStr = to_wstring(mspf);
+
+        wstring windowText = m_Title +
+            L"    fps: " + fpsStr +
+            L"   mspf: " + mspfStr;
+
+        SetWindowText(m_MainWnd, windowText.c_str());
+
+        // Reset for next average.
+        frameCnt = 0;
+        timeElapsed += 1.0f;
+    }
 }
 
 void Engine::OnResize()

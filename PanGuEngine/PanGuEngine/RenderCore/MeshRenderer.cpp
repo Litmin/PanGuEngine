@@ -6,16 +6,17 @@
 using namespace std;
 using namespace DirectX;
 
-MeshRenderer::MeshRenderer(Mesh* mesh, Material* material) :
-	m_Mesh(mesh),
-	m_Material(material)
+
+void MeshRenderer::SetMesh(Mesh* mesh)
 {
-	m_StateDesc = make_unique<RendererStateDesc>
-	(
-		m_Material->GetShader(),
-		m_Mesh->GetLayoutIndex(),
-		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE
-	);
+	m_Mesh = mesh;
+	m_RendererStateDirty = true;
+}
+
+void MeshRenderer::SetMaterial(Material* material)
+{
+	m_Material = material;
+	m_RendererStateDirty = true;
 }
 
 void MeshRenderer::UpdateRendererCBs()
@@ -54,4 +55,26 @@ void MeshRenderer::Render(ID3D12GraphicsCommandList* commandList, ID3D12Descript
 	m_StateDesc->shaderPtr->SetDescriptorTable(commandList, ShaderManager::GetSingleton().PropertyToID("cbPerObject"), cbvHandle);
 
 	commandList->DrawIndexedInstanced(m_Mesh->IndexCount(), 1, 0, 0, 0);
+}
+
+const RendererStateDesc& MeshRenderer::GetRendererStateDesc()
+{
+	_UpdateRendererState();
+
+	return *m_StateDesc.get();
+}
+
+void MeshRenderer::_UpdateRendererState()
+{
+	if (m_RendererStateDirty && m_Mesh != nullptr && m_Material != nullptr)
+	{
+		m_RendererStateDirty = false;
+
+		m_StateDesc = make_unique<RendererStateDesc>
+			(
+				m_Material->GetShader(),
+				m_Mesh->GetLayoutIndex(),
+				D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE
+			);
+	}
 }
