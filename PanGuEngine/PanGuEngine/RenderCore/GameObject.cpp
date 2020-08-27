@@ -115,7 +115,7 @@ void GameObject::_UpdateFromParent()
 		m_DerivedPosition = parentRotation * (parentScale * m_Position);
 		m_DerivedPosition += parentPosition;
 
-		// 计算矩阵 TODO:优化，去掉三个矩阵的乘法，只需要从四元数构造一个矩阵
+		// TODO:优化，去掉三个矩阵的乘法，只需要从四元数构造一个矩阵
 		XMMATRIX scale = XMMatrixScalingFromVector(m_DerivedScale);
 		XMMATRIX rotate = XMMatrixRotationQuaternion(m_DerivedRotation);
 		XMMATRIX translation = XMMatrixTranslationFromVector(m_DerivedPosition);

@@ -13,8 +13,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     return Engine::Get()->MsgProc(hWnd, message, wParam, lParam);
 }
 
-Engine::Engine() :
-    m_Title(L"PanGu")
+Engine::Engine()
 {
     assert(m_Engine == nullptr);
     m_Engine = this;
@@ -91,6 +90,8 @@ void Engine::Update(float deltaTime)
     m_SceneManager->UpdateCameraMovement(deltaTime);
     m_SceneManager->UpdateRendererCBs();
     m_SceneManager->UpdateMainPassBuffer();
+    
+    Input::Update();
 }
 
 void Engine::Render()
@@ -362,6 +363,7 @@ void Engine::InitialMainWindow()
     int width = R.right - R.left;
     int height = R.bottom - R.top;
 
+    wstring m_Title(L"PanGu");
     m_MainWnd = CreateWindow(L"MainWnd", m_Title.c_str(),
         WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, m_AppInst, 0);
     if (!m_MainWnd)
@@ -466,6 +468,7 @@ void Engine::CalculateFrameStats()
         wstring fpsStr = to_wstring(fps);
         wstring mspfStr = to_wstring(mspf);
 
+        wstring m_Title(L"PanGu");
         wstring windowText = m_Title +
             L"    fps: " + fpsStr +
             L"   mspf: " + mspfStr;

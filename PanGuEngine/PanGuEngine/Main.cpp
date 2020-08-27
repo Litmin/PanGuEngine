@@ -26,9 +26,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		GameObject* rootNode = SceneManager::GetSingleton().GetRootNode();
 		GameObject* cameraNode = rootNode->CreateChild();
 		Camera* camera = cameraNode->AddComponent<Camera>();
+		cameraNode->Translate(0.0f, 0.0f, -5.0f, Space::Self);
+		//cameraNode->Rotate(10.0f, 10.0f, 0.0f, Space::Self);
+		//cameraNode->Rotate(10.0f, 0.0f, 0.0f, Space::World);
 
 		GameObject* boxNode = rootNode->CreateChild();
-		boxNode->Translate(0.0f, 1.0f, 0.0f, Space::World);
+		boxNode->Rotate(10.0f, 10.0f, 0.0f, Space::Self);
 		//// Mesh
 		UINT boxVertexCount, boxIndicesCount;
 		vector<XMFLOAT3> boxPositions;

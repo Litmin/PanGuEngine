@@ -101,7 +101,7 @@ inline T* GameObject::GetComponent()
 	for (int i = 0; i < m_Components.size(); ++i)
 	{
 		Component* baseComponent = m_Components[i].get();
-		T* concreteComponent = dynamic_cast<T*>(component);
+		T* concreteComponent = dynamic_cast<T*>(baseComponent);
 		if (concreteComponent != nullptr)
 			return concreteComponent;
 	}

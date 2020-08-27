@@ -124,24 +124,25 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 
 	GameObject* cameraGo = m_Camera->GetGameObject();
 
-	static float moveSpeed = 0.1f;
+	static float moveSpeed = 10.0f;
+	static float rotateSpeed = 0.3f;
 
-	if (Input::GetKeyDown(KeyCode::W))
+	if (Input::GetKey(KeyCode::W))
 	{
 		cameraGo->Translate(0.0f, 0.0f, moveSpeed * deltaTime, Space::Self);
 	}
 
-	if (Input::GetKeyDown(KeyCode::A))
+	if (Input::GetKey(KeyCode::A))
 	{
 		cameraGo->Translate(-moveSpeed * deltaTime, 0.0f, 0.0f, Space::Self);
 	}
 
-	if (Input::GetKeyDown(KeyCode::S))
+	if (Input::GetKey(KeyCode::S))
 	{
 		cameraGo->Translate(0.0f, 0.0f, -moveSpeed * deltaTime, Space::Self);
 	}
 
-	if (Input::GetKeyDown(KeyCode::D))
+	if (Input::GetKey(KeyCode::D))
 	{
 		cameraGo->Translate(moveSpeed * deltaTime, 0.0f, 0.0f, Space::Self);
 	}
@@ -155,7 +156,8 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 	{
 		XMINT2 curMousePos = Input::GetMousePosition();
 
-		cameraGo->Rotate((float)(curMousePos.y - m_LastMousePos.y), (float)(curMousePos.x - m_LastMousePos.x), 0.0f, Space::Self);
+		cameraGo->Rotate((float)(curMousePos.y - m_LastMousePos.y) * deltaTime * rotateSpeed, 
+			(float)(curMousePos.x - m_LastMousePos.x) * deltaTime * rotateSpeed, 0.0f, Space::Self);
 
 		m_LastMousePos = curMousePos;
 	}

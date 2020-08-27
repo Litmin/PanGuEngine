@@ -11,7 +11,7 @@ public:
 	void SetGameObject(GameObject* gameObject);
 	GameObject* GetGameObject() { return m_GameObject; }
 
-	// TODO:OnAttachedEvent: Update Camera View Matrix
+	//virtual void _OnTransformUpdate();
 
 protected:
 	GameObject* m_GameObject = nullptr;

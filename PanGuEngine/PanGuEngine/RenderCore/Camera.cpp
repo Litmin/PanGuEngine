@@ -1,15 +1,13 @@
 #include "pch.h"
 #include "Camera.h"
 #include "GraphicContext.h"
+#include "GameObject.h"
 
 using namespace DirectX;
 
 Camera::Camera()
 {
-	m_View = XMFLOAT4X4(1,0,0,0,
-						0,1,0,0,
-						0,0,1,0,
-						0,0,5,1);// MathHelper::Identity4x4();
+	m_View = MathHelper::Identity4x4();
 	m_Proj = MathHelper::Identity4x4();
 
 	SetProjection(1.0f, 1.0f, 1000.0f, MathHelper::Pi / 3.0f);
@@ -32,8 +30,12 @@ void Camera::SetProjection(float aspect, float nearPlane, float farPlane, float 
 
 void Camera::UpdateCameraCBs()
 {
+	m_View = m_GameObject->LocalToWorldMatrix();
+
 	XMMATRIX view = XMLoadFloat4x4(&m_View);
 	XMMATRIX proj = XMLoadFloat4x4(&m_Proj);
+
+	view = XMMatrixInverse(&XMMatrixDeterminant(view), view);
 
 	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);

@@ -54,7 +54,7 @@ private:
 	static const int SwapChainBufferCount = 2;
 
 	bool m_Initialized = false;
-	wstring m_Title;
+	//wstring m_Title;
 
 	//<--------------------------------Windows------------------------------------------>
 	HINSTANCE m_AppInst;
