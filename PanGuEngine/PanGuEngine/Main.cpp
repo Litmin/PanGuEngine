@@ -23,15 +23,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 		// Setup Scene
 		// Create Camera
-		GameObject* rootNode = SceneManager::GetSingleton().GetRootNode();
-		GameObject* cameraNode = rootNode->CreateChild();
-		Camera* camera = cameraNode->AddComponent<Camera>();
-		cameraNode->Translate(0.0f, 0.0f, -5.0f, Space::Self);
-		//cameraNode->Rotate(10.0f, 10.0f, 0.0f, Space::Self);
-		//cameraNode->Rotate(10.0f, 0.0f, 0.0f, Space::World);
+		GameObject* rootGo = SceneManager::GetSingleton().GetRootNode();
+		GameObject* cameraGo = rootGo->CreateChild();
+		Camera* camera = cameraGo->AddComponent<Camera>();
+		cameraGo->Translate(0.0f, 0.0f, -5.0f, Space::Self);
 
-		GameObject* boxNode = rootNode->CreateChild();
-		boxNode->Rotate(10.0f, 10.0f, 0.0f, Space::Self);
+		GameObject* boxGo = rootGo->CreateChild();
+		boxGo->Translate(-1.0f, 0.0f, 0.0f);
 		//// Mesh
 		UINT boxVertexCount, boxIndicesCount;
 		vector<XMFLOAT3> boxPositions;
@@ -47,12 +45,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		// Material
 		unique_ptr<Material> material = make_unique<Material>(standardShader.get());
 		// MeshRenderer
-		MeshRenderer* meshRenderer = boxNode->AddComponent<MeshRenderer>();
+		MeshRenderer* meshRenderer = boxGo->AddComponent<MeshRenderer>();
 		meshRenderer->SetMesh(boxMesh.get());
 		meshRenderer->SetMaterial(material.get());
 
+		GameObject* boxGo2 = rootGo->CreateChild();
+		boxGo2->Translate(1.0f, 0.0f, 0.0f);
+		MeshRenderer* meshRenderer2 = boxGo2->AddComponent<MeshRenderer>();
+		meshRenderer2->SetMesh(boxMesh.get());
+		meshRenderer2->SetMaterial(material.get());
+
+
 		SceneManager::GetSingleton().AddCamera(camera);
 		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
+		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer2);
 
 
 		GraphicContext::GetSingleton().BuildFrameResource();

@@ -125,7 +125,7 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 	GameObject* cameraGo = m_Camera->GetGameObject();
 
 	static float moveSpeed = 10.0f;
-	static float rotateSpeed = 0.3f;
+	static float rotateSpeed = 3.0f;
 
 	if (Input::GetKey(KeyCode::W))
 	{

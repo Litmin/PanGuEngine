@@ -74,13 +74,13 @@ void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relative
 
 	if (relativeTo == Space::Self)
 	{
-		m_Rotation = m_Rotation * Quaternion(xAngle, yAngle, zAngle);
+		m_Rotation = m_Rotation * Quaternion(XMConvertToRadians(xAngle), XMConvertToRadians(yAngle), XMConvertToRadians(zAngle));
 	}
 	else if (relativeTo == Space::World)
 	{
 		_UpdateFromParent();
 
-		m_Rotation = m_Rotation * ~m_DerivedRotation * Quaternion(xAngle, yAngle, zAngle) * m_DerivedRotation;
+		m_Rotation = m_Rotation * ~m_DerivedRotation * Quaternion(XMConvertToRadians(xAngle), XMConvertToRadians(yAngle), XMConvertToRadians(zAngle)) * m_DerivedRotation;
 	}
 }
 
