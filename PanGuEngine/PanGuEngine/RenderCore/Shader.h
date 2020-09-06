@@ -65,7 +65,8 @@ private:
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 protected:
 	// Shader参数
-	std::unordered_map<UINT/*PropertyID*/, UINT/*Index*/> m_ParamMap;
+	// <Shader的参数ID，这个参数在根签名的根参数索引>
+	std::unordered_map<UINT, UINT> m_ParamMap;
 	std::vector<ShaderParameter> m_Params;
 
 	std::wstring m_FilePath;
