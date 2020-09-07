@@ -2,15 +2,23 @@
 #include <unordered_map>
 #include "ShaderManager.h"
 
+/*----------------------------------------------------
+	Shader的参数类型
+		纹理的描述符不能直接作为根描述符
+----------------------------------------------------*/
 enum class ShaderParamType
 {
-	ConstantBuffer,
-	CBVDescriptorHeap,
-	SRVDescriptorHeap,
-	UAVDescriptorHeap,
-	StructuredBuffer
+	ConstantBuffer,		// 根描述符，CBV
+	CBVDescriptorHeap,	// 根描述符表，CBV
+	SRVDescriptorHeap,	// 根描述符表，SRV
+	UAVDescriptorHeap,	// 根描述符表，UAV
+	StructuredBuffer	// TODO:
 };
 
+/*----------------------------------------------------
+	Shader参数
+		名字、类型、描述符数量、Register、RegisterSpace
+----------------------------------------------------*/
 struct ShaderParameter
 {
 	std::string name;
@@ -32,14 +40,14 @@ struct ShaderParameter
 		registerSpace(registerSpace) {}
 };
 
-//************************************************************
-// Shader基类：
-//		真正运行在GPU的Shader(VS、FS)
-//		渲染状态(光栅化、深度模板测试、混合)
-//		参数布局
-//
-// 具体的Shader需要继承Shader基类，在构造函数完成Shader参数的绑定
-//************************************************************
+/*----------------------------------------------------
+	Shader基类：
+		真正运行在GPU的Shader(VS、FS)
+		渲染状态(光栅化、深度模板测试、混合)
+		参数布局
+
+	具体的Shader需要继承Shader基类，在构造函数完成Shader参数的绑定
+----------------------------------------------------*/
 class Shader
 {
 public:

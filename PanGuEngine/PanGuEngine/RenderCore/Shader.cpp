@@ -18,6 +18,9 @@ Shader::Shader()
 	m_ParamMap[ShaderManager::GetSingleton().PropertyToID("cbPass")] = m_Params.size();
 	m_Params.push_back(perPass);
 
+	// 光照参数
+
+
 	// 每个Shader可以override这些渲染状态
 	m_RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	m_BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -40,7 +43,7 @@ void Shader::Initialize(ID3D12Device* device)
 	vector<CD3DX12_DESCRIPTOR_RANGE> constantTables;
 
 	// TODO:用更好的方式初始化根签名参数
-	constantTables.reserve(2);
+	constantTables.reserve(m_Params.size());
 
 	for (auto& shaderParameter : m_Params)
 	{
