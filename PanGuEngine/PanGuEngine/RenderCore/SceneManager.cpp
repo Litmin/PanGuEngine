@@ -44,11 +44,10 @@ void SceneManager::BuildConstantBuffer()
 {
 	UINT objCount = GetRendererCount();
 
-	// Need a CBV descriptor for each object for each frame resource,
-	// +1 for the perPass CBV for each frame resource.
+	// 每个Renderer需要一个CBV，+1是PerPass的CBV
 	UINT numDescriptors = (objCount + 1) * gNumFrameResources;
 
-	// Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
+	// PerPass的CBV开始的位置
 	UINT mPassCbvOffset = objCount * gNumFrameResources;
 
 	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;

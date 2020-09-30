@@ -17,6 +17,7 @@ public:
 	~GraphicContext();
 
 	ID3D12Device* Device() { return m_Device; }
+	// TODO:对CommandList的操作封装起来
 	ID3D12GraphicsCommandList* CommandList() { return m_CommandList; }
 	UINT GetCbvSrvUavDescriptorSize() { return m_CbvSrvUavDescriptorSize; }
 	void ResetCommandList();

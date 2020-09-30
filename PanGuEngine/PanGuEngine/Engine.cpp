@@ -104,6 +104,7 @@ void Engine::Render()
 
     ThrowIfFailed(m_CommandList->Reset(cmdListAlloc.Get(), nullptr));
 
+    // TODO:封装到Camera
     m_CommandList->RSSetViewports(1, &m_Viewport);
     m_CommandList->RSSetScissorRects(1, &m_ScissorRect);
 
