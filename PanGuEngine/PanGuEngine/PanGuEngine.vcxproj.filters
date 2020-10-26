@@ -13,6 +13,9 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{97676efa-02d4-4134-a2e5-94600735a362}</UniqueIdentifier>
     </Filter>
+    <Filter Include="D3D12RHI">
+      <UniqueIdentifier>{5702e2a3-29d8-4f19-8d5a-59eb37931d46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -94,6 +97,18 @@
     </ClCompile>
     <ClCompile Include="Math\Random.cpp">
       <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\RenderDevice.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\RootSignature.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\D3D12ResourceBase.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\PipelineState.cpp">
+      <Filter>D3D12RHI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,6 +233,18 @@
     </ClInclude>
     <ClInclude Include="Math\VectorMath.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\RenderDevice.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\PipelineState.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\RootSignature.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\D3D12ResourceBase.h">
+      <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

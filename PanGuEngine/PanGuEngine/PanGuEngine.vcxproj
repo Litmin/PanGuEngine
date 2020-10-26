@@ -150,6 +150,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="D3D12RHI\D3D12ResourceBase.cpp" />
+    <ClCompile Include="D3D12RHI\PipelineState.cpp" />
+    <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
+    <ClCompile Include="D3D12RHI\RootSignature.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -187,6 +191,10 @@
     <ClCompile Include="Utility\MathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D3D12RHI\D3D12ResourceBase.h" />
+    <ClInclude Include="D3D12RHI\PipelineState.h" />
+    <ClInclude Include="D3D12RHI\RenderDevice.h" />
+    <ClInclude Include="D3D12RHI\RootSignature.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Input.h" />
