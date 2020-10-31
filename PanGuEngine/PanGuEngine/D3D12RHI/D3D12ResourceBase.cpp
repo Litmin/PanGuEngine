@@ -1,8 +1,3 @@
 #include "pch.h"
-#include "Component.h"
-#include "GameObject.h"
+#include "D3D12ResourceBase.h"
 
-void Component::SetGameObject(GameObject* gameObject)
-{
-	m_GameObject = gameObject;
-}
