@@ -17,6 +17,7 @@
 #include <windows.h>
 
 
+// Direct3d12
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
@@ -28,7 +29,7 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib,"d3dcompiler.lib")
 
-
+// Utility
 #include "Utility/d3dx12.h"
 #include "Utility/DxException.h"
 #include "Utility/PathUtil.h"
@@ -36,6 +37,7 @@
 #include "Utility/MathHelper.h"
 #include "Utility/Singleton.h"
 
+// C++
 #include <vector>
 #include <queue>
 #include <unordered_map>
@@ -46,5 +48,8 @@
 #include <shellapi.h>
 #include <cassert>
 #include <iostream>
+
+// PanGu
+#include "D3D12RHI/GraphicsEnums.h"
 
 #endif //PCH_H

@@ -122,6 +122,12 @@
     <ClCompile Include="RenderPipeline\RenderPipeline.cpp">
       <Filter>RenderPipeline</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\Buffer.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\BufferView.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -266,6 +272,15 @@
     </ClInclude>
     <ClInclude Include="RenderPipeline\RenderPipeline.h">
       <Filter>RenderPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\Buffer.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\BufferView.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\GraphicsEnums.h">
+      <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
