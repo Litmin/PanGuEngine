@@ -151,9 +151,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="D3D12RHI\D3D12ResourceBase.cpp" />
+    <ClCompile Include="D3D12RHI\DeviceContext.cpp" />
     <ClCompile Include="D3D12RHI\PipelineState.cpp" />
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
     <ClCompile Include="D3D12RHI\RootSignature.cpp" />
+    <ClCompile Include="D3D12RHI\SwapChain.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -185,6 +187,7 @@
     <ClCompile Include="RenderCore\StandardShader.cpp" />
     <ClCompile Include="RenderCore\Texture.cpp" />
     <ClCompile Include="RenderCore\Transform.cpp" />
+    <ClCompile Include="RenderPipeline\RenderPipeline.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
@@ -192,9 +195,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D12RHI\D3D12ResourceBase.h" />
+    <ClInclude Include="D3D12RHI\DeviceContext.h" />
     <ClInclude Include="D3D12RHI\PipelineState.h" />
     <ClInclude Include="D3D12RHI\RenderDevice.h" />
     <ClInclude Include="D3D12RHI\RootSignature.h" />
+    <ClInclude Include="D3D12RHI\SwapChain.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Input.h" />
@@ -231,6 +236,7 @@
     <ClInclude Include="RenderCore\Texture.h" />
     <ClInclude Include="RenderCore\Transform.h" />
     <ClInclude Include="RenderCore\UploadBuffer.h" />
+    <ClInclude Include="RenderPipeline\RenderPipeline.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resource\ResourceManager.h" />
     <ClInclude Include="Utility\d3dUtil.h" />

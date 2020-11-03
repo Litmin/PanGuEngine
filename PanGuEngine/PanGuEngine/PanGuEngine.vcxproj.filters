@@ -16,6 +16,9 @@
     <Filter Include="D3D12RHI">
       <UniqueIdentifier>{5702e2a3-29d8-4f19-8d5a-59eb37931d46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RenderPipeline">
+      <UniqueIdentifier>{4e200492-2273-410f-ba30-0251fe090eb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -109,6 +112,15 @@
     </ClCompile>
     <ClCompile Include="D3D12RHI\PipelineState.cpp">
       <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\DeviceContext.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\SwapChain.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPipeline\RenderPipeline.cpp">
+      <Filter>RenderPipeline</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +257,15 @@
     </ClInclude>
     <ClInclude Include="D3D12RHI\D3D12ResourceBase.h">
       <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\DeviceContext.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\SwapChain.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPipeline\RenderPipeline.h">
+      <Filter>RenderPipeline</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
