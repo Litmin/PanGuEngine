@@ -1,10 +1,17 @@
 #pragma once
 
-class BufferView
+#include "RenderDevice.h"
+
+namespace RHI
 {
-public:
+	class BufferView
+	{
+	public:
+		BufferView(RenderDevice* renderDevice);
 
-private:
+	private:
 
-};
+	};
 
+
+}
