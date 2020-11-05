@@ -282,6 +282,9 @@
     <ClInclude Include="D3D12RHI\GraphicsEnums.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\DebugOutput.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PanGuEngine.rc" />

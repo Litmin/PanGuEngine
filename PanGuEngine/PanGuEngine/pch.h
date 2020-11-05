@@ -36,6 +36,7 @@
 #include "Utility/d3dUtil.h"
 #include "Utility/MathHelper.h"
 #include "Utility/Singleton.h"
+#include "Utility/DebugOutput.h"
 
 // C++
 #include <vector>
