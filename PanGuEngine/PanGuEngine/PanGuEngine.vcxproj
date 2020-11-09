@@ -246,7 +246,7 @@
     <ClInclude Include="Resource\ResourceManager.h" />
     <ClInclude Include="Utility\d3dUtil.h" />
     <ClInclude Include="Utility\d3dx12.h" />
-    <ClInclude Include="Utility\DebugOutput.h" />
+    <ClInclude Include="Utility\Debug.h" />
     <ClInclude Include="Utility\DxException.h" />
     <ClInclude Include="Utility\MathHelper.h" />
     <ClInclude Include="Utility\PathUtil.h" />

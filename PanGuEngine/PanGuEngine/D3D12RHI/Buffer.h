@@ -16,7 +16,7 @@ namespace RHI
         UINT32 uiSizeInBytes = 0;
 
         // 不能用作Render Target和Depth Stencil
-        BIND_FLAGS BindFlags = BIND_FLAGS::BIND_NONE;
+        PGBIND_FLAGS BindFlags = PGBIND_FLAGS::BIND_NONE;
 
         USAGE Usage = USAGE::USAGE_DEFAULT;
 
@@ -40,7 +40,7 @@ namespace RHI
         Buffer(RenderDevice* pRenderDevice, const BufferDesc& desc, const BufferData* pBufferData = nullptr);
         Buffer(RenderDevice* pRenderDevice, const BufferDesc& desc, D3D12_RESOURCE_STATES initialState, ID3D12Resource* pD3D12Buffer);
 
-        void CreateView(const BufferViewDesc& viewDesc, BufferView** ppView);
+        //void CreateView(const BufferViewDesc& viewDesc, BufferView** ppView);
         BufferView* GetDefaultView(BUFFER_VIEW_TYPE viewType);
         void CreateDefaultViews();
 
@@ -51,7 +51,7 @@ namespace RHI
         D3D12_RESOURCE_STATES GetD3D12ResourceState() const;
 
         D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(UINT32 contextId, DeviceContext* pContext);
-        D3D12_CPU_DESCRIPTOR_HANDLE GetCBVHandle() { return m_CBVDescriptorAllocation.GetCpuHandle(); }
+        //D3D12_CPU_DESCRIPTOR_HANDLE GetCBVHandle() { return m_CBVDescriptorAllocation.GetCpuHandle(); }
 
     protected:
 

@@ -282,7 +282,7 @@
     <ClInclude Include="D3D12RHI\GraphicsEnums.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\DebugOutput.h">
+    <ClInclude Include="Utility\Debug.h">
       <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,7 +4,7 @@
 * 描述了资源可以绑定到管线的哪个阶段 
 * [D3D11_BIND_FLAG]: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476085(v=vs.85).aspx
 */
-enum class BIND_FLAGS
+enum class PGBIND_FLAGS
 {
 	BIND_NONE = 0x0L,				// 未定义
 	BIND_VERTEX_BUFFER = 0x1L,		// Vertex Buffer
