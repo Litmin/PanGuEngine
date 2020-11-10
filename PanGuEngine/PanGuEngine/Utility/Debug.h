@@ -1,10 +1,16 @@
 #pragma once
 
+#include "pch.h"
 #include <fstream>
 
 class Debug
 {
 public:
+    
+    static void Log();
+    static void LogWarning();
+    static void LogError();
+
 
 private:
 
