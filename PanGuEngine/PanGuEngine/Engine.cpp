@@ -27,8 +27,6 @@ Engine::~Engine()
 
 void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 {
-    OutputDebugStringA("Engine Initilize \n");
-
     m_Width = width;
     m_Height = height;
     m_AppInst = hInstance;

@@ -153,6 +153,8 @@
     <ClCompile Include="D3D12RHI\Buffer.cpp" />
     <ClCompile Include="D3D12RHI\BufferView.cpp" />
     <ClCompile Include="D3D12RHI\D3D12ResourceBase.cpp" />
+    <ClCompile Include="D3D12RHI\DescriptorHeap.cpp" />
+    <ClCompile Include="D3D12RHI\DescriptorHeapAllocation.cpp" />
     <ClCompile Include="D3D12RHI\DeviceContext.cpp" />
     <ClCompile Include="D3D12RHI\PipelineState.cpp" />
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
@@ -192,6 +194,7 @@
     <ClCompile Include="RenderPipeline\RenderPipeline.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
+    <ClCompile Include="Utility\Debug.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
     <ClCompile Include="Utility\MathHelper.cpp" />
   </ItemGroup>
@@ -199,6 +202,8 @@
     <ClInclude Include="D3D12RHI\Buffer.h" />
     <ClInclude Include="D3D12RHI\BufferView.h" />
     <ClInclude Include="D3D12RHI\D3D12ResourceBase.h" />
+    <ClInclude Include="D3D12RHI\DescriptorHeap.h" />
+    <ClInclude Include="D3D12RHI\DescriptorHeapAllocation.h" />
     <ClInclude Include="D3D12RHI\DeviceContext.h" />
     <ClInclude Include="D3D12RHI\GraphicsEnums.h" />
     <ClInclude Include="D3D12RHI\PipelineState.h" />

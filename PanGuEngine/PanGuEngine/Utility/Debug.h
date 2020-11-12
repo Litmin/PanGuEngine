@@ -1,36 +1,44 @@
 #pragma once
 
-#include "pch.h"
 #include <fstream>
+
+enum class LOG_LEVEL
+{
+    LOG_LEVEL_INFO,
+    LOG_LEVEL_WARNING,
+    LOG_LEVEL_ERROR
+};
 
 class Debug
 {
 public:
     
-    static void Log();
-    static void LogWarning();
-    static void LogError();
+    static void Log(LOG_LEVEL logLevel,
+                    const char* function, 
+                    const char* file, 
+                    int line, 
+                    const std::string& message);
 
 
 private:
-
+    static std::string m_Message;
 };
 
-template <typename... ArgsType>
-void LogError(bool IsFatal, const char* Function, const char* FullFilePath, int Line, const ArgsType&... Args)
-{
-    std::string FileName(FullFilePath);
+// 宏定义中使用do while可以保证多行语句的宏在任何情况下都是正确的，例如没有括号的if语句
+#define LOG(message)                                                                      \
+    do                                                                                    \
+    {                                                                                     \
+        Debug::Log(LOG_LEVEL::LOG_LEVEL_INFO, __FUNCTION__, __FILE__, __LINE__, message); \
+    } while(false)
 
-    auto LastSlashPos = FileName.find_last_of("/\\");
-    if (LastSlashPos != std::string::npos)
-        FileName.erase(0, LastSlashPos + 1);
-    auto Msg = FormatString(Args...);
-       
-    OutputDebugMessage(IsFatal ? DEBUG_MESSAGE_SEVERITY_FATAL_ERROR : DEBUG_MESSAGE_SEVERITY_ERROR, Msg.c_str(), Function, FileName.c_str(), Line);
-}
+#define LOG_WARNING(message)                                                                      \
+    do                                                                                    \
+    {                                                                                     \
+        Debug::Log(LOG_LEVEL::LOG_LEVEL_WARNING, __FUNCTION__, __FILE__, __LINE__, message); \
+    } while(false)
 
-#define LOG_ERROR_AND_THROW(...)                                                                      \
-    do                                                                                                \
-    {                                                                                                 \
-        Diligent::LogError<true>(/*IsFatal=*/false, __FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__); \
-    } while (false)
+#define LOG_ERROR(message)                                                                      \
+    do                                                                                    \
+    {                                                                                     \
+        Debug::Log(LOG_LEVEL::LOG_LEVEL_ERROR, __FUNCTION__, __FILE__, __LINE__, message); \
+    } while(false)

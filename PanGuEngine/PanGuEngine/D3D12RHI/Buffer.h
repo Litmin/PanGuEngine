@@ -3,12 +3,13 @@
 #include "BufferView.h"
 #include "RenderDevice.h"
 #include "DeviceContext.h"
+#include "D3D12ResourceBase.h"
 
 namespace RHI
 {
     /**
-* [D3D11_BUFFER_DESC]https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_buffer_desc
-*/
+    * [D3D11_BUFFER_DESC]https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_buffer_desc
+    */
 
     struct BufferDesc
     {
@@ -16,7 +17,7 @@ namespace RHI
         UINT32 uiSizeInBytes = 0;
 
         // 不能用作Render Target和Depth Stencil
-        PGBIND_FLAGS BindFlags = PGBIND_FLAGS::BIND_NONE;
+        BIND_FLAGS BindFlags = BIND_FLAGS::BIND_NONE;
 
         USAGE Usage = USAGE::USAGE_DEFAULT;
 
@@ -34,11 +35,18 @@ namespace RHI
         UINT32 DataSize = 0;
     };
 
-    class Buffer
+    class Buffer : public D3D12ResourceBase
     {
     public:
-        Buffer(RenderDevice* pRenderDevice, const BufferDesc& desc, const BufferData* pBufferData = nullptr);
-        Buffer(RenderDevice* pRenderDevice, const BufferDesc& desc, D3D12_RESOURCE_STATES initialState, ID3D12Resource* pD3D12Buffer);
+        // 两个构造函数，一个使用数据初始化，另一个使用D3D12Resource和ResourceState初始化
+        Buffer(RenderDevice* pRenderDevice, 
+               const BufferDesc& desc, 
+               const BufferData* pBufferData = nullptr);
+
+        Buffer(RenderDevice* pRenderDevice, 
+               const BufferDesc& desc, 
+               D3D12_RESOURCE_STATES initialState, 
+               ID3D12Resource* pD3D12Buffer);
 
         //void CreateView(const BufferViewDesc& viewDesc, BufferView** ppView);
         BufferView* GetDefaultView(BUFFER_VIEW_TYPE viewType);

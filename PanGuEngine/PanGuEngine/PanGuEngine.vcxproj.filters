@@ -128,6 +128,15 @@
     <ClCompile Include="D3D12RHI\BufferView.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\Debug.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\DescriptorHeap.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\DescriptorHeapAllocation.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -284,6 +293,12 @@
     </ClInclude>
     <ClInclude Include="Utility\Debug.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\DescriptorHeap.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\DescriptorHeapAllocation.h">
+      <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
