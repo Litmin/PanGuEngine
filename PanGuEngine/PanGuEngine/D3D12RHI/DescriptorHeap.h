@@ -83,7 +83,7 @@ namespace RHI
                 m_pAllocator->Free(std::move(*this));
         }
 
-        // ½ûÖ¹¸´ÖÆ
+        // ½ûÖ¹¿½±´
         DescriptorHeapAllocation(const DescriptorHeapAllocation&) = delete;
         DescriptorHeapAllocation& operator=(const DescriptorHeapAllocation&) = delete;
 

@@ -159,6 +159,7 @@
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
     <ClCompile Include="D3D12RHI\RootSignature.cpp" />
     <ClCompile Include="D3D12RHI\SwapChain.cpp" />
+    <ClCompile Include="D3D12RHI\VariableSizeAllocationsManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="D3D12RHI\RenderDevice.h" />
     <ClInclude Include="D3D12RHI\RootSignature.h" />
     <ClInclude Include="D3D12RHI\SwapChain.h" />
+    <ClInclude Include="D3D12RHI\VariableSizeAllocationsManager.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Input.h" />

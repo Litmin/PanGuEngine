@@ -134,6 +134,9 @@
     <ClCompile Include="D3D12RHI\DescriptorHeap.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\VariableSizeAllocationsManager.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -292,6 +295,9 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\DescriptorHeap.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\VariableSizeAllocationsManager.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
