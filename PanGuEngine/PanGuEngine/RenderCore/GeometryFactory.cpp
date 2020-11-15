@@ -11,14 +11,22 @@ void GeometryFactory::CreateBox(float width, float height, float depth, std::uin
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(width, height, depth, numSubdivisions);
 
-	XMFLOAT4 color(1.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4 color[6] = { {1.0f, 0.0f, 0.0f, 1.0f},
+						  {0.0f, 1.0f, 0.0f, 1.0f}, 
+						  {0.0f, 0.0f, 1.0f, 1.0f}, 
+						  {1.0f, 1.0f, 0.0f, 1.0f},
+						  {1.0f, 0.0f, 1.0f, 1.0f}, 
+						  {0.0f, 1.0f, 1.0f, 1.0f} };
+
 
 	auto& boxVertices = box.Vertices;
 	vertexCount = box.Vertices.size();
+	UINT8 i = 0;
 	for (auto& vertex : boxVertices)
 	{
 		positions.push_back(vertex.Position);
-		colors.push_back(color);
+		colors.push_back(color[i % 6]);
+		i++;
 	}
 
 

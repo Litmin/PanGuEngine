@@ -41,8 +41,10 @@
 // C++
 #include <vector>
 #include <queue>
+#include <set>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -54,5 +56,6 @@
 
 // PanGu
 #include "D3D12RHI/GraphicsEnums.h"
+#include "D3D12RHI/Align.h"
 
 #endif //PCH_H
