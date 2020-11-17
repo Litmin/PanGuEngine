@@ -1,9 +1,9 @@
 #pragma once
-#include "RenderDevice.h"
 #include "VariableSizeAllocationsManager.h"
 
 namespace RHI 
 {
+    class RenderDevice;
     class DescriptorHeapAllocation;
 
 

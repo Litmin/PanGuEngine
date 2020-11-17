@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "DescriptorHeap.h"
+#include "RenderDevice.h"
 
 using namespace Microsoft::WRL;
 

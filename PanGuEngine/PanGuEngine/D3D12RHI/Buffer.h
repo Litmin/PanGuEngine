@@ -35,6 +35,9 @@ namespace RHI
         UINT32 DataSize = 0;
     };
 
+    /**
+    * BufferµÄÊµÏÖ
+    */
     class Buffer : public D3D12ResourceBase
     {
     public:
