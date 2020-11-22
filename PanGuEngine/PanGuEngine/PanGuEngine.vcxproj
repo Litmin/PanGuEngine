@@ -158,6 +158,7 @@
     <ClCompile Include="D3D12RHI\PipelineState.cpp" />
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
     <ClCompile Include="D3D12RHI\RootSignature.cpp" />
+    <ClCompile Include="D3D12RHI\Sampler.cpp" />
     <ClCompile Include="D3D12RHI\SwapChain.cpp" />
     <ClCompile Include="D3D12RHI\Texture.cpp" />
     <ClCompile Include="D3D12RHI\TextureView.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="D3D12RHI\PipelineState.h" />
     <ClInclude Include="D3D12RHI\RenderDevice.h" />
     <ClInclude Include="D3D12RHI\RootSignature.h" />
+    <ClInclude Include="D3D12RHI\Sampler.h" />
     <ClInclude Include="D3D12RHI\SwapChain.h" />
     <ClInclude Include="D3D12RHI\Texture.h" />
     <ClInclude Include="D3D12RHI\TextureView.h" />
