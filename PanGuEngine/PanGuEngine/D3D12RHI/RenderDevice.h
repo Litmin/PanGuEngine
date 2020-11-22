@@ -1,12 +1,33 @@
 #pragma once
 #include "DescriptorHeap.h"
+#include "Buffer.h"
+#include "Texture.h"
 
 namespace RHI
 {
 	class RenderDevice
 	{
 	public:
-		ID3D12Device* GetD3D12Device() { return m_D3D12Device.Get(); }
+		RenderDevice();
+		~RenderDevice();
+
+		// 创建资源
+		// 提供数据创建Buffer
+		std::unique_ptr<Buffer> CreateBuffer(const BufferDesc& bufferDesc,
+											 const BufferData* bufferData);
+		// 用已有的D3D12资源创建Buffer
+		std::unique_ptr<Buffer> CreateBufferFromD3DResource(ID3D12Resource* buffer,
+															const BufferDesc& bufferDesc,
+															D3D12_RESOURCE_STATES initialState);
+		// 提供数据创建Texture
+		std::unique_ptr<Texture> CreateTexture(const TextureDesc& texDesc,
+											   const TextureData* texData);
+		// 用已有的D3D12资源创建Texture
+		std::unique_ptr<Texture> CreateTextureFromD3DResource(ID3D12Resource* texture,
+															  const TextureDesc& texDesc,
+															  D3D12_RESOURCE_STATES initialState);
+
+		std::unique_ptr<Sampler> CreateSampler(const D3D12_SAMPLER_DESC& samplerDesc);
 
 		// 分配Descriptor
 		DescriptorHeapAllocation AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
@@ -18,6 +39,8 @@ namespace RHI
 		{
 
 		}
+
+		ID3D12Device* GetD3D12Device() { return m_D3D12Device.Get(); }
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Device> m_D3D12Device;

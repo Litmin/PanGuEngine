@@ -53,6 +53,7 @@
 #include <shellapi.h>
 #include <cassert>
 #include <iostream>
+#include <limits>
 
 // PanGu
 #include "D3D12RHI/GraphicsEnums.h"

@@ -159,6 +159,8 @@
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
     <ClCompile Include="D3D12RHI\RootSignature.cpp" />
     <ClCompile Include="D3D12RHI\SwapChain.cpp" />
+    <ClCompile Include="D3D12RHI\Texture.cpp" />
+    <ClCompile Include="D3D12RHI\TextureView.cpp" />
     <ClCompile Include="D3D12RHI\VariableSizeAllocationsManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameTimer.cpp" />
@@ -189,7 +191,6 @@
     <ClCompile Include="RenderCore\Shader.cpp" />
     <ClCompile Include="RenderCore\ShaderManager.cpp" />
     <ClCompile Include="RenderCore\StandardShader.cpp" />
-    <ClCompile Include="RenderCore\Texture.cpp" />
     <ClCompile Include="RenderCore\Transform.cpp" />
     <ClCompile Include="RenderPipeline\RenderPipeline.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
@@ -210,6 +211,8 @@
     <ClInclude Include="D3D12RHI\RenderDevice.h" />
     <ClInclude Include="D3D12RHI\RootSignature.h" />
     <ClInclude Include="D3D12RHI\SwapChain.h" />
+    <ClInclude Include="D3D12RHI\Texture.h" />
+    <ClInclude Include="D3D12RHI\TextureView.h" />
     <ClInclude Include="D3D12RHI\VariableSizeAllocationsManager.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameTimer.h" />
@@ -244,7 +247,6 @@
     <ClInclude Include="RenderCore\Shader.h" />
     <ClInclude Include="RenderCore\ShaderManager.h" />
     <ClInclude Include="RenderCore\StandardShader.h" />
-    <ClInclude Include="RenderCore\Texture.h" />
     <ClInclude Include="RenderCore\Transform.h" />
     <ClInclude Include="RenderCore\UploadBuffer.h" />
     <ClInclude Include="RenderPipeline\RenderPipeline.h" />

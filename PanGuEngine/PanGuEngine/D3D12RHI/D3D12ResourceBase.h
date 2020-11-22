@@ -14,7 +14,8 @@ namespace RHI
 
         ID3D12Resource* GetD3D12Resource() { return m_D3d12Resource.Get(); }
 
-    private:
+    protected:
+        // 创建资源时使用该成员，访问资源时使用GetD3D12Resource，否则会增加引用计数，导致内存泄露
         Microsoft::WRL::ComPtr<ID3D12Resource> m_D3d12Resource;
     };
 

@@ -43,9 +43,6 @@
     <ClCompile Include="RenderCore\FrameResource.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
-    <ClCompile Include="RenderCore\Texture.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="Resource\ResourceManager.cpp">
       <Filter>Resource</Filter>
     </ClCompile>
@@ -137,6 +134,12 @@
     <ClCompile Include="D3D12RHI\VariableSizeAllocationsManager.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\Texture.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\TextureView.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -171,9 +174,6 @@
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="RenderCore\UploadBuffer.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\Texture.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="Resource\ResourceManager.h">
@@ -301,6 +301,12 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\Align.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\Texture.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\TextureView.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
