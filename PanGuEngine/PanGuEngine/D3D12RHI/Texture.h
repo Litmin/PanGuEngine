@@ -86,7 +86,7 @@ namespace RHI
                 D3D12_RESOURCE_STATES initialState,
                 ID3D12Resource* pTexture);
 
-        ~Texture();
+        virtual ~Texture() override;
 
         // Texture View
         std::unique_ptr<TextureView> CreateView(const TextureViewDesc& viewDesc);

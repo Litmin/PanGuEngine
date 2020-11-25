@@ -55,7 +55,7 @@ namespace RHI
                ID3D12Resource* pD3D12Buffer);
 
         // 析构函数中释放Buffer资源
-        ~Buffer();
+        virtual ~Buffer() override;
 
         // Buffer View
         std::unique_ptr<BufferView> CreateView(const BufferViewDesc& viewDesc);
