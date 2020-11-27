@@ -2,13 +2,14 @@
 #include "DescriptorHeap.h"
 #include "Buffer.h"
 #include "Texture.h"
+#include "CommandQueue.h"
 
 namespace RHI
 {
 	class RenderDevice
 	{
 	public:
-		RenderDevice();
+		RenderDevice(ComPtr<ID3D12Device> d3d12Device);
 		~RenderDevice();
 
 		// 创建资源
@@ -35,7 +36,7 @@ namespace RHI
 
 		// 安全释放GPU对象，当GPU不再使用这个对象时才真正释放它
 		void SafeReleaseDeviceObject(D3D12DeviceObject&& object);
-		void PurgeReleaseQueue();
+		void PurgeReleaseQueue(bool forceRelease);
 
 		ID3D12Device* GetD3D12Device() { return m_D3D12Device.Get(); }
 
@@ -50,6 +51,9 @@ namespace RHI
 		// 每个GPUDescriptorHeap对象只会创建一个DX12 Descriptor Heap，因为切换Descriptor Heap非常昂贵
 		// 创建资源时，每个资源的Descriptor保存在CPUDescriptorHeap中，在绘制命令执行前，会拷贝到GPUDescriptorHeap
 		GPUDescriptorHeap m_GPUDescriptorHeaps[2];
+
+		// TODO:实现多个CommandQueue
+		CommandQueue m_CommandQueue;
 
 		// 负责释放资源的队列
 		// 调用SafeReleaseDeviceObject释放资源时，会把该资源添加到m_StaleResources中，
