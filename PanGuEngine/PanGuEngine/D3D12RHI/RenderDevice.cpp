@@ -37,11 +37,6 @@ namespace RHI
 		return DescriptorHeapAllocation();
 	}
 
-	void RenderDevice::SafeReleaseDeviceObject(D3D12DeviceObject&& object)
-	{
-		m_StaleResources.push_back(std::make_unique<D3D12DeviceObject>(object));
-	}
-
 	void RenderDevice::PurgeReleaseQueue(bool forceRelease)
 	{
 		UINT64 completedFenceValue = forceRelease ? std::numeric_limits<UINT64>::max() : m_CommandQueue.GetCompletedFenceValue();
@@ -49,35 +44,11 @@ namespace RHI
 		while (!m_ReleaseQueue.empty())
 		{
 			auto& FirstObj = m_ReleaseQueue.front();
-			if (FirstObj.first <= CompletedFenceValue)
+			if (FirstObj.first <= completedFenceValue)
 				m_ReleaseQueue.pop_front();
 			else
 				break;
 		}
 	}
-
-	std::pair 完美转发 万能引用
-	class Shader
-	{
-	public:
-		Shader()
-		{
-			BindShader();
-			cout << m_Value;
-		}
-
-		virtual ~Shader() = default;
-		virtual void BindShader() = 0;
-
-		int m_Value;
-	};
-
-	class StandardShader : public Shader
-	{
-		void BindShader() override
-		{
-			m_Value = 22;
-		}
-	};
 }
 

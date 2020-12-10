@@ -35,7 +35,8 @@ namespace RHI
 		DescriptorHeapAllocation AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
 
 		// 安全释放GPU对象，当GPU不再使用这个对象时才真正释放它
-		void SafeReleaseDeviceObject(D3D12DeviceObject&& object);
+		template <typename DeviceObjectType>
+		void SafeReleaseDeviceObject(DeviceObjectType&& object);
 		void PurgeReleaseQueue(bool forceRelease);
 
 		ID3D12Device* GetD3D12Device() { return m_D3D12Device.Get(); }
@@ -63,6 +64,12 @@ namespace RHI
 		std::deque<std::unique_ptr<D3D12DeviceObject>> m_ReleaseQueue;
 		std::deque<std::unique_ptr<D3D12DeviceObject>> m_StaleResources;
 	};
+
+	template<typename DeviceObjectType>
+	inline void RenderDevice::SafeReleaseDeviceObject(DeviceObjectType&& object)
+	{
+
+	}
 }
 
 

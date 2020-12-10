@@ -152,6 +152,9 @@
     <ClCompile Include="D3D12RHI\Fence.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\StaleResourceWrapper.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -331,6 +334,9 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\Fence.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\StaleResourceWrapper.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
