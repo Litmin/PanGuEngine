@@ -34,15 +34,24 @@ public:
 	}
 
 	StaleResourceWrapper(StaleResourceWrapper&& rhs) noexcept :
-		m_StaleResource(std::move(rhs.m_StaleResource))
+		m_StaleResource(rhs.m_StaleResource)
 	{
-
+		rhs.m_StaleResource = nullptr;
 	}
+
+	StaleResourceWrapper(const StaleResourceWrapper& rhs) = delete;
+	StaleResourceWrapper& operator= (const StaleResourceWrapper&)  = delete;
+	StaleResourceWrapper& operator= (const StaleResourceWrapper&&) = delete;
 
 	~StaleResourceWrapper()
 	{
 		if (m_StaleResource != nullptr)
 			m_StaleResource->Release();
+	}
+
+	void GiveUpOwnership()
+	{
+		m_StaleResource = nullptr;
 	}
 
 private:

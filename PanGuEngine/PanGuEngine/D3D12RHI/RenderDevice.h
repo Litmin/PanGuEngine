@@ -3,6 +3,7 @@
 #include "Buffer.h"
 #include "Texture.h"
 #include "CommandQueue.h"
+#include "StaleResourceWrapper.h"
 
 namespace RHI
 {
@@ -37,6 +38,7 @@ namespace RHI
 		// 安全释放GPU对象，当GPU不再使用这个对象时才真正释放它
 		template <typename DeviceObjectType>
 		void SafeReleaseDeviceObject(DeviceObjectType&& object);
+
 		void PurgeReleaseQueue(bool forceRelease);
 
 		ID3D12Device* GetD3D12Device() { return m_D3D12Device.Get(); }
@@ -61,14 +63,18 @@ namespace RHI
 		// 当提交一个CommandList时，会把下一个CommandList的编号和m_StaleResources中的资源添加到m_ReleaseQueue中，
 		// 在每帧的末尾，调用PurgeReleaseQueue来释放可以安全释放的资源（也就是记录的Cmd编号比GPU已经完成的CmdList数量小的所有资源）
 		// 使用unique_ptr引用资源，释放该资源时会弹出队列，自动调用资源的析构函数来释放
-		std::deque<std::unique_ptr<D3D12DeviceObject>> m_ReleaseQueue;
-		std::deque<std::unique_ptr<D3D12DeviceObject>> m_StaleResources;
+		using ReleaseQueueElementType = std::pair<UINT64, StaleResourceWrapper>;
+		std::deque<ReleaseQueueElementType> m_ReleaseQueue;
+		std::deque<ReleaseQueueElementType> m_StaleResources;
+
+		UINT64 m_NextCmdListNum;
 	};
 
 	template<typename DeviceObjectType>
 	inline void RenderDevice::SafeReleaseDeviceObject(DeviceObjectType&& object)
 	{
-
+		auto wrapper = StaleResourceWrapper::Create(object);
+		m_StaleResources.emplace_back(m_NextCmdListNum, std::move(wrapper));
 	}
 }
 
