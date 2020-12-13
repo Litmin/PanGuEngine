@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "Engine.h"
 #include "Input.h"
-#include <WindowsX.h>
 
 using namespace std;
 using Microsoft::WRL::ComPtr;

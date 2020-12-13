@@ -20,7 +20,7 @@ namespace RHI
 		{
 			if (Desc.CPUAccessFlags == CPU_ACCESS_WRITE)
 			{
-				assert(pBuffData == nullptr || pBuffData->pData == nullptr,
+				assert((pBuffData == nullptr || pBuffData->pData == nullptr) &&
 					"CPU-writable staging buffers must be updated via map.");
 			}
 		}

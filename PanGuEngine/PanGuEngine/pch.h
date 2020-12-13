@@ -14,7 +14,11 @@
 #ifndef NOMINMAX
 	#define NOMINMAX
 #endif
+
+// Windows
 #include <windows.h>
+#include <WindowsX.h>
+#include <wrl.h>
 
 
 // Direct3d12
@@ -50,7 +54,6 @@
 #include <memory>
 #include <string>
 #include <exception>
-#include <wrl.h>
 #include <shellapi.h>
 #include <cassert>
 #include <iostream>

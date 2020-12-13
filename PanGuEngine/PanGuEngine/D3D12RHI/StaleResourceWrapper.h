@@ -17,7 +17,7 @@ public:
 
 			SpecificStaleResource(const SpecificStaleResource&)				= delete;
 			SpecificStaleResource(SpecificStaleResource&&)					= delete;
-			SpecificStaleResource& operator= (const specificStaleResource&) = delete;
+			SpecificStaleResource& operator= (const SpecificStaleResource&) = delete;
 			SpecificStaleResource& operator= (SpecificStaleResource&&)		= delete;
 
 			// delete this!!!!!!

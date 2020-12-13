@@ -10,5 +10,4 @@ namespace RHI
     public:
         virtual ~D3D12DeviceObject() = 0;
     };
-
 }

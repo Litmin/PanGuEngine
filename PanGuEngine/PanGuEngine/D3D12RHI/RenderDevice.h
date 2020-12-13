@@ -10,7 +10,7 @@ namespace RHI
 	class RenderDevice
 	{
 	public:
-		RenderDevice(ComPtr<ID3D12Device> d3d12Device);
+		RenderDevice(Microsoft::WRL::ComPtr<ID3D12Device> d3d12Device);
 		~RenderDevice();
 
 		// 创建资源
@@ -62,7 +62,6 @@ namespace RHI
 		// 调用SafeReleaseDeviceObject释放资源时，会把该资源添加到m_StaleResources中，
 		// 当提交一个CommandList时，会把下一个CommandList的编号和m_StaleResources中的资源添加到m_ReleaseQueue中，
 		// 在每帧的末尾，调用PurgeReleaseQueue来释放可以安全释放的资源（也就是记录的Cmd编号比GPU已经完成的CmdList数量小的所有资源）
-		// 使用unique_ptr引用资源，释放该资源时会弹出队列，自动调用资源的析构函数来释放
 		using ReleaseQueueElementType = std::pair<UINT64, StaleResourceWrapper>;
 		std::deque<ReleaseQueueElementType> m_ReleaseQueue;
 		std::deque<ReleaseQueueElementType> m_StaleResources;
