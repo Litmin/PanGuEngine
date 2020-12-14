@@ -35,7 +35,7 @@ namespace RHI
 		DescriptorHeapAllocation AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
 		DescriptorHeapAllocation AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
 
-		// 安全释放GPU对象，当GPU不再使用这个对象时才真正释放它
+		// 安全释放GPU对象，当GPU不再使用这个对象时才真正释放它，传入的对象必须实现移动操作
 		template <typename DeviceObjectType>
 		void SafeReleaseDeviceObject(DeviceObjectType&& object);
 
