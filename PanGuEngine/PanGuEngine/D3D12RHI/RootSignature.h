@@ -1,6 +1,13 @@
 #pragma once
 
-class RootSignature
+namespace RHI
 {
-};
+	class RootSignature
+	{
+	public:
+
+	private:
+
+	};
+}
 

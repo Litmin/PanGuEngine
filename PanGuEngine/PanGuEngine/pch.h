@@ -41,8 +41,10 @@
 #include "Utility/MathHelper.h"
 #include "Utility/Singleton.h"
 #include "Utility/Debug.h"
+#include "Utility/HashUtils.hpp"
 
 // C++
+#include <array>
 #include <vector>
 #include <queue>
 #include <deque>

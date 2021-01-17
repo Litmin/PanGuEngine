@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Shader.h"
 #include <array>
+#include "..\D3D12RHI\Shader.h"
 
 using namespace std;
 using Microsoft::WRL::ComPtr;
@@ -25,10 +26,6 @@ Shader::Shader()
 	m_RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	m_BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	m_DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-}
-
-Shader::~Shader()
-{
 }
 
 void Shader::Initialize(ID3D12Device* device)

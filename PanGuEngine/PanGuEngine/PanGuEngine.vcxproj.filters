@@ -158,6 +158,27 @@
     <ClCompile Include="D3D12RHI\RingBuffer.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\ShaderResource.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\Shader.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\ShaderResourceLayout.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\ShaderResourceBinding.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\ShaderResourceCache.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\ShaderVariable.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\RenderPass.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -343,6 +364,30 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\RingBuffer.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\ShaderResource.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\HashUtils.hpp">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\Shader.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\ShaderResourceLayout.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\ShaderResourceBinding.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\ShaderResourceCache.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\ShaderVariable.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\RenderPass.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
