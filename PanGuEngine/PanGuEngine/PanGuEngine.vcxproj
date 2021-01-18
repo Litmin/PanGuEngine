@@ -167,6 +167,7 @@
     <ClCompile Include="D3D12RHI\Shader.cpp" />
     <ClCompile Include="D3D12RHI\ShaderResource.cpp" />
     <ClCompile Include="D3D12RHI\ShaderResourceBinding.cpp" />
+    <ClCompile Include="D3D12RHI\ShaderResourceBindingUtility.cpp" />
     <ClCompile Include="D3D12RHI\ShaderResourceCache.cpp" />
     <ClCompile Include="D3D12RHI\ShaderResourceLayout.cpp" />
     <ClCompile Include="D3D12RHI\ShaderVariable.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="D3D12RHI\Shader.h" />
     <ClInclude Include="D3D12RHI\ShaderResource.h" />
     <ClInclude Include="D3D12RHI\ShaderResourceBinding.h" />
+    <ClInclude Include="D3D12RHI\ShaderResourceBindingUtility.h" />
     <ClInclude Include="D3D12RHI\ShaderResourceCache.h" />
     <ClInclude Include="D3D12RHI\ShaderResourceLayout.h" />
     <ClInclude Include="D3D12RHI\ShaderVariable.h" />

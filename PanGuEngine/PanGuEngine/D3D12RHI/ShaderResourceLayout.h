@@ -17,13 +17,15 @@ namespace RHI
     class ShaderResourceLayout
     {
     public:
-        ShaderResourceLayout(ID3D12Device* pd3d12Device, 
-                             PIPELINE_TYPE pipelineType,
-                             const PipelineResourceLayoutDesc& resourceLayout,
-                             std::shared_ptr<const ShaderResource> shaderResource,
-                             std::vector<SHADER_RESOURCE_VARIABLE_TYPE> variableTypes,
-                             ShaderResourceCache* resourceCache,
-                             RootSignature* rootSignature);
+        ShaderResourceLayout();
+
+        void Initialize(ID3D12Device* pd3d12Device,
+                        PIPELINE_TYPE pipelineType,
+                        const PipelineResourceLayoutDesc& resourceLayout,
+                        std::shared_ptr<const ShaderResource> shaderResource,
+                        std::vector<SHADER_RESOURCE_VARIABLE_TYPE> variableTypes,
+                        ShaderResourceCache* resourceCache,
+                        RootSignature* rootSignature);
 
         ShaderResourceLayout(const ShaderResourceLayout&) = delete;
         ShaderResourceLayout(ShaderResourceLayout&&) = delete;

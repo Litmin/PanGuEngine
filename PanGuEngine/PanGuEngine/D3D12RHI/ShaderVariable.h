@@ -1,5 +1,6 @@
 #pragma once
 #include "ShaderResourceLayout.h"
+#include "ShaderResourceCache.h"
 
 namespace RHI 
 {
@@ -11,7 +12,40 @@ namespace RHI
     */
     class ShaderVariableManager
     {
+    public:
+        ShaderVariableManager(IObject& owner,
+                              ShaderResourceCache& resourceCache) noexcept :
+            m_Owner{owner},
+            m_ResourceCache{resourceCache}
+        {
+        }
 
+        // 为ShaderResourceLayout中的每个Shader资源创建一个ShaderVariable
+        void Initialize(ShaderResourceLayout& srcLayout,
+                        const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
+                        UINT32 alloedTypeNum);
+
+        ShaderVariable* GetVariable(const char* name);
+        ShaderVariable* GetVariable(UINT32 index);
+
+
+        // 批量绑定资源
+        //void BindResource(IResourceMapping* resourceMapping, UINT32 flags);
+
+        UINT32 GetVariableCount() const { return m_Variables.size(); }
+
+
+    private:
+        friend ShaderVariable;
+
+        UINT32 GetVariableIndex(const ShaderVariable& variable);
+
+        // Owner可以是PSO，也可以是SRB
+        IObject& m_Owner;
+
+        ShaderResourceCache& m_ResourceCache;
+
+        std::vector<ShaderVariable> m_Variables;
     };
 
     /**
@@ -38,7 +72,7 @@ namespace RHI
             return m_Resource.GetVariableType();
         }
 
-        // 绑定资源
+        // 绑定资源!!!!!!
         void Set(IDeviceObject* object)
         {
             m_Resource.BindResource(object, 0/*Array Index*/, m_ParentManager.m_ResourceCache);
