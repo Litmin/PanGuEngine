@@ -76,6 +76,8 @@ namespace RHI
             return (this->m_State & State) == State;
         }
 
+        const BufferDesc& GetDesc() const { return m_Desc; };
+
         // 绑定Vertex Buffer、Index Buffer时调用
         ID3D12Resource* GetD3D12Buffer(UINT64& DataStartByteOffset, DeviceContext* pContext);
         // 直接作为Root CBV绑定时调用

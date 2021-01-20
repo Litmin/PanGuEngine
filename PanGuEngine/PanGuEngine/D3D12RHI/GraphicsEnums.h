@@ -321,4 +321,16 @@ namespace RHI
 		/// Total number of shader variable types
 		SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES
 	};
+
+	enum class CachedResourceType
+	{
+		Unknown = -1,
+		CBV = 0,
+		TexSRV,
+		BufSRV,
+		TexUAV,
+		BufUAV,
+		Sampler,
+		NumTypes
+	};
 }

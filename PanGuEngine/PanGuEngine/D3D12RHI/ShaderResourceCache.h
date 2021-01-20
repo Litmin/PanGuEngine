@@ -12,6 +12,16 @@ namespace RHI
     {
     public:
 
+
+        struct Resource
+        {
+            CachedResourceType Type = CachedResourceType::Unknown;
+            // 该变量存储的是CPUDescriptorHeap中的Descriptor Handle
+            D3D12_CPU_DESCRIPTOR_HANDLE CPUDescriptorHandle = { 0 };
+            std::shared_ptr<IDeviceObject> pObject;
+        };
+
+
     private:
 
     };
