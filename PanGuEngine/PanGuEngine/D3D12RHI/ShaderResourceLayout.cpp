@@ -210,9 +210,11 @@ namespace RHI
 		return false;
 	}
 
+	// 绑定资源！！！！！！
+	// 这里只是把资源的Descriptor拷贝到了Cache中，没有提交到渲染管线
 	void ShaderResourceLayout::D3D12Resource::BindResource(IDeviceObject* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
-		const bool IsSampler = GetResType() == CachedResourceType::Sampler;
+		const bool IsSampler = ResourceType == CachedResourceType::Sampler;
 		auto       DescriptorHeapType = IsSampler ? D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER : D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		auto& DstRes = resourceCache.GetRootTable(RootIndex).GetResource(OffsetFromTableStart + arrayIndex, 
 																		 DescriptorHeapType, ParentResLayout.m_ShaderResources->GetShaderType());
