@@ -4,6 +4,7 @@
 #include "BufferView.h"
 #include "Buffer.h"
 #include "ShaderResourceBindingUtility.h"
+#include "RootSignature.h"
 
 namespace RHI
 {
@@ -30,8 +31,8 @@ namespace RHI
 
 
 	void ShaderResourceLayout::Initialize(ID3D12Device* pd3d12Device,
-		PIPELINE_TYPE pipelineType,
-		const PipelineResourceLayoutDesc& resourceLayout,
+		PIPELINE_TYPE PipelineType,
+		const PipelineResourceLayoutDesc& ResourceLayout,
 		std::shared_ptr<const ShaderResource> shaderResource,
 		const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
 		UINT32 allowedTypeNum,
@@ -48,9 +49,9 @@ namespace RHI
 
 		// 把ShaderResource中的每个资源都通过RootSignature确定RootIndex和OffsetFromTableStart，然后存储下来
 		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
-							   CachedResourceType              ResType,
-							   SHADER_RESOURCE_VARIABLE_TYPE   VarType,
-							   UINT32                          SamplerId = D3D12Resource::InvalidSamplerId) //
+			CachedResourceType              ResType,
+			SHADER_RESOURCE_VARIABLE_TYPE   VarType,
+			UINT32                          SamplerId = D3D12Resource::InvalidSamplerId) //
 		{
 			UINT32 RootIndex = D3D12Resource::InvalidRootIndex;
 			UINT32 Offset = D3D12Resource::InvalidOffset;
@@ -59,37 +60,73 @@ namespace RHI
 
 			if (rootSignature)
 			{
-				pRootSig->AllocateResourceSlot(m_ShaderResources->GetShaderType(), PipelineType, Attribs, VarType, DescriptorRangeType, RootIndex, Offset);
-				VERIFY(RootIndex <= D3D12Resource::MaxRootIndex, "Root index excceeds allowed limit");
+				// 按照ShaderResource中的顺序添加到RootSignature中，并分配RootIndex和Offset
+				rootSignature->AllocateResourceSlot(m_ShaderResources->GetShaderType(), PipelineType, Attribs, VarType, DescriptorRangeType, RootIndex, Offset);
 			}
 			else
 			{
-				// If root signature is not provided - use artifial root signature to store
-				// static shader resources:
+				// Static资源按下列RootIndex存放
 				// SRVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_SRV (0)
 				// UAVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_UAV (1)
 				// CBVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_CBV (2)
 				// Samplers at root index D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER (3)
 
-				// http://diligentgraphics.com/diligent-engine/architecture/d3d12/shader-resource-layout#Initializing-Special-Resource-Layout-for-Managing-Static-Shader-Resources
-
-				VERIFY_EXPR(pResourceCache != nullptr);
-
 				RootIndex = DescriptorRangeType;
-				Offset = Attribs.BindPoint;
-				// Resources in the static resource cache are indexed by the bind point
+				Offset = Attribs.BindPoint;	// Offset就是寄存器的索引，所以最好把Static资源的声明放在前面
 				StaticResCacheTblSizes[RootIndex] = std::max(StaticResCacheTblSizes[RootIndex], Offset + Attribs.BindCount);
 			}
-			VERIFY(RootIndex != D3D12Resource::InvalidRootIndex, "Root index must be valid");
-			VERIFY(Offset != D3D12Resource::InvalidOffset, "Offset must be valid");
 
-			// Immutable samplers are never copied, and SamplerId == InvalidSamplerId
-			auto& NewResource = (ResType == CachedResourceType::Sampler) ?
-				GetSampler(VarType, CurrSampler[VarType]++) :
-				GetSrvCbvUav(VarType, CurrCbvSrvUav[VarType]++);
-			::new (&NewResource) D3D12Resource(*this, Attribs, VarType, ResType, RootIndex, Offset, SamplerId);
+			if (ResType == CachedResourceType::Sampler)
+			{
+
+			}
+			else
+			{
+				m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset, SamplerId);
+			}
 		};
 
+		m_ShaderResources->ProcessResources(
+			[&](const ShaderResourceAttribs& CB, UINT32)
+			{
+				auto VarType = m_ShaderResources->FindVariableType(CB, ResourceLayout);
+				if (IsAllowedType(VarType, AllowedTypeBits))
+					AddResource(CB, CachedResourceType::CBV, VarType);
+			},
+			[&](const ShaderResourceAttribs& Sampler, UINT32)
+			{
+			},
+			[&](const ShaderResourceAttribs& TexSRV, UINT32)
+			{
+				auto VarType = m_ShaderResources->FindVariableType(TexSRV, ResourceLayout);
+				if (IsAllowedType(VarType, AllowedTypeBits))
+					AddResource(TexSRV, CachedResourceType::TexSRV, VarType);
+			},
+			[&](const ShaderResourceAttribs& TexUAV, UINT32)
+			{
+				auto VarType = m_ShaderResources->FindVariableType(TexUAV, ResourceLayout);
+				if (IsAllowedType(VarType, AllowedTypeBits))
+					AddResource(TexUAV, CachedResourceType::TexUAV, VarType);
+			},
+			[&](const ShaderResourceAttribs& BufSRV, UINT32)
+			{
+				auto VarType = m_ShaderResources->FindVariableType(BufSRV, ResourceLayout);
+				if (IsAllowedType(VarType, AllowedTypeBits))
+					AddResource(BufSRV, CachedResourceType::BufSRV, VarType);
+			},
+			[&](const ShaderResourceAttribs& BufUAV, UINT32)
+			{
+				auto VarType = m_ShaderResources->FindVariableType(BufUAV, ResourceLayout);
+				if (IsAllowedType(VarType, AllowedTypeBits))
+					AddResource(BufUAV, CachedResourceType::BufUAV, VarType);
+			}
+		);
+
+		// 初始化Static Resource Cache
+		if (resourceCache)
+		{
+			resourceCache->Initialize( _countof(StaticResCacheTblSizes), StaticResCacheTblSizes);
+		}
 	}
 
 	void ShaderResourceLayout::D3D12Resource::CacheCB(IDeviceObject* pBuffer, 

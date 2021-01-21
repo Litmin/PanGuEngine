@@ -200,10 +200,11 @@ namespace RHI
 
         size_t GetHash() const;
 
+        // TODO:Implete
         SHADER_RESOURCE_VARIABLE_TYPE FindVariableType(const ShaderResourceAttribs& ResourceAttribs,
             const PipelineResourceLayoutDesc& ResourceLayout) const;
 
-        Int32 FindStaticSampler(const ShaderResourceAttribs& ResourceAttribs,
+        UINT32 FindStaticSampler(const ShaderResourceAttribs& ResourceAttribs,
             const PipelineResourceLayoutDesc& ResourceLayoutDesc,
             bool                              LogStaticSamplerArrayError) const;
 
