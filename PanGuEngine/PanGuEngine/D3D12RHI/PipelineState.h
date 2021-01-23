@@ -6,13 +6,12 @@
 #include "Shader.h"
 #include "RenderPass.h"
 #include "ShaderResourceBinding.h"
+#include "Constant.h"
 
 
 namespace RHI
 {
 	class RenderDevice;
-
-	static const UINT32 MAX_SHADERS_IN_PIPELINE = 5;
 
 	// Graphicπ‹œﬂ
 	struct GraphicsPipelineDesc

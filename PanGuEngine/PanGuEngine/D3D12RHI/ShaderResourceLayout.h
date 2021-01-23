@@ -39,6 +39,8 @@ namespace RHI
 
         ~ShaderResourceLayout() = default;
 
+
+
         // 该结构保存了Shader中的资源到Descriptor Heap中的映射关系，成员包含一个ShaderResourceAttribs的引用、RootIndex、OffsetFromTableStart
         struct D3D12Resource 
         {
@@ -83,7 +85,6 @@ namespace RHI
 
             void BindResource(IDeviceObject* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
 
-
         private:
             // 把要绑定的资源存储到ShaderResourceCache中
             // 几个Cache函数其实就是把一个资源的Descriptor拷贝到ShaderResourceCache中的Descriptor
@@ -106,6 +107,35 @@ namespace RHI
                 UINT32                              arrayIndex,
                 D3D12_CPU_DESCRIPTOR_HANDLE         shaderVisibleHeapCPUDescriptorHandle) const;
         };
+
+
+
+        // 拷贝Static资源
+        // 保存Static资源的ShaderResourceCache没有保存在GPUDescriptorHeap，在提交SRB时，会把Static ShaderResourceCache的资源拷贝到SRB中再提交
+        void CopyStaticResourceDesriptorHandles(const ShaderResourceCache& SrcCache,
+                                                const ShaderResourceLayout& DstLayout,
+                                                ShaderResourceCache& DstCache) const;
+
+        UINT32 GetCbvSrvUavCount(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
+        {
+            return m_SrvCbvUavs[VarType].size();
+        }
+
+        UINT32 GetSamplerCount(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
+        {
+            return m_Samplers[VarType].size();
+        }
+
+        // indexInArray就是这个D3D12Resource在数组中的索引，不是RootIndex，因为可能有多个RootIndex相同的D3D12Resource
+        const D3D12Resource& GetSrvCbvUav(SHADER_RESOURCE_VARIABLE_TYPE VarType, UINT32 indexInArray) const
+        {
+            return m_SrvCbvUavs[VarType][indexInArray];
+        }
+
+        const D3D12Resource& GetSampler(SHADER_RESOURCE_VARIABLE_TYPE VarType, UINT32 indexInArray) const
+        {
+            return m_Samplers[VarType][indexInArray];
+        }
 
     private:
         ID3D12Device* m_D3D12Device;

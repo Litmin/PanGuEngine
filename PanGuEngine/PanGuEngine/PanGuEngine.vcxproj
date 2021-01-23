@@ -218,6 +218,7 @@
     <ClInclude Include="D3D12RHI\Buffer.h" />
     <ClInclude Include="D3D12RHI\BufferView.h" />
     <ClInclude Include="D3D12RHI\CommandQueue.h" />
+    <ClInclude Include="D3D12RHI\Constant.h" />
     <ClInclude Include="D3D12RHI\D3D12DeviceObject.h" />
     <ClInclude Include="D3D12RHI\D3D12ResourceBase.h" />
     <ClInclude Include="D3D12RHI\DescriptorHeap.h" />

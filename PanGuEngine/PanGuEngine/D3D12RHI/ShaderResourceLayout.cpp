@@ -190,17 +190,15 @@ namespace RHI
 
 	bool ShaderResourceLayout::D3D12Resource::IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const
 	{
-		if (RootIndex < resourceCache.GetRootTableNum())
+		if (RootIndex < resourceCache.GetRootTablesNum())
 		{
 			// ShaderResourceCache::RootTable
 			const ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
-			if (OffsetFromTableStart + arrayIndex < rootTable.GetSize())
+			if (OffsetFromTableStart + arrayIndex < rootTable.Size())
 			{
 				// ShaderResourceCache::Resource
 				const ShaderResourceCache::Resource& CachedRes =
-					rootTable.GetResource(OffsetFromTableStart + ArrayIndex,
-						GetResType() == CachedResourceType::Sampler ? D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER : D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-						ParentResLayout.m_ShaderResources->GetShaderType());
+					rootTable.GetResource(OffsetFromTableStart + arrayIndex);
 
 				if (CachedRes.pObject != nullptr)
 					return true;
@@ -216,8 +214,7 @@ namespace RHI
 	{
 		const bool IsSampler = ResourceType == CachedResourceType::Sampler;
 		auto       DescriptorHeapType = IsSampler ? D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER : D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		auto& DstRes = resourceCache.GetRootTable(RootIndex).GetResource(OffsetFromTableStart + arrayIndex, 
-																		 DescriptorHeapType, ParentResLayout.m_ShaderResources->GetShaderType());
+		auto& DstRes = resourceCache.GetRootTable(RootIndex).GetResource(OffsetFromTableStart + arrayIndex);
 
 		auto ShdrVisibleHeapCPUDescriptorHandle = IsSampler ?
 			resourceCache.GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>(RootIndex, OffsetFromTableStart + arrayIndex) :
@@ -256,6 +253,63 @@ namespace RHI
 				break;
 			}
 		}
+	}
+
+	void ShaderResourceLayout::CopyStaticResourceDesriptorHandles(const ShaderResourceCache& SrcCache, 
+																				 const ShaderResourceLayout& DstLayout, 
+																				 ShaderResourceCache& DstCache) const
+	{
+		// Static shader resources按下列顺序存储:
+		// CBVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_CBV （0）,
+		// SRVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_SRV （1）,
+		// UAVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_UAV （2）, and
+		// Samplers at root index D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER （3）
+		// 每个资源在Table中的Offset等于BindPoint，也就是寄存器编号
+
+		const auto& CbvSrvUavCount = DstLayout.GetCbvSrvUavCount(SHADER_RESOURCE_VARIABLE_TYPE_STATIC);
+		for (UINT32 i = 0; i < CbvSrvUavCount; ++i)
+		{
+			const auto& res = DstLayout.GetSrvCbvUav(SHADER_RESOURCE_VARIABLE_TYPE_STATIC, i);
+			auto        RangeType = GetDescriptorRangeType(res.ResourceType);
+
+			for (UINT32 arrayInd = 0; arrayInd < res.Attribs.BindCount; ++arrayInd)
+			{
+				auto BindPoint = res.Attribs.BindPoint + arrayInd;
+
+				// Get要拷贝的资源，首先通过RangeType来找到RootTable，然后用BindPoint（BindPoint + 在数组中的索引）找到对应的资源
+				const auto& SrcRes = SrcCache.GetRootTable(RangeType).GetResource(BindPoint);
+
+				if (!SrcRes.pObject)
+					LOG_ERROR("No resource is assigned to static shader variable");
+
+				// Get要拷贝到的目标资源，因为这个DstCache不是存储Static资源的，所以RootTable是按照RootIndex排列的，Table中的资源是按照Offset排列的
+				auto& DstRes = DstCache.GetRootTable(res.RootIndex).GetResource(res.OffsetFromTableStart + arrayInd);
+
+				if (DstRes.pObject != SrcRes.pObject)
+				{
+					assert(DstRes.pObject == nullptr && "Static资源已经被初始化了, 但是Shader中的Static资源跟之前初始化的不一样");
+
+					// Copy
+					DstRes.pObject = SrcRes.pObject;
+					DstRes.Type = SrcRes.Type;
+					DstRes.CPUDescriptorHandle = SrcRes.CPUDescriptorHandle;
+					// Get DstCache的GPUDescriptorHeap的Handle，把Descriptor拷贝过去
+					auto ShdrVisibleHeapCPUDescriptorHandle = DstCache.GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(res.RootIndex, res.OffsetFromTableStart + arrayInd);
+					if (ShdrVisibleHeapCPUDescriptorHandle.ptr != 0)
+					{
+						m_D3D12Device->CopyDescriptorsSimple(1, ShdrVisibleHeapCPUDescriptorHandle, SrcRes.CPUDescriptorHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					}
+				}
+				else
+				{
+					assert(DstRes.pObject == SrcRes.pObject);
+					assert(DstRes.Type == SrcRes.Type);
+					assert(DstRes.CPUDescriptorHandle.ptr == SrcRes.CPUDescriptorHandle.ptr);
+				}
+			}
+		}
+
+		// TODO: Sampler
 	}
 
 }

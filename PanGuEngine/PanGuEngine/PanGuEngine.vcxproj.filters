@@ -396,6 +396,9 @@
     <ClInclude Include="D3D12RHI\ShaderResourceBindingUtility.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
+    <ClInclude Include="D3D12RHI\Constant.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PanGuEngine.rc" />

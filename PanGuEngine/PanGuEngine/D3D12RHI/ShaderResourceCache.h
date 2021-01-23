@@ -51,6 +51,12 @@ namespace RHI
                 return m_Resources[OffsetFromTableStart];
             }
 
+            inline Resource& GetResource(UINT32 OffsetFromTableStart)
+            {
+                assert((OffsetFromTableStart < m_Resources.size()) && "Index out of range.");
+                return m_Resources[OffsetFromTableStart];
+            }
+
             // RootTable的大小
             inline UINT32 Size() const { return m_Resources.size(); }
 
@@ -70,9 +76,9 @@ namespace RHI
 
         // ShaderResourceLayout通过该函数来获取Descriptor Handle，并把要绑定的资源的Descriptor拷贝过来!!!
         template <D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
-        D3D12_CPU_DESCRIPTOR_HANDLE GetShaderVisibleTableCPUDescriptorHandle(UINT32 RootParamInd, UINT32 OffsetFromTableStart = 0) const
+        D3D12_CPU_DESCRIPTOR_HANDLE GetShaderVisibleTableCPUDescriptorHandle(UINT32 RootIndex, UINT32 OffsetFromTableStart = 0) const
         {
-            const auto& RootParam = GetRootTable(RootParamInd);
+            const auto& RootParam = GetRootTable(RootIndex);
 
             D3D12_CPU_DESCRIPTOR_HANDLE CPUDescriptorHandle = { 0 };
 
@@ -97,9 +103,9 @@ namespace RHI
 
         // RootSignature通过该函数来访问GPU Descriptor Handle，然后提交到渲染管线!!!
         template <D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
-        D3D12_GPU_DESCRIPTOR_HANDLE GetShaderVisibleTableGPUDescriptorHandle(UINT32 RootParamInd, UINT32 OffsetFromTableStart = 0) const
+        D3D12_GPU_DESCRIPTOR_HANDLE GetShaderVisibleTableGPUDescriptorHandle(UINT32 RootIndex, UINT32 OffsetFromTableStart = 0) const
         {
-            const auto& RootParam = GetRootTable(RootParamInd);
+            const auto& RootParam = GetRootTable(RootIndex);
 
             assert(RootParam.m_TableStartOffset != InvalidDescriptorOffset && "GPU descriptor handle must never be requested for dynamic resources");
 
