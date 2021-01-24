@@ -1,8 +1,13 @@
 #pragma once
 #include "Constant.h"
+#include "ShaderResourceCache.h"
+#include "ShaderResource.h"
+#include "ShaderResourceBindingUtility.h"
 
 namespace RHI
 {
+    class RenderDevice;
+
 	class RootParameter
 	{
 	public:
@@ -72,16 +77,17 @@ namespace RHI
         RootParameter& operator=(const RootParameter&) = delete;
         RootParameter& operator=(RootParameter&&) = delete;
 
-        // 在现有的Root Table中添加Descriptor Range时会调用
+        // 在现有的Root Table中添加Descriptor Range
         void AddDescriptorRanges(UINT32 addRangesNum)
         {
-            m_DescriptorRanges.push_back
+            m_DescriptorRanges.insert(m_DescriptorRanges.end(), addRangesNum, D3D12_DESCRIPTOR_RANGE{});
 
             // 添加了新的Descriptor Range后，要重新赋值指针，因为当vector扩容后，存储位置会变化!!!!!!
             m_RootParam.DescriptorTable.pDescriptorRanges = &m_DescriptorRanges[0];
 
         }
 
+        // 设置指定Descriptor Range的属性
         void SetDescriptorRange(UINT                        RangeIndex,
                                 D3D12_DESCRIPTOR_RANGE_TYPE Type,
                                 UINT                        Register,
@@ -104,6 +110,7 @@ namespace RHI
 
         SHADER_RESOURCE_VARIABLE_TYPE GetShaderVariableType() const { return m_ShaderVarType; }
 
+        // 该Root Table的Descriptor数量，Root Table中有多个Descriptor Range，所以是把每个Descriptor Range的Descriptor数量加起来
         UINT32 GetDescriptorTableSize() const
         {
             assert(m_RootParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE && "Incorrect parameter table: descriptor table is expected");
@@ -232,14 +239,29 @@ namespace RHI
 	class RootSignature
 	{
 	public:
+        RootSignature();
+
+        // 完成Root Signature的构造，创建Direct3D 12的Root Signature
+        void Finalize(ID3D12Device* pd3d12Device);
+
+        ID3D12RootSignature* GetD3D12RootSignature() const { return m_pd3d12RootSignature.Get(); }
+
+        // 初始化SRB的Cache，因为只有RootSignature知道足够的信息，初始化每个Shader
+        void InitResourceCacheForSRB(RenderDevice* RenderDevice, ShaderResourceCache& ResourceCache) const;
+
+        // 为Shader中的每个ShaderResource分配一个容身之地
+        void AllocateResourceSlot(SHADER_TYPE                     ShaderType,
+                                  PIPELINE_TYPE                   PipelineType,
+                                  const ShaderResourceAttribs& ShaderResAttribs,
+                                  SHADER_RESOURCE_VARIABLE_TYPE   VariableType,
+                                  D3D12_DESCRIPTOR_RANGE_TYPE     RangeType,
+                                  UINT32& RootIndex,
+                                  UINT32& OffsetFromTableStart);
 
 	private:
-        // Slot: 插槽
-        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_TotalSrvCbvUavSlots = {};
-        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_TotalSamplerSlots = {};
-        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_TotalRootViews = {};
+        // 计算Resource Cache中需要的Table数量，以及每个Table中Descriptor的数量，Root View当成只有一个Descriptor的Table
+        std::vector<UINT32> GetCacheTableSizes() const;
 
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pd3d12RootSignature;
 
         // 内部嵌套类，帮助管理RootParam
         class RootParamsManager
@@ -304,8 +326,22 @@ namespace RHI
         private:
             UINT32 m_TotalDescriptorRanges = 0;
             std::vector<RootParameter> m_RootTables;
-            std::vector<RootParameter> m_RootViews;
-        };
+            std::vector<RootParameter> m_RootViews; //                  <-----
+        };//                                                                  |
+        //                                                                    |
+        //                                                                    |
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pd3d12RootSignature;//  |
+        //                                                                    |                        
+        // RootParameter包括Root View和Root Table，分别存储在两个Vector中，--------
+        // 构造RootParameter时，按照Shader中声明的顺序依次处理，RootIndex也就按声明的顺序
+        // Root Table中，Static和Mutable资源是放在一个Root Table中的，
+        // 下面的m_SrvCbvUavRootTablesMap存储的是指定Shader阶段和指定Shader Variable类型的Root Table在上面的m_RootTables中的索引（不是Root Index）
+        //
+        RootParamsManager m_RootParams;
+
+        // Slot: 插槽
+        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_TotalSrvCbvUavSlots = {};
+        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_TotalRootViews = {};
 
         static constexpr UINT8 InvalidRootTableIndex = static_cast<UINT8>(-1);
 
@@ -315,13 +351,6 @@ namespace RHI
         // or -1, if the table is not yet assigned to the combination
         // 该数组存储了每个Shader的每个Shader Variable Type 的 CBVSRVUAV Root Table在m_RootParams中的索引（不是RootIndex）
         std::array<UINT8, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES * MAX_SHADERS_IN_PIPELINE> m_SrvCbvUavRootTablesMap = {};
-        std::array<UINT8, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES * MAX_SHADERS_IN_PIPELINE> m_SamplerRootTablesMap = {};
-
-        RootParamsManager m_RootParams;
 	};
-    template<typename TOperation>
-    inline void RootSignature::RootParamsManager::ProcessRootTables(TOperation) const
-    {
-    }
 }
 

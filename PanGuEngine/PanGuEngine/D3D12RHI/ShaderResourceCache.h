@@ -68,10 +68,10 @@ namespace RHI
         };
 
         // 外部在GPUDescriptorHeap中进行分配，然后赋值给ShaderResourceCache
-        void SetDescriptorHeapSpace(DescriptorHeapAllocation&& CbcSrvUavHeapSpace, DescriptorHeapAllocation&& SamplerHeapSpace)
+        void SetDescriptorHeapSpace(DescriptorHeapAllocation&& CbcSrvUavHeapSpace)
         {
             m_CbvSrvUavGPUHeapSpace = std::move(CbcSrvUavHeapSpace);
-            m_SamplerGPUHeapSpace = std::move(SamplerHeapSpace);
+            //m_SamplerGPUHeapSpace = std::move(SamplerHeapSpace);
         }
 
         // ShaderResourceLayout通过该函数来获取Descriptor Handle，并把要绑定的资源的Descriptor拷贝过来!!!
