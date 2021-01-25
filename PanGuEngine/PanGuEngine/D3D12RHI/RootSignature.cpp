@@ -105,7 +105,6 @@ namespace RHI
 	RootSignature::RootSignature()
 	{
 		m_SrvCbvUavRootTablesMap.fill(InvalidRootTableIndex);
-		m_SamplerRootTablesMap.fill(InvalidRootTableIndex);
 	}
 
 	// 完成Root Signature的构造，创建Direct3D 12的Root Signature
@@ -120,9 +119,8 @@ namespace RHI
 
 			auto TableSize = RootTbl.GetDescriptorTableSize();
 			assert(d3d12RootParam.DescriptorTable.NumDescriptorRanges > 0 && TableSize > 0 && "Unexpected empty descriptor table");
-			auto IsSamplerTable = d3d12RootParam.DescriptorTable.pDescriptorRanges[0].RangeType == D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
 			auto VarType = RootTbl.GetShaderVariableType();
-			(IsSamplerTable ? m_TotalSamplerSlots : m_TotalSrvCbvUavSlots)[VarType] += TableSize;
+			m_TotalSrvCbvUavSlots[VarType] += TableSize;
 		}
 
 		// 统计Root View的数量
@@ -266,7 +264,17 @@ namespace RHI
 			}
 
 			// 刚刚创建的或者刚刚使用的Root Table
-			auto& RootTable
+			auto& RootTable = m_RootParams.GetRootTable(RootTableArrayInd);
+			RootIndex = RootTable.GetRootIndex();
+
+			const auto& d3d12RootParam = static_cast<const D3D12_ROOT_PARAMETER&>(RootTable);
+
+			assert(d3d12RootParam.ShaderVisibility == shaderVisibility && "Shader visibility is not correct");
+
+			// Descriptor是紧密排列的，所以要添加的这个Descriptor的Offset就是添加前Descriptor的数量
+			OffsetFromTableStart = RootTable.GetDescriptorTableSize();
+
+
 		}
 	}
 
