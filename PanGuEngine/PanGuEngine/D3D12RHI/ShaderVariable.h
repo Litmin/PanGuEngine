@@ -13,9 +13,7 @@ namespace RHI
     class ShaderVariableManager
     {
     public:
-        ShaderVariableManager(IObject& owner,
-                              ShaderResourceCache& resourceCache) noexcept :
-            m_Owner{owner},
+        ShaderVariableManager(ShaderResourceCache& resourceCache) noexcept :
             m_ResourceCache{resourceCache}
         {
         }
@@ -39,9 +37,6 @@ namespace RHI
         friend ShaderVariable;
 
         UINT32 GetVariableIndex(const ShaderVariable& variable);
-
-        // Owner可以是PSO，也可以是SRB
-        IObject& m_Owner;
 
         ShaderResourceCache& m_ResourceCache;
 

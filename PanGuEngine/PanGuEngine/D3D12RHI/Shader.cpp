@@ -98,7 +98,8 @@ namespace RHI
     }
 
 
-    Shader::Shader(RenderDevice* pRenderDevice, const ShaderCreateInfo& shaderCI)
+    Shader::Shader(RenderDevice* pRenderDevice, const ShaderCreateInfo& shaderCI) :
+        m_Desc{shaderCI.Desc}
     {
         // ±‡“ÎShader
         string strShaderProfile = GetHLSLProfileString(shaderCI.Desc.ShaderType, shaderCI.SM);

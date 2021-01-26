@@ -41,7 +41,10 @@ namespace RHI
 
         ID3DBlob* GetShaderByteCode() { return m_ShaderByteCode.Get(); }
 
+        SHADER_TYPE GetShaderType() const { return m_Desc.ShaderType; }
+
     private:
+        ShaderDesc m_Desc;
 
         // Shader Resource对象要使用共享指针，因为ShaderResourceLayout也会引用它
         std::shared_ptr<const ShaderResource> m_ShaderResource;

@@ -51,7 +51,7 @@ namespace RHI
 		D3D12_STATIC_SAMPLER_DESC Desc;
 	};
 
-	// 描述Shader Variable和Static Sampler
+	// 描述Shader Variable Type和Static Sampler
 	struct PipelineResourceLayoutDesc
 	{
 		SHADER_RESOURCE_VARIABLE_TYPE DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
@@ -86,6 +86,9 @@ namespace RHI
 		PipelineState(RenderDevice* renderDevice,
 					  const PipelineStateDesc& desc);
 		~PipelineState();
+
+		// 初始化Shader Resource Layout
+		void InitResourceLayout();
 
 		// 绑定Static资源
 		void BindStaticResources();
@@ -137,6 +140,8 @@ namespace RHI
 		std::shared_ptr<Shader> m_AmplificationShader;
 		std::shared_ptr<Shader> m_MeshShader;
 
+		std::vector<Shader*> m_ShaderArray;
+
 		std::shared_ptr<RenderPass> m_RenderPass;
 
 		size_t m_ShaderResourceLayoutHash = 0;
@@ -144,7 +149,9 @@ namespace RHI
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
 		RootSignature m_RootSignature;
 
+		// 
 		std::vector<ShaderResourceLayout> m_ShaderResourceLayouts;
+		// 
 		std::vector<ShaderResourceLayout> m_StaticShaderResourceLayouts;
 		// Static的Shader Variable在这存储，Mutable和Dynamic的存储在ShaderResourceBinding的Cache中
 		std::vector<ShaderResourceCache> m_StaticResourceCaches;	
