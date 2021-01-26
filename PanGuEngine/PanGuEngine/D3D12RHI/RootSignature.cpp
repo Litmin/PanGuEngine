@@ -272,9 +272,13 @@ namespace RHI
 			assert(d3d12RootParam.ShaderVisibility == shaderVisibility && "Shader visibility is not correct");
 
 			// Descriptor是紧密排列的，所以要添加的这个Descriptor的Offset就是添加前Descriptor的数量
+			// 调用了AddDescriptorRanges时，GetDescriptorTableSize还没有增加！！！！！！
 			OffsetFromTableStart = RootTable.GetDescriptorTableSize();
 
 
+			// 刚刚添加的Descriptor Range的索引
+			UINT32 NewDescriptorRangeIndex = d3d12RootParam.DescriptorTable.NumDescriptorRanges - 1;
+			RootTable.SetDescriptorRange(NewDescriptorRangeIndex, RangeType, ShaderResAttribs.BindPoint, ShaderResAttribs.BindCount, 0, OffsetFromTableStart);
 		}
 	}
 

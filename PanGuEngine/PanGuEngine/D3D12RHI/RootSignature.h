@@ -84,7 +84,7 @@ namespace RHI
 
             // 添加了新的Descriptor Range后，要重新赋值指针，因为当vector扩容后，存储位置会变化!!!!!!
             m_RootParam.DescriptorTable.pDescriptorRanges = &m_DescriptorRanges[0];
-
+            m_RootParam.DescriptorTable.NumDescriptorRanges += addRangesNum;
         }
 
         // 设置指定Descriptor Range的属性
