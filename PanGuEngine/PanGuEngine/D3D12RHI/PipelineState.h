@@ -149,9 +149,9 @@ namespace RHI
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
 		RootSignature m_RootSignature;
 
-		// 
+		// 这个ResourceLayout用于定为所有的Resource
 		std::vector<ShaderResourceLayout> m_ShaderResourceLayouts;
-		// 
+		// 这个ResourceLayout用于帮助管理Static Resource
 		std::vector<ShaderResourceLayout> m_StaticShaderResourceLayouts;
 		// Static的Shader Variable在这存储，Mutable和Dynamic的存储在ShaderResourceBinding的Cache中
 		std::vector<ShaderResourceCache> m_StaticResourceCaches;	

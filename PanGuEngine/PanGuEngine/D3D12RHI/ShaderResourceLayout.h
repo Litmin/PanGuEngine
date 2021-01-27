@@ -20,17 +20,21 @@ namespace RHI
         ShaderResourceLayout() = default;
 
         // 有两种初始化方式：
-        //      Shader为了绑定Static资源，会提供一个ShaderResourceCache
-        //      SRB绑定Mutable和DYnamic资源
-        // RootIndex和OffsetFromTableStart在初始化的过程中分配
-        void Initialize(ID3D12Device* pd3d12Device,
+        // 这种初始化的用途是定为所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
+        void InitializeForAll(ID3D12Device* pd3d12Device,
                         PIPELINE_TYPE pipelineType,
                         const PipelineResourceLayoutDesc& resourceLayout,
                         std::shared_ptr<const ShaderResource> shaderResource,
-                        const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
-                        UINT32 allowedTypeNum,
-                        ShaderResourceCache* resourceCache,
                         RootSignature* rootSignature);
+
+        // 这种方式初始化的用途是帮助管理Static 资源
+        void InitializeForStatic(ID3D12Device* pd3d12Device,
+            PIPELINE_TYPE pipelineType,
+            const PipelineResourceLayoutDesc& resourceLayout,
+            std::shared_ptr<const ShaderResource> shaderResource, 
+            const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
+            UINT32 allowedTypeNum,
+            ShaderResourceCache* resourceCache);
 
         ShaderResourceLayout(const ShaderResourceLayout&) = delete;
         ShaderResourceLayout(ShaderResourceLayout&&) = delete;
