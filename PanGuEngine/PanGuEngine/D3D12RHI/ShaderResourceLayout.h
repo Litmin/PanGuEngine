@@ -23,14 +23,14 @@ namespace RHI
         // 这种初始化的用途是定为所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
         void InitializeForAll(ID3D12Device* pd3d12Device,
                         PIPELINE_TYPE pipelineType,
-                        const PipelineResourceLayoutDesc& resourceLayout,
+                        const PipelineResourceLayoutDesc& ResourceLayout,
                         std::shared_ptr<const ShaderResource> shaderResource,
                         RootSignature* rootSignature);
 
         // 这种方式初始化的用途是帮助管理Static 资源
         void InitializeForStatic(ID3D12Device* pd3d12Device,
             PIPELINE_TYPE pipelineType,
-            const PipelineResourceLayoutDesc& resourceLayout,
+            const PipelineResourceLayoutDesc& ResourceLayout,
             std::shared_ptr<const ShaderResource> shaderResource, 
             const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
             UINT32 allowedTypeNum,

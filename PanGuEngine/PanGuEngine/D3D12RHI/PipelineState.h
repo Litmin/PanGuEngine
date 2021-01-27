@@ -7,6 +7,7 @@
 #include "RenderPass.h"
 #include "ShaderResourceBinding.h"
 #include "Constant.h"
+#include "ShaderResourceBindingUtility.h"
 
 
 namespace RHI
@@ -88,7 +89,7 @@ namespace RHI
 		~PipelineState();
 
 		// 初始化Shader Resource Layout
-		void InitResourceLayout();
+		void InitShaderObjects();
 
 		// 绑定Static资源
 		void BindStaticResources();
@@ -158,7 +159,9 @@ namespace RHI
 		std::vector<ShaderVariableManager> m_staticVarManagers;
 
 
-		std::array<INT8, (size_t)MAX_SHADERS_IN_PIPELINE> m_ResourceLayoutIndex = { -1,-1,-1,-1,-1 };
+		// 输入ShaderType转成的Index，输出该ShaderType在m_ShaderArray、m_ShaderResourceLayouts等上面几个数组中的索引
+		// 作用是找到某个Shader对应的m_ShaderResourceLayouts、m_StaticResourceCaches等对象
+		std::array<INT8, (size_t)MAX_SHADERS_IN_PIPELINE> m_ShaderTypeToIndexMap = { -1,-1,-1,-1,-1 };
 	};
 }
 

@@ -12,6 +12,8 @@ namespace RHI
 	{
 		if (m_Desc.PipelineType == PIPELINE_TYPE_GRAPHIC)
 		{
+			m_ShaderTypeToIndexMap.fill(-1);
+
 			// 把Shader缓存下来
 			auto addShader = [&](shared_ptr<Shader> shader)
 			{
@@ -30,6 +32,9 @@ namespace RHI
 					default:
 						LOG_ERROR("Unkonw Shader Type.");
 					}
+
+					INT32 shaderIndex = GetShaderTypePipelineIndex(shaderType, m_Desc.PipelineType);
+					m_ShaderTypeToIndexMap[shaderIndex] = m_ShaderArray.size() - 1;
 				}
 			};
 
@@ -52,11 +57,14 @@ namespace RHI
 				m_staticVarManagers.emplace_back(m_StaticResourceCaches[i]);
 			}
 
-			// 初始化ShaderResourceLayout
-			InitResourceLayout();
+			// 使用Shader中的ShaderResource来初始化ShaderResourceLayout，这一过程中也会初始化RootSignature
+			InitShaderObjects();
 
+			// 根签名完成初始化，创建Direct3D 12的RootSignature
+			auto pd3d12Device = m_RenderDevice->GetD3D12Device();
+			m_RootSignature.Finalize(pd3d12Device);
 
-
+			// 设置Direc3D 12的PSO Desc
 
 			m_RenderPass = m_Desc.GraphicsPipeline.pRenderPass;
 			// TODO: 设置RenderPass
@@ -74,17 +82,31 @@ namespace RHI
 	}
 
 	// 初始化ShaderResourceLayout
-	void PipelineState::InitResourceLayout()
+	void PipelineState::InitShaderObjects()
 	{
 		auto pd3d12Device = m_RenderDevice->GetD3D12Device();
 		const auto& pipelineResourceLayout = m_Desc.ResourceLayout;
 
 		for (UINT32 i = 0; i < m_ShaderArray.size(); ++i)
 		{
+			auto* shader = m_ShaderArray[i];
 
+			// 初始化所有资源的ShaderResourceLayout
+			m_ShaderResourceLayouts[i].InitializeForAll(pd3d12Device, m_Desc.PipelineType, m_Desc.ResourceLayout, shader->GetShaderResources(), &m_RootSignature);
+
+			// 初始化用来存储Static资源的ShaderResourceCache和ShaderResourceLayout
+			const SHADER_RESOURCE_VARIABLE_TYPE StaticVarType[] = { SHADER_RESOURCE_VARIABLE_TYPE_STATIC };
+			m_StaticShaderResourceLayouts[i].InitializeForStatic(pd3d12Device, 
+																 m_Desc.PipelineType, 
+																 m_Desc.ResourceLayout, 
+																 shader->GetShaderResources(), 
+																 StaticVarType, 
+																 _countof(StaticVarType), 
+																 &m_StaticResourceCaches[i]);
+
+			// 初始化Static Shader Variables
+			m_staticVarManagers.emplace_back(m_StaticResourceCaches[i], m_StaticShaderResourceLayouts[i], StaticVarType, _countof(StaticVarType));
 		}
-
-
 	}
 }
 
