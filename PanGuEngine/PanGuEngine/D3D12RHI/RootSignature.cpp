@@ -107,6 +107,11 @@ namespace RHI
 		m_SrvCbvUavRootTablesMap.fill(InvalidRootTableIndex);
 	}
 
+	// TODO:RootSignature是否要SafeRelease
+	RootSignature::~RootSignature()
+	{
+	}
+
 	// 完成Root Signature的构造，创建Direct3D 12的Root Signature
 	void RootSignature::Finalize(ID3D12Device* pd3d12Device)
 	{

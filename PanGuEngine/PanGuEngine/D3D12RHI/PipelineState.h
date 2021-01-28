@@ -64,6 +64,8 @@ namespace RHI
 
 	struct PipelineStateDesc
 	{
+		std::wstring Name = L"Default PSO";
+
 		PIPELINE_TYPE PipelineType;
 
 		/// This member defines allocation granularity for internal resources required by the shader resource
@@ -88,12 +90,8 @@ namespace RHI
 					  const PipelineStateDesc& desc);
 		~PipelineState();
 
-		// 初始化Shader Resource Layout
 		void InitShaderObjects();
 
-		// 绑定Static资源
-		void BindStaticResources();
-		// Static Variable数量
 		UINT32 GetStaticVariableCount(SHADER_TYPE ShaderType) const;
 		ShaderVariable* GetStaticVariableByName(SHADER_TYPE shaderType, std::string name);
 		ShaderVariable* GetStaticVariableByIndex(SHADER_TYPE shaderType, UINT32 index);

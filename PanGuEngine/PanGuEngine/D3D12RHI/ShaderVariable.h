@@ -41,7 +41,7 @@ namespace RHI
         }
         
 
-        ShaderVariable* GetVariable(const char* name);
+        ShaderVariable* GetVariable(const std::string& name);
         ShaderVariable* GetVariable(UINT32 index);
 
 

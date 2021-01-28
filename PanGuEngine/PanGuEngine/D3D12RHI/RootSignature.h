@@ -240,6 +240,7 @@ namespace RHI
 	{
 	public:
         RootSignature();
+        ~RootSignature();
 
         // 完成Root Signature的构造，创建Direct3D 12的Root Signature
         void Finalize(ID3D12Device* pd3d12Device);
