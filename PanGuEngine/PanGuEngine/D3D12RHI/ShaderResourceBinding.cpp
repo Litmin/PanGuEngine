@@ -3,8 +3,5 @@
 
 namespace RHI
 {
-    D3D12DeviceObject::~D3D12DeviceObject()
-    {
-
-    }
+    
 }
