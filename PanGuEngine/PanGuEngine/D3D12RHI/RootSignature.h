@@ -1,5 +1,4 @@
 #pragma once
-#include "Constant.h"
 #include "ShaderResourceCache.h"
 #include "ShaderResource.h"
 #include "ShaderResourceBindingUtility.h"

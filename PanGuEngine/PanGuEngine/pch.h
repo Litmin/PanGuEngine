@@ -64,5 +64,7 @@
 // PanGu
 #include "D3D12RHI/GraphicsEnums.h"
 #include "D3D12RHI/Align.h"
+#include "D3D12RHI/Constant.h"
+
 
 #endif //PCH_H

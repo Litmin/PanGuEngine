@@ -6,7 +6,6 @@
 #include "Shader.h"
 #include "RenderPass.h"
 #include "ShaderResourceBinding.h"
-#include "Constant.h"
 #include "ShaderResourceBindingUtility.h"
 
 
