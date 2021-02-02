@@ -32,7 +32,7 @@ namespace RHI
 	// 这种初始化的用途是定为所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
 	void ShaderResourceLayout::InitializeForAll(ID3D12Device* pd3d12Device,
 												PIPELINE_TYPE PipelineType,
-												const PipelineResourceLayoutDesc& ResourceLayout,
+												const ShaderVariableConfig& shaderVariableConfig,
 												std::shared_ptr<const ShaderResource> shaderResource,
 												RootSignature* rootSignature)
 
@@ -74,30 +74,27 @@ namespace RHI
 		m_ShaderResources->ProcessResources(
 			[&](const ShaderResourceAttribs& CB, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(CB, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(CB, shaderVariableConfig);
 				AddResource(CB, CachedResourceType::CBV, VarType);
-			},
-			[&](const ShaderResourceAttribs& Sampler, UINT32)
-			{
 			},
 			[&](const ShaderResourceAttribs& TexSRV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(TexSRV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(TexSRV, shaderVariableConfig);
 				AddResource(TexSRV, CachedResourceType::TexSRV, VarType);
 			},
 			[&](const ShaderResourceAttribs& TexUAV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(TexUAV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(TexUAV, shaderVariableConfig);
 				AddResource(TexUAV, CachedResourceType::TexUAV, VarType);
 			},
 			[&](const ShaderResourceAttribs& BufSRV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(BufSRV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(BufSRV, shaderVariableConfig);
 				AddResource(BufSRV, CachedResourceType::BufSRV, VarType);
 			},
 			[&](const ShaderResourceAttribs& BufUAV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(BufUAV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(BufUAV, shaderVariableConfig);
 				AddResource(BufUAV, CachedResourceType::BufUAV, VarType);
 			}
 		);
@@ -106,7 +103,7 @@ namespace RHI
 	// 这种方式初始化的用途是帮助管理Static 资源
 	void ShaderResourceLayout::InitializeForStatic(ID3D12Device* pd3d12Device, 
 												   PIPELINE_TYPE pipelineType, 
-												   const PipelineResourceLayoutDesc& ResourceLayout, 
+												   const ShaderVariableConfig& shaderVariableConfig, 
 												   std::shared_ptr<const ShaderResource> shaderResource, 
 												   const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes, 
 												   UINT32 allowedTypeNum, 
@@ -152,34 +149,31 @@ namespace RHI
 		m_ShaderResources->ProcessResources(
 			[&](const ShaderResourceAttribs& CB, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(CB, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(CB, shaderVariableConfig);
 				if (IsAllowedType(VarType, AllowedTypeBits))
 					AddResource(CB, CachedResourceType::CBV, VarType);
 			},
-			[&](const ShaderResourceAttribs& Sampler, UINT32)
-			{
-			},
 			[&](const ShaderResourceAttribs& TexSRV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(TexSRV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(TexSRV, shaderVariableConfig);
 				if (IsAllowedType(VarType, AllowedTypeBits))
 					AddResource(TexSRV, CachedResourceType::TexSRV, VarType);
 			},
 			[&](const ShaderResourceAttribs& TexUAV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(TexUAV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(TexUAV, shaderVariableConfig);
 				if (IsAllowedType(VarType, AllowedTypeBits))
 					AddResource(TexUAV, CachedResourceType::TexUAV, VarType);
 			},
 			[&](const ShaderResourceAttribs& BufSRV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(BufSRV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(BufSRV, shaderVariableConfig);
 				if (IsAllowedType(VarType, AllowedTypeBits))
 					AddResource(BufSRV, CachedResourceType::BufSRV, VarType);
 			},
 			[&](const ShaderResourceAttribs& BufUAV, UINT32)
 			{
-				auto VarType = m_ShaderResources->FindVariableType(BufUAV, ResourceLayout);
+				auto VarType = m_ShaderResources->FindVariableType(BufUAV, shaderVariableConfig);
 				if (IsAllowedType(VarType, AllowedTypeBits))
 					AddResource(BufUAV, CachedResourceType::BufUAV, VarType);
 			}

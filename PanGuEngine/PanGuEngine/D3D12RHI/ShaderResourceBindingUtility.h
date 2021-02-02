@@ -80,4 +80,9 @@ namespace RHI
             return -1;
         }
     }
+
+    // 从ShaderVariableConfig中找出某个ShaderResource的Variable Type（Static、Mutable、Dynamic）
+    SHADER_RESOURCE_VARIABLE_TYPE GetShaderVariableType(SHADER_TYPE shaderType, 
+                                                        const std::string& name, 
+                                                        const struct ShaderVariableConfig& shaderVariableConfig);
 }

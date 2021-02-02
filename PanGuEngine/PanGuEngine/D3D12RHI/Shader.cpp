@@ -122,13 +122,6 @@ namespace RHI
         ThrowIfFailed(hr);
 
         // 使用Shader反射系统收集该Shader用到的资源
-        m_ShaderResource = make_shared<const ShaderResource>(m_ShaderByteCode, shaderCI.Desc, nullptr);
+        m_ShaderResource = make_shared<const ShaderResource>(m_ShaderByteCode, shaderCI.Desc);
     }
-
-    Shader::~Shader()
-    {
-
-    }
-
-    
 }

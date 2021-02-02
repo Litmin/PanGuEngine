@@ -258,6 +258,16 @@ namespace RHI
                                   UINT32& RootIndex,
                                   UINT32& OffsetFromTableStart);
 
+        UINT32 GetTotalSrvCbvUavSlots(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
+        {
+            return m_TotalSrvCbvUavSlots[VarType];
+        }
+
+        UINT32 GetTotalRootViews(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
+        {
+            return m_TotalRootViews[VarType];
+        }
+
 	private:
         // 计算Resource Cache中需要的Table数量，以及每个Table中Descriptor的数量，Root View当成只有一个Descriptor的Table
         std::vector<UINT32> GetCacheTableSizes() const;

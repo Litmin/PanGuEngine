@@ -8,8 +8,7 @@ using namespace Microsoft::WRL;
 namespace RHI
 {
 	ShaderResource::ShaderResource(ID3DBlob* pShaderBytecode, 
-								   const ShaderDesc& shaderDesc, 
-								   const char* combinedSamplerSuffix) :
+								   const ShaderDesc& shaderDesc) :
 		m_ShaderType{shaderDesc.ShaderType}
 	{
 
@@ -88,42 +87,39 @@ namespace RHI
 			switch (bindingDesc.Type)
 			{
 			case D3D_SIT_CBUFFER:
-				m_CBs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+				m_CBs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				break;
 			case D3D_SIT_TEXTURE:
 				if (bindingDesc.Dimension == D3D_SRV_DIMENSION_BUFFER)
 				{
-					m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+					m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				}
 				else
 				{
-					m_TextureSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+					m_TextureSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				}
-				break;
-			case D3D_SIT_SAMPLER:
-				m_Samplers.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
 				break;
 			case D3D_SIT_UAV_RWTYPED:
 				if (bindingDesc.Dimension == D3D_SRV_DIMENSION_BUFFER)
 				{
-					m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+					m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				}
 				else
 				{
-					m_TextureUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+					m_TextureUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				}
 				break;
 			case D3D_SIT_STRUCTURED:
-				m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+				m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				break;
 			case D3D_SIT_UAV_RWSTRUCTURED:
-				m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+				m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				break;
 			case D3D_SIT_BYTEADDRESS:
-				m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+				m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				break;
 			case D3D_SIT_UAV_RWBYTEADDRESS:
-				m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension, ShaderResourceAttribs::InvalidSamplerId);
+				m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				break;
 			default:
 				LOG_ERROR("Not Supported Resource Type.");
@@ -133,10 +129,6 @@ namespace RHI
 
 		// TODO:实现跟Texture关联的Sampler
 		// 给Texture SRV分配Sampler Id
-		if (combinedSamplerSuffix != nullptr)
-		{
-
-		}
 	}
 
 	bool ShaderResource::IsCompatibleWith(const ShaderResource& shaderResource) const
@@ -145,8 +137,7 @@ namespace RHI
 			GetTexSRVNum() != shaderResource.GetTexSRVNum() ||
 			GetTexUAVNum() != shaderResource.GetTexUAVNum() ||
 			GetBufSRVNum() != shaderResource.GetBufSRVNum() ||
-			GetBufUAVNum() != shaderResource.GetBufUAVNum() ||
-			GetSamplerNum() != shaderResource.GetSamplerNum())
+			GetBufUAVNum() != shaderResource.GetBufUAVNum())
 			return false;
 
 		bool isCompatible = true;
@@ -154,11 +145,6 @@ namespace RHI
 			[&](const ShaderResourceAttribs& cb, UINT32 i)
 		{
 			if (!cb.IsCompatibleWith(shaderResource.GetCB(i)))
-				isCompatible = false;
-		},
-			[&](const ShaderResourceAttribs& sampler, UINT32 i)
-		{
-			if (!sampler.IsCompatibleWith(shaderResource.GetSampler(i)))
 				isCompatible = false;
 		},
 			[&](const ShaderResourceAttribs& texSRV, UINT32 i)
@@ -188,7 +174,7 @@ namespace RHI
 
 	size_t ShaderResource::GetHash() const
 	{
-		size_t hash = ComputeHash(GetCBNum(), GetTexSRVNum(), GetTexUAVNum(), GetBufSRVNum(), GetBufUAVNum(), GetSamplerNum());
+		size_t hash = ComputeHash(GetCBNum(), GetTexSRVNum(), GetTexUAVNum(), GetBufSRVNum(), GetBufUAVNum());
 
 		for (UINT32 i = 0; i < m_CBs.size(); ++i)
 		{
@@ -220,12 +206,12 @@ namespace RHI
 			HashCombine(hash, bufUAV);
 		}
 
-		for (UINT32 i = 0; i < m_Samplers.size(); ++i)
-		{
-			const auto& sampler = GetSampler(i);
-			HashCombine(hash, sampler);
-		}
-
 		return hash;
+	}
+
+	SHADER_RESOURCE_VARIABLE_TYPE ShaderResource::FindVariableType(const ShaderResourceAttribs& ResourceAttribs, 
+																   const ShaderVariableConfig& shaderVariableConfig) const
+	{
+		return GetShaderVariableType(m_ShaderType, ResourceAttribs.Name, shaderVariableConfig);
 	}
 }

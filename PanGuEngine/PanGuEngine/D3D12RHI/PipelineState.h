@@ -39,26 +39,17 @@ namespace RHI
 
 	struct ShaderResourceVariableDesc
 	{
-		SHADER_TYPE ShaderStage = SHADER_TYPE_UNKNOWN;
+		SHADER_TYPE ShaderType = SHADER_TYPE_UNKNOWN;
 		std::string Name;
 		SHADER_RESOURCE_VARIABLE_TYPE Type;
 	};
 
-	struct StaticSamplerDesc
-	{
-		SHADER_TYPE ShaderStages;
-		std::string Name;
-		D3D12_STATIC_SAMPLER_DESC Desc;
-	};
-
-	// 描述Shader Variable Type和Static Sampler
-	struct PipelineResourceLayoutDesc
+	// 描述该PSO中ShaderVariableType的配置，上层可以指定ShaderVariable的类型，没有指定的就是DefaultVariableType
+	struct ShaderVariableConfig
 	{
 		SHADER_RESOURCE_VARIABLE_TYPE DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
 		std::vector<ShaderResourceVariableDesc> Variables;
-
-		std::vector<StaticSamplerDesc> StaticSamplers;
 	};
 
 	struct PipelineStateDesc
@@ -74,7 +65,7 @@ namespace RHI
 		/// Defines which command queues this pipeline state can be used with
 		UINT64 CommandQueueMask = 1;
 
-		PipelineResourceLayoutDesc ResourceLayout;
+		ShaderVariableConfig ResourceLayout;
 
 		GraphicsPipelineDesc GraphicsPipeline;
 
@@ -91,12 +82,14 @@ namespace RHI
 
 		void InitShaderObjects();
 
+		const PipelineStateDesc& GetDesc() const { return m_Desc; }
+		
 		UINT32 GetStaticVariableCount(SHADER_TYPE ShaderType) const;
 		ShaderVariable* GetStaticVariableByName(SHADER_TYPE shaderType, std::string name);
 		ShaderVariable* GetStaticVariableByIndex(SHADER_TYPE shaderType, UINT32 index);
 
-		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源
-		std::unique_ptr<ShaderResourceBinding> CreateShaderResourceBinding();
+		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由上层持有，PSO不负责SRB的生命周期
+		std::unique_ptr<ShaderResourceBinding> CreateShaderResourceBinding(bool InitStaticResources);
 
 		bool IsCompatibleWith(const PipelineState* pso) const;
 
@@ -115,6 +108,10 @@ namespace RHI
 		{
 			return m_StaticResourceCaches[ShaderInd];
 		}
+		SHADER_TYPE GetShaderType(UINT32 shaderInd)
+		{
+			return m_ShaderArray[shaderInd]->GetShaderType();
+		}
 
 		Shader* GetVertexShader() { return m_VertexShader.get(); }
 		Shader* GetPixelShader() { return m_PixelShader.get(); }
@@ -123,7 +120,11 @@ namespace RHI
 		Shader* GetHullShader() { return m_HullShader.get(); }
 		Shader* GetComputeShader() { return m_ComputeShader.get(); }
 
+		UINT32 GetNumShaders() const { return m_ShaderArray.size(); }
+
 		bool ContainsShaderResources() const;
+
+		RenderDevice* GetRenderDevice() const { return m_RenderDevice; }
 
 	private:
 		RenderDevice* m_RenderDevice;

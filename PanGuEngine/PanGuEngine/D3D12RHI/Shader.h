@@ -31,11 +31,14 @@ namespace RHI
         ShaderModel SM = {5, 1};
     };
 
+    /*
+    * 表示一个Shader，例如一个Vertex Shader。
+    * 负责编译HLSL的Shader文件。
+    */
     class Shader
     {
     public:
         Shader(RenderDevice* pRenderDevice, const ShaderCreateInfo& shaderCI);
-        ~Shader();
 
         const std::shared_ptr<const ShaderResource>& GetShaderResources() const { return m_ShaderResource; }
 

@@ -178,5 +178,26 @@ namespace RHI
 
 		return m_staticVarManagers[shaderIndex].GetVariable(index);
 	}
+
+	unique_ptr<ShaderResourceBinding> PipelineState::CreateShaderResourceBinding(bool InitStaticResources)
+	{
+		unique_ptr<ShaderResourceBinding> SRB = make_unique<ShaderResourceBinding>(this);
+
+		if (InitStaticResources)
+			SRB->InitializeStaticResources();
+
+		return std::move(SRB);
+	}
+
+	bool PipelineState::ContainsShaderResources() const
+	{
+		for (auto VarType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC; VarType < SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES; VarType = static_cast<SHADER_RESOURCE_VARIABLE_TYPE>(VarType + 1))
+		{
+			if (m_RootSignature.GetTotalSrvCbvUavSlots(VarType) != 0 ||
+				m_RootSignature.GetTotalRootViews(VarType) != 0)
+				return true;
+		}
+		return false;
+	}
 }
 

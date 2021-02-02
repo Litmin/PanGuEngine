@@ -1,10 +1,13 @@
 #pragma once
+#include "ShaderResourceBindingUtility.h"
+
 
 namespace RHI 
 {
     struct ShaderDesc;
+    struct ShaderVariableConfig;
 
-    // 表示Shader中的一个变量
+    // 表示Shader中使用的一个资源
     struct ShaderResourceAttribs
     {
         // 变量的名字
@@ -37,11 +40,8 @@ namespace RHI
         const UINT32 InputType : ShaderInputTypeBits;
         // D3D_SRV_DIMENSION:https://docs.microsoft.com/zh-cn/windows/win32/api/d3dcommon/ne-d3dcommon-d3d_srv_dimension?redirectedfrom=MSDN
         const UINT32 SRVDimension : SRVDimBits;
-        // 对于一个Texture SRV，这个变量就是Sampler的Id；对于一个Sampler，这个变量就是Texture SRV的Id
-        UINT32 SamplerOrTexSRVId : SamplerOrTexSRVIdBits;
 
     public:
-        static constexpr const UINT32 InvalidSamplerId = (1 << SamplerOrTexSRVIdBits) - 1;
         static constexpr const UINT32 InvalidTexSRVId = (1 << SamplerOrTexSRVIdBits) - 1;
         static constexpr const UINT16 InvalidBindPoint = std::numeric_limits<UINT16>::max();
         static constexpr const UINT16 MaxBindPoint = InvalidBindPoint - 1;
@@ -51,15 +51,12 @@ namespace RHI
                               UINT bindPoint,
                               UINT bindCount,
                               D3D_SHADER_INPUT_TYPE inputType,
-                              D3D_SRV_DIMENSION srvDimension,
-                              UINT32 samplerId) noexcept :
+                              D3D_SRV_DIMENSION srvDimension) noexcept :
             Name{name},
             BindPoint{static_cast<decltype(BindPoint)>(bindPoint)},
             BindCount{static_cast<decltype(BindCount)>(bindCount)},
             InputType{static_cast<decltype(InputType)>(inputType)},
-            SRVDimension{static_cast<decltype(SRVDimension)>(srvDimension)},
-            SamplerOrTexSRVId{samplerId}
-
+            SRVDimension{static_cast<decltype(SRVDimension)>(srvDimension)}
         {
 
         }
@@ -79,16 +76,6 @@ namespace RHI
             return static_cast<D3D_SRV_DIMENSION>(SRVDimension);
         }
 
-        bool IsCombinedWithSampler() const
-        {
-            return GetCombinedSamplerId() != InvalidSamplerId;
-        }
-
-        bool IsCombinedWithTexSRV() const
-        {
-            return GetCombinedTexSRVId() != InvalidTexSRVId;
-        }
-
         bool IsValidBindPoint() const
         {
             return BindPoint != InvalidBindPoint;
@@ -99,36 +86,16 @@ namespace RHI
             return BindPoint == Attribs.BindPoint &&
                 BindCount == Attribs.BindCount &&
                 InputType == Attribs.InputType &&
-                SRVDimension == Attribs.SRVDimension &&
-                SamplerOrTexSRVId == Attribs.SamplerOrTexSRVId;
+                SRVDimension == Attribs.SRVDimension;
         }
 
         size_t GetHash() const
         {
-            return ComputeHash(BindPoint, BindCount, InputType, SRVDimension, SamplerOrTexSRVId);
+            return ComputeHash(BindPoint, BindCount, InputType, SRVDimension);
         }
 
     private:
         friend class ShaderResources;
-
-        UINT32 GetCombinedSamplerId() const
-        {
-            assert((GetInputType() == D3D_SIT_TEXTURE && GetSRVDimension() != D3D_SRV_DIMENSION_BUFFER) && "Invalid input type: D3D_SIT_TEXTURE is expected");
-            return SamplerOrTexSRVId;
-        }
-
-        void SetTexSRVId(UINT32 TexSRVId)
-        {
-            assert((GetInputType() == D3D_SIT_SAMPLER) && "Invalid input type: D3D_SIT_SAMPLER is expected");
-            assert((TexSRVId < (1 << SamplerOrTexSRVIdBits)) && "TexSRVId is out of representable range");
-            SamplerOrTexSRVId = TexSRVId;
-        }
-
-        UINT32 GetCombinedTexSRVId() const
-        {
-            assert((GetInputType() == D3D_SIT_SAMPLER) && "Invalid input type: D3D_SIT_SAMPLER is expected");
-            return SamplerOrTexSRVId;
-        }
     };
     // static_assert(sizeof(ShaderResourceAttribs) == sizeof(void*) + sizeof(UINT32) * 2, "Unexpected sizeof(ShaderResourceAttribs)");
 
@@ -139,8 +106,7 @@ namespace RHI
     public:
         // 从编译后的字节码来初始化Shader Resource
         ShaderResource(ID3DBlob* pShaderBytecode,
-                       const ShaderDesc& shaderDesc,
-                       const char* combinedSamplerSuffix);
+                       const ShaderDesc& shaderDesc);
 
         ShaderResource(const ShaderResource&) = delete;
         ShaderResource(ShaderResource&&) = delete;
@@ -152,25 +118,21 @@ namespace RHI
         UINT32 GetTexUAVNum() const noexcept { return m_TextureUAVs.size(); }
         UINT32 GetBufSRVNum() const noexcept { return m_BufferSRVs.size(); }
         UINT32 GetBufUAVNum() const noexcept { return m_BufferUAVs.size(); }
-        UINT32 GetSamplerNum() const noexcept { return m_Samplers.size(); }
 
         const ShaderResourceAttribs& GetCB(UINT32 n) const noexcept { assert(n > 0 && n < m_CBs.size()); return m_CBs[n]; }
         const ShaderResourceAttribs& GetTexSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureSRVs.size()); return m_TextureSRVs[n]; }
         const ShaderResourceAttribs& GetTexUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureUAVs.size()); return m_TextureUAVs[n]; }
         const ShaderResourceAttribs& GetBufSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferSRVs.size()); return m_BufferSRVs[n]; }
         const ShaderResourceAttribs& GetBufUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferUAVs.size()); return m_BufferUAVs[n]; }
-        const ShaderResourceAttribs& GetSampler(UINT32 n) const noexcept { assert(n > 0 && n < m_Samplers.size()); return m_Samplers[n]; }
 
         SHADER_TYPE GetShaderType() const noexcept { return m_ShaderType; }
 
         template <typename THandleCB,
-                  typename THandleSampler,
                   typename THandleTexSRV,
                   typename THandleTexUAV,
                   typename THandleBufSRV,
                   typename THandleBufUAV>
         void ProcessResources(THandleCB HandleCB,
-                              THandleSampler HandleSampler,
                               THandleTexSRV HandleTexSRV,
                               THandleTexUAV HandleTexUAV,
                               THandleBufSRV HandleBufSRV,
@@ -179,20 +141,17 @@ namespace RHI
             for (UINT32 i = 0;i < m_CBs.size();++i)
                 HandleCB(GetCB(i), i);
 
-            for (UINT32 i = 0; i < m_Samplers.size(); ++i)
-                HandleCB(GetSampler(i), i);
-
             for (UINT32 i = 0; i < m_TextureSRVs.size(); ++i)
-                HandleCB(GetTexSRV(i), i);
+                HandleTexSRV(GetTexSRV(i), i);
 
             for (UINT32 i = 0; i < m_TextureUAVs.size(); ++i)
-                HandleCB(GetTexUAV(i), i);
+                HandleTexUAV(GetTexUAV(i), i);
 
             for (UINT32 i = 0; i < m_BufferSRVs.size(); ++i)
-                HandleCB(GetBufSRV(i), i);
+                HandleBufSRV(GetBufSRV(i), i);
 
             for (UINT32 i = 0; i < m_BufferUAVs.size(); ++i)
-                HandleCB(GetBufUAV(i), i);
+                HandleBufUAV(GetBufUAV(i), i);
         }
 
         bool IsCompatibleWith(const ShaderResource& shaderResource) const;
@@ -200,13 +159,9 @@ namespace RHI
 
         size_t GetHash() const;
 
-        // TODO:Implete
+        // 从上层配置的PSO的ShaderVariableConfig找到对应ShaderResource的Variable Type（Static、Mutable、Dynamic）
         SHADER_RESOURCE_VARIABLE_TYPE FindVariableType(const ShaderResourceAttribs& ResourceAttribs,
-            const PipelineResourceLayoutDesc& ResourceLayout) const;
-
-        UINT32 FindStaticSampler(const ShaderResourceAttribs& ResourceAttribs,
-            const PipelineResourceLayoutDesc& ResourceLayoutDesc,
-            bool                              LogStaticSamplerArrayError) const;
+            const ShaderVariableConfig& shaderVariableConfig) const;
 
         void GetShaderModel(UINT32& Major, UINT32& Minor) const
         {
@@ -221,15 +176,12 @@ namespace RHI
         std::vector<ShaderResourceAttribs> m_TextureUAVs;
         std::vector<ShaderResourceAttribs> m_BufferSRVs;
         std::vector<ShaderResourceAttribs> m_BufferUAVs;
-        std::vector<ShaderResourceAttribs> m_Samplers;
 
         const SHADER_TYPE m_ShaderType;
 
         UINT32 m_ShaderVersion = 0;
 
 
-        // Sampler后缀
-        std::string m_SamplerSuffix;
         std::string m_ShaderName;
     };
 }
