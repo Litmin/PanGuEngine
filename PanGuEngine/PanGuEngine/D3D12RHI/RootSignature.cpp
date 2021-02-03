@@ -125,14 +125,14 @@ namespace RHI
 			auto TableSize = RootTbl.GetDescriptorTableSize();
 			assert(d3d12RootParam.DescriptorTable.NumDescriptorRanges > 0 && TableSize > 0 && "Unexpected empty descriptor table");
 			auto VarType = RootTbl.GetShaderVariableType();
-			m_TotalSrvCbvUavSlots[VarType] += TableSize;
+			m_NumDescriptorInRootTable[VarType] += TableSize;
 		}
 
 		// 统计Root View的数量
 		for (UINT32 i = 0; i < m_RootParams.GetRootViewNum(); ++i)
 		{
 			const auto& RootView = m_RootParams.GetRootView(i);
-			++m_TotalRootViews[RootView.GetShaderVariableType()];
+			++m_NumRootView[RootView.GetShaderVariableType()];
 		}
 
 		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
@@ -161,7 +161,7 @@ namespace RHI
 		rootSignatureDesc.NumParameters = static_cast<UINT>(D3D12Parameters.size());
 		rootSignatureDesc.pParameters = D3D12Parameters.size() ? D3D12Parameters.data() : nullptr;
 
-		// TODO: Static Sampler!!!!!!
+		// TODO: Static Sampler!!!!!!!!!!!!
 
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> error;
@@ -185,8 +185,8 @@ namespace RHI
 
 		// 在GPUDescriptorHeap中为Static和Mutable资源分配空间
 		UINT32 TotalSrvCbvUavDescriptors =
-			m_TotalSrvCbvUavSlots[SHADER_RESOURCE_VARIABLE_TYPE_STATIC] +
-			m_TotalSrvCbvUavSlots[SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE];
+			m_NumDescriptorInRootTable[SHADER_RESOURCE_VARIABLE_TYPE_STATIC] +
+			m_NumDescriptorInRootTable[SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE];
 
 		DescriptorHeapAllocation CbcSrvUavHeapSpace;
 		if (TotalSrvCbvUavDescriptors)

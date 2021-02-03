@@ -3,6 +3,7 @@
 #include "BufferView.h"
 #include "DeviceContext.h"
 #include "D3D12ResourceBase.h"
+#include "IShaderResource.h"
 
 namespace RHI
 {
@@ -41,7 +42,7 @@ namespace RHI
     /**
     * Buffer的实现
     */
-    class Buffer : public D3D12ResourceBase
+    class Buffer : public D3D12ResourceBase, public IShaderResource
     {
     public:
         // 两个构造函数，一个使用数据初始化，另一个使用D3D12Resource和ResourceState初始化

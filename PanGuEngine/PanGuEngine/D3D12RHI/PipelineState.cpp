@@ -187,8 +187,8 @@ namespace RHI
 	{
 		for (auto VarType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC; VarType < SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES; VarType = static_cast<SHADER_RESOURCE_VARIABLE_TYPE>(VarType + 1))
 		{
-			if (m_RootSignature.GetTotalSrvCbvUavSlots(VarType) != 0 ||
-				m_RootSignature.GetTotalRootViews(VarType) != 0)
+			if (m_RootSignature.GetNumDescriptorInRootTable(VarType) != 0 ||
+				m_RootSignature.GetNumRootView(VarType) != 0)
 				return true;
 		}
 		return false;

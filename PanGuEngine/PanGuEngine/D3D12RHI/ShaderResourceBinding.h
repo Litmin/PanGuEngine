@@ -7,7 +7,8 @@ namespace RHI
     class PipelineState;
 
     /**
-    * 
+    * 存储上层绑定的Mutable和Dynamic资源
+    * 在提交一个SRB时，会把PSO的Static 资源拷贝过来
     */
     class ShaderResourceBinding
     {
@@ -17,12 +18,8 @@ namespace RHI
 
 
         ShaderVariable* GetVariableByName(SHADER_TYPE ShaderType, const std::string& Name);
-
         UINT32 GetVariableCount(SHADER_TYPE ShaderType) const;
-
         ShaderVariable* GetVariableByIndex(SHADER_TYPE ShaderType, UINT32 Index);
-
-        PipelineState* GetPipelineState() { return m_PSO; }
 
         ShaderResourceCache& GetResourceCache() { return m_ShaderResourceCache; }
 

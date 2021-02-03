@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DescriptorHeap.h"
+#include "IShaderResource.h"
 
 namespace RHI 
 {
@@ -8,7 +9,7 @@ namespace RHI
     * 只提供个存储空间（GPUDescriptorHeap），其他的啥都不知道
     * 存储绑定到Shader的资源,ShaderResourceCache会分配GPU-visible Descriptor Heap上的空间，来存储资源的Descriptor
     * 有两种用途：
-    *   1，每个Shader的ResourceLayout对象用一个Cache来存储Static资源
+    *   1，PSO为每个Shader用一个Cache来存储Static资源
     *   2，每个ShaderResourceBinding对象用一个Cache来存储Mutable和Dynamic资源
     */
     class ShaderResourceCache
@@ -35,7 +36,7 @@ namespace RHI
             // 该变量存储的是CPUDescriptorHeap中的Descriptor Handle
             D3D12_CPU_DESCRIPTOR_HANDLE CPUDescriptorHandle = { 0 };
             // 强引用资源
-            std::shared_ptr<IDeviceObject> pObject;
+            std::shared_ptr<IShaderResource> pObject;
         };
 
         // CBV被当作只有一个Descriptor的Table
@@ -71,7 +72,6 @@ namespace RHI
         void SetDescriptorHeapSpace(DescriptorHeapAllocation&& CbcSrvUavHeapSpace)
         {
             m_CbvSrvUavGPUHeapSpace = std::move(CbcSrvUavHeapSpace);
-            //m_SamplerGPUHeapSpace = std::move(SamplerHeapSpace);
         }
 
         // ShaderResourceLayout通过该函数来获取Descriptor Handle，并把要绑定的资源的Descriptor拷贝过来!!!
@@ -84,18 +84,7 @@ namespace RHI
 
             if (RootParam.m_TableStartOffset != InvalidDescriptorOffset)
             {
-                if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)
-                {
-                    CPUDescriptorHandle = m_SamplerHeapSpace.GetCpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
-                }
-                else if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
-                {
-                    CPUDescriptorHandle = m_CbvSrvUavHeapSpace.GetCpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
-                }
-                else
-                {
-                    LOG_ERROR("Unexpected descriptor heap type");
-                }
+                CPUDescriptorHandle = m_CbvSrvUavHeapSpace.GetCpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
             }
 
             return CPUDescriptorHandle;
@@ -109,19 +98,7 @@ namespace RHI
 
             assert(RootParam.m_TableStartOffset != InvalidDescriptorOffset && "GPU descriptor handle must never be requested for dynamic resources");
 
-            D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle = { 0 };
-            if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)
-            {
-                GPUDescriptorHandle = m_SamplerHeapSpace.GetGpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
-            }
-            else if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
-            {
-                GPUDescriptorHandle = m_CbvSrvUavHeapSpace.GetGpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
-            }
-            else
-            {
-                LOG_ERROR("Unexpected descriptor heap type");
-            }
+            D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle = m_CbvSrvUavHeapSpace.GetGpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
 
             return GPUDescriptorHandle;
         }
@@ -145,7 +122,6 @@ namespace RHI
     private:
         // GPU Descriptor Heap
         DescriptorHeapAllocation m_CbvSrvUavGPUHeapSpace;
-        DescriptorHeapAllocation m_SamplerGPUHeapSpace;
 
         std::vector<RootTable> m_RootTables;
     };

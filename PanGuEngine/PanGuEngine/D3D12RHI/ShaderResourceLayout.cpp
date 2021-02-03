@@ -44,8 +44,7 @@ namespace RHI
 		// 把ShaderResource中的每个资源都通过RootSignature确定RootIndex和OffsetFromTableStart，然后存储下来
 		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
 			CachedResourceType              ResType,
-			SHADER_RESOURCE_VARIABLE_TYPE   VarType,
-			UINT32                          SamplerId = D3D12Resource::InvalidSamplerId) //
+			SHADER_RESOURCE_VARIABLE_TYPE   VarType) //
 		{
 			UINT32 RootIndex = D3D12Resource::InvalidRootIndex;
 			UINT32 Offset = D3D12Resource::InvalidOffset;
@@ -62,13 +61,7 @@ namespace RHI
 				LOG_ERROR("No Rootsignature.");
 			}
 
-			if (ResType == CachedResourceType::Sampler)
-			{
-			}
-			else
-			{
-				m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset, SamplerId);
-			}
+			m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset);
 		};
 
 		m_ShaderResources->ProcessResources(
@@ -119,8 +112,7 @@ namespace RHI
 		// 把ShaderResource中的每个资源都通过RootSignature确定RootIndex和OffsetFromTableStart，然后存储下来
 		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
 			CachedResourceType              ResType,
-			SHADER_RESOURCE_VARIABLE_TYPE   VarType,
-			UINT32                          SamplerId = D3D12Resource::InvalidSamplerId) //
+			SHADER_RESOURCE_VARIABLE_TYPE   VarType) //
 		{
 			UINT32 RootIndex = D3D12Resource::InvalidRootIndex;
 			UINT32 Offset = D3D12Resource::InvalidOffset;
@@ -137,13 +129,7 @@ namespace RHI
 			Offset = Attribs.BindPoint;	// Offset就是寄存器的索引，所以最好把Static资源的声明放在前面
 			StaticResCacheTblSizes[RootIndex] = std::max(StaticResCacheTblSizes[RootIndex], Offset + Attribs.BindCount);
 
-			if (ResType == CachedResourceType::Sampler)
-			{
-			}
-			else
-			{
-				m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset, SamplerId);
-			}
+			m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset);
 		};
 
 		m_ShaderResources->ProcessResources(
@@ -186,7 +172,7 @@ namespace RHI
 		}
 	}
 
-	void ShaderResourceLayout::D3D12Resource::CacheCB(IDeviceObject* pBuffer, 
+	void ShaderResourceLayout::D3D12Resource::CacheCB(IShaderResource* pBuffer, 
 													  ShaderResourceCache::Resource& dstRes, 
 													  UINT32 arrayIndex, 
 													  D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const
@@ -210,17 +196,16 @@ namespace RHI
 				d3d12Device->CopyDescriptorsSimple(1, shaderVisibleHeapCPUDescriptorHandle, dstRes.CPUDescriptorHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 			}
 
-			dstRes.pObject = buffer;
+			dstRes.pObject.reset(buffer);
 		}
 	}
 
 	// 该模板函数可以在cpp中定义，因为只在本文件中使用
-	template<typename TResourceViewType, typename TViewTypeEnum>
-	void ShaderResourceLayout::D3D12Resource::CacheResourceView(IDeviceObject* pView, 
+	template<typename TResourceViewType>
+	void ShaderResourceLayout::D3D12Resource::CacheResourceView(IShaderResource* pView,
 																ShaderResourceCache::Resource& dstRes, 
 																UINT32 arrayIndex, 
-																D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle, 
-																TViewTypeEnum expectedViewType) const
+																D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const
 	{
 		TResourceViewType* resourceView = dynamic_cast<TResourceViewType*>(pView);
 
@@ -267,15 +252,11 @@ namespace RHI
 
 	// 绑定资源！！！！！！
 	// 这里只是把资源的Descriptor拷贝到了Cache中，没有提交到渲染管线
-	void ShaderResourceLayout::D3D12Resource::BindResource(IDeviceObject* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
+	void ShaderResourceLayout::D3D12Resource::BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
-		const bool IsSampler = ResourceType == CachedResourceType::Sampler;
-		auto       DescriptorHeapType = IsSampler ? D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER : D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		auto& DstRes = resourceCache.GetRootTable(RootIndex).GetResource(OffsetFromTableStart + arrayIndex);
 
-		auto ShdrVisibleHeapCPUDescriptorHandle = IsSampler ?
-			resourceCache.GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>(RootIndex, OffsetFromTableStart + arrayIndex) :
-			resourceCache.GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(RootIndex, OffsetFromTableStart + arrayIndex);
+		auto ShdrVisibleHeapCPUDescriptorHandle = resourceCache.GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(RootIndex, OffsetFromTableStart + arrayIndex);
 
 		if (pObject)
 		{
@@ -286,23 +267,19 @@ namespace RHI
 				break;
 
 			case CachedResourceType::TexSRV:
-				CacheResourceView<TextureView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle, TEXTURE_VIEW_SHADER_RESOURCE);
+				CacheResourceView<TextureView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle);
 				break;
 
 			case CachedResourceType::TexUAV:
-				CacheResourceView<TextureView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle, TEXTURE_VIEW_UNORDERED_ACCESS);
+				CacheResourceView<TextureView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle);
 				break;
 
 			case CachedResourceType::BufSRV:
-				CacheResourceView<BufferView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle, BUFFER_VIEW_SHADER_RESOURCE);
+				CacheResourceView<BufferView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle);
 				break;
 
 			case CachedResourceType::BufUAV:
-				CacheResourceView<BufferView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle, BUFFER_VIEW_UNORDERED_ACCESS);
-				break;
-
-			case CachedResourceType::Sampler:
-				CacheSampler(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle);
+				CacheResourceView<BufferView>(pObject, DstRes, arrayIndex, ShdrVisibleHeapCPUDescriptorHandle);
 				break;
 
 			default:
@@ -313,8 +290,8 @@ namespace RHI
 	}
 
 	void ShaderResourceLayout::CopyStaticResourceDesriptorHandles(const ShaderResourceCache& SrcCache, 
-																				 const ShaderResourceLayout& DstLayout, 
-																				 ShaderResourceCache& DstCache) const
+																  const ShaderResourceLayout& DstLayout, 
+																  ShaderResourceCache& DstCache) const
 	{
 		// Static shader resources按下列顺序存储:
 		// CBVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_CBV （0）,

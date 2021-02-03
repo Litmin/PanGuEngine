@@ -258,14 +258,16 @@ namespace RHI
                                   UINT32& RootIndex,
                                   UINT32& OffsetFromTableStart);
 
-        UINT32 GetTotalSrvCbvUavSlots(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
+        // VarType类型的RootTable中所有Descriptor的总数量
+        UINT32 GetNumDescriptorInRootTable(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
         {
-            return m_TotalSrvCbvUavSlots[VarType];
+            return m_NumDescriptorInRootTable[VarType];
         }
 
-        UINT32 GetTotalRootViews(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
+        // VarType类型的RootView的数量
+        UINT32 GetNumRootView(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
         {
-            return m_TotalRootViews[VarType];
+            return m_NumRootView[VarType];
         }
 
 	private:
@@ -346,20 +348,16 @@ namespace RHI
         // 构造RootParameter时，按照Shader中声明的顺序依次处理，RootIndex也就按声明的顺序
         // Root Table中，Static和Mutable资源是放在一个Root Table中的，
         // 下面的m_SrvCbvUavRootTablesMap存储的是指定Shader阶段和指定Shader Variable类型的Root Table在上面的m_RootTables中的索引（不是Root Index）
-        //
+        // 用来判断某个Shader的某个Variable Type的RootTable是否已经创建，如果已经创建，就向这个Root Table中添加Descriptor Range，如果没有创建，就创建一个新的Root Table
         RootParamsManager m_RootParams;
 
-        // Slot: 插槽
-        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_TotalSrvCbvUavSlots = {};
-        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_TotalRootViews = {};
+        // 记录每种Variable类型的所有RootTable的Descriptor的总数量
+        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumDescriptorInRootTable = {};
+        // 记录每种Variable类型的所有RootView的数量
+        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumRootView = {};
 
         static constexpr UINT8 InvalidRootTableIndex = static_cast<UINT8>(-1);
 
-        // The array below contains array index of a CBV/SRV/UAV root table
-        // in m_RootParams (NOT the Root Index!), for every variable type
-        // (static, mutable, dynamic) and every shader type,
-        // or -1, if the table is not yet assigned to the combination
-        // 该数组存储了每个Shader的每个Shader Variable Type 的 CBVSRVUAV Root Table在m_RootParams中的索引（不是RootIndex）
         std::array<UINT8, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES * MAX_SHADERS_IN_PIPELINE> m_SrvCbvUavRootTablesMap = {};
 	};
 }

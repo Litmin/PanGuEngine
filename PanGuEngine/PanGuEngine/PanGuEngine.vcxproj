@@ -158,6 +158,7 @@
     <ClCompile Include="D3D12RHI\DescriptorHeap.cpp" />
     <ClCompile Include="D3D12RHI\DeviceContext.cpp" />
     <ClCompile Include="D3D12RHI\Fence.cpp" />
+    <ClCompile Include="D3D12RHI\IShaderResource.cpp" />
     <ClCompile Include="D3D12RHI\PipelineState.cpp" />
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
     <ClCompile Include="D3D12RHI\RenderPass.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="D3D12RHI\DeviceContext.h" />
     <ClInclude Include="D3D12RHI\Fence.h" />
     <ClInclude Include="D3D12RHI\GraphicsEnums.h" />
+    <ClInclude Include="D3D12RHI\IShaderResource.h" />
     <ClInclude Include="D3D12RHI\PipelineState.h" />
     <ClInclude Include="D3D12RHI\RenderDevice.h" />
     <ClInclude Include="D3D12RHI\RenderPass.h" />

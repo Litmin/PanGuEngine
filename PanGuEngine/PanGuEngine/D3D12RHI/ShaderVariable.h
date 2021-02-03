@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderResourceLayout.h"
 #include "ShaderResourceCache.h"
+#include "IShaderResource.h"
 
 namespace RHI 
 {
@@ -9,6 +10,7 @@ namespace RHI
     /*
     * ShaderVariableManager持有特定类型的ShaderVariable列表。
     * PipelineState使用Manager来管理Static资源，ShaderResourceBinding使用Manager来管理Mutable和Dynamic资源
+    * 把ShaderResourceLayout和ShaderResourceCache关联了起来！！！
     */
     class ShaderVariableManager
     {
@@ -33,28 +35,20 @@ namespace RHI
                 UINT32 resourceNum = srcLayout.GetCbvSrvUavCount(varType);
                 for (UINT32 i = 0; i < resourceNum; ++i)
                 {
-                    const auto& srcResource = srcLayout.GetCbvSrvUav(varType, i);
+                    const auto& srcResource = srcLayout.GetSrvCbvUav(varType, i);
                     m_Variables.emplace_back(*this, srcResource);
                 }
-
             }
         }
         
 
         ShaderVariable* GetVariable(const std::string& name);
         ShaderVariable* GetVariable(UINT32 index);
-
-
-        // 批量绑定资源
-        //void BindResource(IResourceMapping* resourceMapping, UINT32 flags);
-
         UINT32 GetVariableCount() const { return m_Variables.size(); }
 
 
     private:
         friend ShaderVariable;
-
-        UINT32 GetVariableIndex(const ShaderVariable& variable);
 
         ShaderResourceCache& m_ResourceCache;
 
@@ -86,23 +80,18 @@ namespace RHI
         }
 
         // 绑定资源!!!!!!
-        void Set(IDeviceObject* object)
+        void Set(IShaderResource* object)
         {
             m_Resource.BindResource(object, 0/*Array Index*/, m_ParentManager.m_ResourceCache);
         }
 
         // 绑定数组资源
-        void SetArray(IDeviceObject* const* ppObjects, UINT32 firstElement, UINT32 elementsNum)
+        void SetArray(IShaderResource* const* ppObjects, UINT32 firstElement, UINT32 elementsNum)
         {
             for (UINT32 i = 0; i < elementsNum; ++i)
             {
                 m_Resource.BindResource(ppObjects[i], firstElement + i, m_ParentManager.m_ResourceCache);
             }
-        }
-
-        UINT32 GetIndex() const
-        {
-            return m_ParentManager.GetVariableIndex(*this);
         }
 
         // 是否已经绑定

@@ -1,5 +1,6 @@
 #pragma once
 #include "DescriptorHeap.h"
+#include "IShaderResource.h"
 
 namespace RHI
 {
@@ -32,7 +33,7 @@ namespace RHI
 		UINT32 ByteWidth = 0;
 	};
 
-	class BufferView
+	class BufferView : public IShaderResource
 	{
 	public:
 		BufferView(RenderDevice*			  renderDevice,

@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderResource.h"
 #include "ShaderResourceCache.h"
+#include "IShaderResource.h"
 
 namespace RHI 
 {
@@ -10,8 +11,8 @@ namespace RHI
     /**
     * 定义Shader Resource和Descriptor Table中的Descriptor之间的对应关系
     * 三个用途：
-    *           1，PipelineState为每个Shader保存Layout
-    *           2，每个Shader用来管理Static资源
+    *           1，PipelineState为每个Shader的每个资源定义Layout
+    *           2，PipelinesState用来管理Static资源
     *           3，每个ShaderResourceBinding对象用来管理Mutable和Dynamic资源
     */
     class ShaderResourceLayout
@@ -65,21 +66,18 @@ namespace RHI
             const CachedResourceType ResourceType;   // CBV、TexSRV、BufSRV、TexUAV、BufUAV、Sampler
             const SHADER_RESOURCE_VARIABLE_TYPE VariableType;   // Static、Mutable、Dynamic
             const UINT32 RootIndex;
-            const UINT16 SamplerId; // 这个SamplerId跟ShaderResource的SamplerId不一样
 
             D3D12Resource(const ShaderResourceLayout&      _ParentLayout,
                           const ShaderResourceAttribs&     _Attribs,
                           SHADER_RESOURCE_VARIABLE_TYPE    _VariableType,
                           CachedResourceType               _ResType,
                           UINT32                           _RootIndex,
-                          UINT32                           _OffsetFromTableStart,
-                          UINT32                           _SamplerId) noexcept :
+                          UINT32                           _OffsetFromTableStart) noexcept :
                 ParentResLayout{ _ParentLayout },
                 Attribs{ _Attribs },
                 ResourceType{ _ResType },
                 VariableType{ _VariableType },
                 RootIndex{ static_cast<UINT16>(_RootIndex) },
-                SamplerId{ static_cast<UINT16>(_SamplerId) },
                 OffsetFromTableStart{ _OffsetFromTableStart }
             {
             }
@@ -87,35 +85,29 @@ namespace RHI
             // 是否已经绑定了资源
             bool IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const;
 
-            void BindResource(IDeviceObject* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
+            void BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
+
+            SHADER_RESOURCE_VARIABLE_TYPE GetVariableType() const { return VariableType; }
 
         private:
             // 把要绑定的资源存储到ShaderResourceCache中
             // 几个Cache函数其实就是把一个资源的Descriptor拷贝到ShaderResourceCache中的Descriptor
-            void CacheCB(IDeviceObject* pBuffer,
+            void CacheCB(IShaderResource* pBuffer,
                          ShaderResourceCache::Resource& dstRes,
                          UINT32 arrayIndex,
                          D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const;
 
-            template<typename TResourceViewType,
-                     typename TViewTypeEnum>
-            void CacheResourceView(IDeviceObject* pView,
-                ShaderResourceCache::Resource& dstRes,
-                UINT32 arrayIndex,
-                D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle,
-                TViewTypeEnum expectedViewType) const;
-
-            // TODO:Implete CacheSampler
-            void CacheSampler(IDeviceObject* pSampler,
-                ShaderResourceCache::Resource& DstSam,
-                UINT32                              arrayIndex,
-                D3D12_CPU_DESCRIPTOR_HANDLE         shaderVisibleHeapCPUDescriptorHandle) const;
+            template<typename TResourceViewType>
+            void CacheResourceView(IShaderResource* pView,
+                                   ShaderResourceCache::Resource& dstRes,
+                                   UINT32 arrayIndex,
+                                   D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const;
         };
 
 
 
         // 拷贝Static资源
-        // 保存Static资源的ShaderResourceCache没有保存在GPUDescriptorHeap，在提交SRB时，会把Static ShaderResourceCache的资源拷贝到SRB中再提交
+        // 保存Static资源的ShaderResourceCache没有保存在GPUDescriptorHeap，在创建SRB时，会把Static ShaderResourceCache的资源拷贝到SRB中再提交
         void CopyStaticResourceDesriptorHandles(const ShaderResourceCache& SrcCache,
                                                 const ShaderResourceLayout& DstLayout,
                                                 ShaderResourceCache& DstCache) const;

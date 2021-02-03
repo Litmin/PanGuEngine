@@ -1,6 +1,7 @@
 #pragma once
 #include "DescriptorHeap.h"
 #include "Sampler.h"
+#include "IShaderResource.h"
 
 namespace RHI 
 {
@@ -47,7 +48,7 @@ namespace RHI
     /**
     * 
     */
-    class TextureView
+    class TextureView : public IShaderResource
     {
     public:
         TextureView(RenderDevice* renderDevice,
