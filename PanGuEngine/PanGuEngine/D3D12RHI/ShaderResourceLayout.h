@@ -22,19 +22,19 @@ namespace RHI
         // 有两种初始化方式：
         // 这种初始化的用途是定为所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
         void InitializeForAll(ID3D12Device* pd3d12Device,
-                        PIPELINE_TYPE pipelineType,
-                        const ShaderVariableConfig& shaderVariableConfig,
-                        std::shared_ptr<const ShaderResource> shaderResource,
-                        RootSignature* rootSignature);
+                              PIPELINE_TYPE pipelineType,
+                              const ShaderVariableConfig& shaderVariableConfig,
+                              const ShaderResource* shaderResource,
+                              RootSignature* rootSignature);
 
         // 这种方式初始化的用途是帮助管理Static 资源
         void InitializeForStatic(ID3D12Device* pd3d12Device,
-            PIPELINE_TYPE pipelineType,
-            const ShaderVariableConfig& shaderVariableConfig,
-            std::shared_ptr<const ShaderResource> shaderResource, 
-            const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
-            UINT32 allowedTypeNum,
-            ShaderResourceCache* resourceCache);
+                                 PIPELINE_TYPE pipelineType,
+                                 const ShaderVariableConfig& shaderVariableConfig,
+                                 const ShaderResource* shaderResource, 
+                                 const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
+                                 UINT32 allowedTypeNum,
+                                 ShaderResourceCache* resourceCache);
 
         ShaderResourceLayout(const ShaderResourceLayout&) = delete;
         ShaderResourceLayout(ShaderResourceLayout&&) = delete;
@@ -145,7 +145,7 @@ namespace RHI
         ID3D12Device* m_D3D12Device;
 
         // ShaderResource存储了一个Shader需要的所有资源
-        std::shared_ptr<const ShaderResource> m_ShaderResources;
+        const ShaderResource* m_ShaderResources;
 
         // 保存了映射关系
         std::vector<D3D12Resource> m_SrvCbvUavs[SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES];

@@ -54,11 +54,6 @@ namespace RHI
 			m_ShaderResourceLayouts.insert(m_ShaderResourceLayouts.end(), m_ShaderArray.size(), ShaderResourceLayout{});
 			m_StaticShaderResourceLayouts.insert(m_StaticShaderResourceLayouts.end(), m_ShaderArray.size(), ShaderResourceLayout{});
 
-			for (UINT32 i = 0; i < m_ShaderArray.size(); ++i)
-			{
-				m_staticVarManagers.emplace_back(m_StaticResourceCaches[i]);
-			}
-
 			// 使用Shader中的ShaderResource来初始化ShaderResourceLayout，这一过程中也会初始化RootSignature
 			InitShaderObjects();
 
@@ -118,10 +113,9 @@ namespace RHI
 			rootSignatureName.append(m_Desc.Name);
 			m_RootSignature.GetD3D12RootSignature()->SetName(rootSignatureName.c_str());
 		}
+
 		// TODO: Compute Pipeline
 		// TODO: Mesh Pipeline
-
-
 	}
 
 	PipelineState::~PipelineState()
@@ -179,14 +173,14 @@ namespace RHI
 		return m_staticVarManagers[shaderIndex].GetVariable(index);
 	}
 
-	unique_ptr<ShaderResourceBinding> PipelineState::CreateShaderResourceBinding(bool InitStaticResources)
+	ShaderResourceBinding* PipelineState::CreateShaderResourceBinding(bool InitStaticResources)
 	{
-		unique_ptr<ShaderResourceBinding> SRB = make_unique<ShaderResourceBinding>(this);
+		m_SRBs.emplace_back(this);
 
 		if (InitStaticResources)
-			SRB->InitializeStaticResources();
+			m_SRBs.back().InitializeStaticResources();
 
-		return std::move(SRB);
+		return &m_SRBs.back();
 	}
 
 	bool PipelineState::ContainsShaderResources() const

@@ -58,13 +58,6 @@ namespace RHI
 
 		PIPELINE_TYPE PipelineType;
 
-		/// This member defines allocation granularity for internal resources required by the shader resource
-		/// binding object instances.
-		UINT32 SRBAllocationGranularity = 1;
-
-		/// Defines which command queues this pipeline state can be used with
-		UINT64 CommandQueueMask = 1;
-
 		ShaderVariableConfig ResourceLayout;
 
 		GraphicsPipelineDesc GraphicsPipeline;
@@ -72,7 +65,9 @@ namespace RHI
 		ComputePipelineDesc ComputePipeline;
 	};
 
-	// 
+	/*
+	* 包含了管线中的所有状态
+	*/
 	class PipelineState
 	{
 	public:
@@ -88,8 +83,8 @@ namespace RHI
 		ShaderVariable* GetStaticVariableByName(SHADER_TYPE shaderType, std::string name);
 		ShaderVariable* GetStaticVariableByIndex(SHADER_TYPE shaderType, UINT32 index);
 
-		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由上层持有，PSO不负责SRB的生命周期
-		std::unique_ptr<ShaderResourceBinding> CreateShaderResourceBinding(bool InitStaticResources);
+		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由PSO所有
+		ShaderResourceBinding* CreateShaderResourceBinding(bool InitStaticResources);
 
 		bool IsCompatibleWith(const PipelineState* pso) const;
 
@@ -130,6 +125,7 @@ namespace RHI
 		RenderDevice* m_RenderDevice;
 		PipelineStateDesc m_Desc;
 
+		// 使用shared_ptr,一个Shader可能被多个PSO共用
 		std::shared_ptr<Shader> m_VertexShader;
 		std::shared_ptr<Shader> m_PixelShader;
 		std::shared_ptr<Shader> m_GeometryShader;
@@ -160,6 +156,8 @@ namespace RHI
 		// 输入ShaderType转成的Index，输出该ShaderType在m_ShaderArray、m_ShaderResourceLayouts等上面几个数组中的索引
 		// 作用是找到某个Shader对应的m_ShaderResourceLayouts、m_StaticResourceCaches等对象
 		std::array<INT8, (size_t)MAX_SHADERS_IN_PIPELINE> m_ShaderTypeToIndexMap = { -1,-1,-1,-1,-1 };
+
+		std::vector<ShaderResourceBinding> m_SRBs;
 	};
 }
 

@@ -34,13 +34,14 @@ namespace RHI
     /*
     * 表示一个Shader，例如一个Vertex Shader。
     * 负责编译HLSL的Shader文件。
+    * Shader对象由PSO所有。
     */
     class Shader
     {
     public:
         Shader(RenderDevice* pRenderDevice, const ShaderCreateInfo& shaderCI);
 
-        const std::shared_ptr<const ShaderResource>& GetShaderResources() const { return m_ShaderResource; }
+        const ShaderResource* GetShaderResources() const { return m_ShaderResource.get(); }
 
         ID3DBlob* GetShaderByteCode() { return m_ShaderByteCode.Get(); }
 
@@ -49,8 +50,7 @@ namespace RHI
     private:
         ShaderDesc m_Desc;
 
-        // Shader Resource对象要使用共享指针，因为ShaderResourceLayout也会引用它
-        std::shared_ptr<const ShaderResource> m_ShaderResource;
+        std::unique_ptr<const ShaderResource> m_ShaderResource;
 
         Microsoft::WRL::ComPtr<ID3DBlob> m_ShaderByteCode;
     };

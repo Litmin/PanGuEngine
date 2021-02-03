@@ -29,11 +29,11 @@ namespace RHI
 		}
 	}
 
-	// 这种初始化的用途是定为所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
+	// 这种初始化的用途是定位所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
 	void ShaderResourceLayout::InitializeForAll(ID3D12Device* pd3d12Device,
 												PIPELINE_TYPE PipelineType,
 												const ShaderVariableConfig& shaderVariableConfig,
-												std::shared_ptr<const ShaderResource> shaderResource,
+												const ShaderResource* shaderResource,
 												RootSignature* rootSignature)
 
 	{
@@ -104,7 +104,7 @@ namespace RHI
 	void ShaderResourceLayout::InitializeForStatic(ID3D12Device* pd3d12Device, 
 												   PIPELINE_TYPE pipelineType, 
 												   const ShaderVariableConfig& shaderVariableConfig, 
-												   std::shared_ptr<const ShaderResource> shaderResource, 
+												   const ShaderResource* shaderResource, 
 												   const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes, 
 												   UINT32 allowedTypeNum, 
 												   ShaderResourceCache* resourceCache)
