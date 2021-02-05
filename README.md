@@ -6,6 +6,7 @@ A Rendering Engine based on Direct3D 12 <br>
 - [x] Shader Resource Binding System<br>
 - [ ] Resource State Tracking System<br>
 - [ ] CPU GPU Synchronize<br>
+- [ ] Work Submission
 - [ ] Multi thread Rendering<br>
 
 ### Pipeline
