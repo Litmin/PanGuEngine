@@ -1,21 +1,26 @@
 # PanGuEngine
-A Rendering Engine based on DirectX12 <br>
+A Rendering Engine based on Direct3D 12 <br>
 ## Feature：<br>
 
+### Direct3D Render Hadrware Interface(D3D12RHI)
+- [x] Shader Resource Binding System<br>
+- [ ] Resource State Tracking System<br>
+- [ ] CPU GPU Synchronize<br>
+- [ ] Multi thread Rendering<br>
 
-TODO:<br>
+### Pipeline
+- [ ] Custom Rendering Pipeline(Similar to Unity Scriptable Rendering Pipeline)<br>
+- [ ] Forward Renderer<br>
+- [ ] Deferred Renderer<br>
+- [ ] GPU Driven Pipeline<br>
+- [ ] Frame Graph<br>
+
+### Shading
 - [ ] PBR<br>
-- [ ] Deferred Rendering<br>
-- [ ] Clustered forward renderer<br>
-- [ ] Global Illumination
 - [ ] Shadow？<br>
 - [ ] Bloom<br>
 - [ ] SSAO<br>
 - [ ] SSR<br>
+- [ ] Global Illumination
 
 
-- [ ] GPU Driven Pipeline<br>
-- [ ] Scriptable Render Pipeline<br>
-- [ ] Multi thread Rendering<br>
-- [ ] ECS<br>
-- [ ] Frame Graph<br>
