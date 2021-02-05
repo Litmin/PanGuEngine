@@ -17,7 +17,7 @@ A Rendering Engine based on Direct3D 12 <br>
 
 ### Shading
 - [ ] PBR<br>
-- [ ] Shadow？<br>
+- [ ] Shadow<br>
 - [ ] Bloom<br>
 - [ ] SSAO<br>
 - [ ] SSR<br>
