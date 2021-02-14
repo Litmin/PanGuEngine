@@ -185,6 +185,9 @@
     <ClCompile Include="D3D12RHI\IShaderResource.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\CommandContext.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -403,6 +406,9 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\IShaderResource.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\CommandContext.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>

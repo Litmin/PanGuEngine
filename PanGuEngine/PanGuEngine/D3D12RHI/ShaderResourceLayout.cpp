@@ -93,7 +93,7 @@ namespace RHI
 		);
 	}
 
-	// 这种方式初始化的用途是帮助管理Static 资源
+	// 这种方式初始化的用途是管理Static 资源
 	void ShaderResourceLayout::InitializeForStatic(ID3D12Device* pd3d12Device, 
 												   PIPELINE_TYPE pipelineType, 
 												   const ShaderVariableConfig& shaderVariableConfig, 

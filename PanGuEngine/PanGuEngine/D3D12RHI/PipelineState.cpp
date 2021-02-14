@@ -16,7 +16,7 @@ namespace RHI
 		{
 			m_ShaderTypeToIndexMap.fill(-1);
 
-			// 把Shader缓存下来
+			// 把Shader保存到一个数组
 			auto addShader = [&](shared_ptr<Shader> shader)
 			{
 				if (shader != nullptr)

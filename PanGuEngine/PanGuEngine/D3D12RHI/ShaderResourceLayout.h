@@ -117,20 +117,10 @@ namespace RHI
             return m_SrvCbvUavs[VarType].size();
         }
 
-        UINT32 GetSamplerCount(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
-        {
-            return m_Samplers[VarType].size();
-        }
-
         // indexInArray就是这个D3D12Resource在数组中的索引，不是RootIndex，因为可能有多个RootIndex相同的D3D12Resource
         const D3D12Resource& GetSrvCbvUav(SHADER_RESOURCE_VARIABLE_TYPE VarType, UINT32 indexInArray) const
         {
             return m_SrvCbvUavs[VarType][indexInArray];
-        }
-
-        const D3D12Resource& GetSampler(SHADER_RESOURCE_VARIABLE_TYPE VarType, UINT32 indexInArray) const
-        {
-            return m_Samplers[VarType][indexInArray];
         }
 
     private:
@@ -141,7 +131,6 @@ namespace RHI
 
         // 保存了映射关系
         std::vector<D3D12Resource> m_SrvCbvUavs[SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES];
-        std::vector<D3D12Resource> m_Samplers[SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES];
     };
 
 }

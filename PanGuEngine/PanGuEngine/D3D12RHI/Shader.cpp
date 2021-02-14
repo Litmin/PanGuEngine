@@ -122,6 +122,6 @@ namespace RHI
         ThrowIfFailed(hr);
 
         // 使用Shader反射系统收集该Shader用到的资源
-        m_ShaderResource = make_unique<const ShaderResource>(m_ShaderByteCode, shaderCI.Desc);
+        m_ShaderResource = make_unique<const ShaderResource>(m_ShaderByteCode.Get(), shaderCI.Desc);
     }
 }

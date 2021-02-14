@@ -110,14 +110,10 @@ namespace RHI
 				}
 				break;
 			case D3D_SIT_STRUCTURED:
-				m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
-				break;
-			case D3D_SIT_UAV_RWSTRUCTURED:
-				m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
-				break;
 			case D3D_SIT_BYTEADDRESS:
 				m_BufferSRVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				break;
+			case D3D_SIT_UAV_RWSTRUCTURED:
 			case D3D_SIT_UAV_RWBYTEADDRESS:
 				m_BufferUAVs.emplace_back(name, bindingDesc.BindPoint, bindCount, bindingDesc.Type, bindingDesc.Dimension);
 				break;
