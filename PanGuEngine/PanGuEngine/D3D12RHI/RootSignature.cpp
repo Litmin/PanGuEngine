@@ -246,13 +246,12 @@ namespace RHI
 		else
 		{
 			// 见头文件注释
-			const auto ShaderInd = GetShaderTypePipelineIndex(ShaderType, PipelineType);
-			// Static、Mutable资源放在同一个Root Table中
-			const auto RootTableType = (VariableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC) ? SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC : SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-			// Shader Type和Variable Type共同组成该Table的Index
-			const auto TableIndKey = ShaderInd * SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES + RootTableType;
+			const INT32 ShaderInd = GetShaderTypePipelineIndex(ShaderType, PipelineType);
+			assert(ShaderInd != -1);
+			// 按照资源的更新频率分组，Static、Mutable、Dynamic的资源分别放在三个Table中
+			const INT32 TableIndKey = ShaderInd * SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES + VariableType;
 			// m_SrvCbvUavRootTablesMap存储了指定类型的Root Table在m_RootParams.m_RootTables中的索引
-			auto& RootTableArrayInd = m_SrvCbvUavRootTablesMap[TableIndKey];
+			UINT8& RootTableArrayInd = m_SrvCbvUavRootTablesMap[TableIndKey];
 			
 			if (RootTableArrayInd == InvalidRootTableIndex)
 			{
@@ -260,7 +259,7 @@ namespace RHI
 				RootIndex = m_RootParams.GetRootTableNum() + m_RootParams.GetRootViewNum();
 				RootTableArrayInd = static_cast<UINT8>(m_RootParams.GetRootTableNum());
 				// 添加有一个Descriptor Range的Root Table
-				m_RootParams.AddRootTable(RootIndex, shaderVisibility, RootTableType, 1);
+				m_RootParams.AddRootTable(RootIndex, shaderVisibility, VariableType, 1);
 			}
 			else
 			{
@@ -283,7 +282,12 @@ namespace RHI
 
 			// 刚刚添加的Descriptor Range的索引
 			UINT32 NewDescriptorRangeIndex = d3d12RootParam.DescriptorTable.NumDescriptorRanges - 1;
-			RootTable.SetDescriptorRange(NewDescriptorRangeIndex, RangeType, ShaderResAttribs.BindPoint, ShaderResAttribs.BindCount, 0, OffsetFromTableStart);
+			RootTable.SetDescriptorRange(NewDescriptorRangeIndex, 
+										 RangeType, 
+								  ShaderResAttribs.BindPoint, 
+										 ShaderResAttribs.BindCount, 
+									0, 
+										 OffsetFromTableStart);
 		}
 	}
 
@@ -306,6 +310,14 @@ namespace RHI
 		}
 
 		return CacheTableSizes;
+	}
+
+	void RootSignature::CommitResource(bool isStatic)
+	{
+		// 提交Dynamic资源时，需要在GPU Descriptor Heap的Dynamic部分分配空间
+		bool hasDynamicDescriptor = m_NumDescriptorInRootTable[SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC] != 0;
+
+		
 	}
 
 	// <--------------------RootSignature-------------------------------->

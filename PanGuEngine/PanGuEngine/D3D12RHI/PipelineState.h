@@ -58,7 +58,7 @@ namespace RHI
 
 		PIPELINE_TYPE PipelineType;
 
-		ShaderVariableConfig ResourceLayout;
+		ShaderVariableConfig VariableConfig;
 
 		GraphicsPipelineDesc GraphicsPipeline;
 
@@ -94,39 +94,20 @@ namespace RHI
 			bool                    TransitionResources = false;	// 是否过度资源状态
 			bool                    ValidateStates = false;			// 是否验证资源的状态
 		};
+		void CommitShaderResource(bool isStatic);
 
+		/*
+		 * 遍历Shader，执行操作
+		 */
+		template<typename TOperation>
+		void ProcessShaders(TOperation operation) const
+		{
+			
+		}
 
 		ID3D12PipelineState* GetD3D12PipelineState() const { return m_D3D12PSO.Get(); }
 		ID3D12RootSignature* GetD3D12RootSignature() const { return m_RootSignature.GetD3D12RootSignature(); }
 		const RootSignature& GetRootSignature() const { return m_RootSignature; }
-		const ShaderResourceLayout& GetShaderResLayout(UINT32 ShaderInd) const
-		{
-			return m_ShaderResourceLayouts[ShaderInd];
-		}
-		ShaderResourceLayout& GetStaticShaderResLayout(UINT32 ShaderInd)
-		{
-			return m_StaticShaderResourceLayouts[ShaderInd];
-		}
-		ShaderResourceCache& GetStaticShaderResCache(UINT32 ShaderInd)
-		{
-			return m_StaticResourceCaches[ShaderInd];
-		}
-		SHADER_TYPE GetShaderType(UINT32 shaderInd)
-		{
-			return m_ShaderArray[shaderInd]->GetShaderType();
-		}
-
-		Shader* GetVertexShader() { return m_VertexShader.get(); }
-		Shader* GetPixelShader() { return m_PixelShader.get(); }
-		Shader* GetGeometryShader() { return m_GeometryShader.get(); }
-		Shader* GetDomainShader() { return m_DomainShader.get(); }
-		Shader* GetHullShader() { return m_HullShader.get(); }
-		Shader* GetComputeShader() { return m_ComputeShader.get(); }
-
-		UINT32 GetNumShaders() const { return m_ShaderArray.size(); }
-
-		bool ContainsShaderResources() const;
-
 		RenderDevice* GetRenderDevice() const { return m_RenderDevice; }
 
 	private:
@@ -143,29 +124,20 @@ namespace RHI
 		std::shared_ptr<Shader> m_AmplificationShader;
 		std::shared_ptr<Shader> m_MeshShader;
 
-		std::vector<Shader*> m_ShaderArray;
+		std::unordered_map<SHADER_TYPE, Shader*> m_Shaders;
 
 		std::shared_ptr<RenderPass> m_RenderPass;
-
-		size_t m_ShaderResourceLayoutHash = 0;
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
 		RootSignature m_RootSignature;
 
-		// 这个ResourceLayout用于定为所有的Resource
-		std::vector<ShaderResourceLayout> m_ShaderResourceLayouts;
-		// 这个ResourceLayout用于帮助管理Static Resource
-		std::vector<ShaderResourceLayout> m_StaticShaderResourceLayouts;
-		// Static的Shader Variable在这存储，Mutable和Dynamic的存储在ShaderResourceBinding的Cache中
-		std::vector<ShaderResourceCache> m_StaticResourceCaches;	
-		std::vector<ShaderVariableManager> m_staticVarManagers;
+		std::unordered_map<SHADER_TYPE, ShaderResourceLayout> m_ShaderResourceLayouts;
 
+		// 存储所有Static资源，在切换PSO时，提交Static资源
+		std::unique_ptr<ShaderResourceBinding> m_StaticSRB;
 
-		// 输入ShaderType转成的Index，输出该ShaderType在m_ShaderArray、m_ShaderResourceLayouts等上面几个数组中的索引
-		// 作用是找到某个Shader对应的m_ShaderResourceLayouts、m_StaticResourceCaches等对象
-		std::array<INT8, (size_t)MAX_SHADERS_IN_PIPELINE> m_ShaderTypeToIndexMap = { -1,-1,-1,-1,-1 };
-
-		std::vector<ShaderResourceBinding> m_SRBs;
+		// 相当于Material
+		std::vector<ShaderResourceBinding> m_MutableDynamicSRBs;
 	};
 }
 

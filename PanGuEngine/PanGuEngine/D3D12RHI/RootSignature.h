@@ -270,6 +270,13 @@ namespace RHI
             return m_NumRootView[VarType];
         }
 
+		/*
+		 * 提交资源
+		 * @param isStatic:提交资源的类型，当切换PSO时，提交Static资源，切换SRB时，提交Mutable/Dynamic资源
+		 */
+        void CommitResource(bool isStatic);
+		
+
 	private:
         // 计算Resource Cache中需要的Table数量，以及每个Table中Descriptor的数量，Root View当成只有一个Descriptor的Table
         std::vector<UINT32> GetCacheTableSizes() const;
@@ -279,15 +286,6 @@ namespace RHI
         class RootParamsManager
         {
         public:
-            RootParamsManager() = default;
-
-            RootParamsManager(const RootParamsManager&) = delete;
-            RootParamsManager& operator=(const RootParamsManager&) = delete;
-            RootParamsManager(RootParamsManager&&) = delete;
-            RootParamsManager& operator=(RootParamsManager&&) = delete;
-
-            ~RootParamsManager() = default;
-
             UINT32 GetRootTableNum() const { return m_RootTables.size(); }
             UINT32 GetRootViewNum() const { return m_RootViews.size(); }
 
@@ -346,7 +344,7 @@ namespace RHI
         //                                                                    |                        
         // RootParameter包括Root View和Root Table，分别存储在两个Vector中，--------
         // 构造RootParameter时，按照Shader中声明的顺序依次处理，RootIndex也就按声明的顺序
-        // Root Table中，Static和Mutable资源是放在一个Root Table中的，
+        // CBV保存为RootView，其他的按照更新频率分组，Static、Mutable、Dynamic分别保存为三组Root Table，不同的Shader分开保存，所以Root Table最大数是:Shader数量 x 3
         // 下面的m_SrvCbvUavRootTablesMap存储的是指定Shader阶段和指定Shader Variable类型的Root Table在上面的m_RootTables中的索引（不是Root Index）
         // 用来判断某个Shader的某个Variable Type的RootTable是否已经创建，如果已经创建，就向这个Root Table中添加Descriptor Range，如果没有创建，就创建一个新的Root Table
         RootParamsManager m_RootParams;

@@ -10,8 +10,6 @@ namespace RHI
         m_PSO{PSO},
         m_NumShaders { static_cast<decltype(m_NumShaders)>( PSO->GetNumShaders()) }
     {
-        m_ShaderTypeToIndexMap.fill(-1);
-
         auto* renderDevice = PSO->GetRenderDevice();
 
         // 初始化Resource Cache
@@ -19,16 +17,17 @@ namespace RHI
 
         const SHADER_RESOURCE_VARIABLE_TYPE AllowedVarTypes[] = { SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC };
 
+    	// TODO:修改遍历Shader的方式
         // 初始化Shader Variable
         for (UINT32 i = 0; i < m_NumShaders; ++i)
         {
             const auto shaderType = PSO->GetShaderType(i);
-            const auto& srcLayout = PSO->GetShaderResLayout(i);
-            const auto shaderIndex = GetShaderTypePipelineIndex(shaderType, PSO->GetDesc().PipelineType);
+            const auto& srcLayout = PSO->GetShaderResLayout(shaderType);
 
-            m_ShaderVariableManagers.emplace_back(m_ShaderResourceCache, srcLayout, AllowedVarTypes, _countof(AllowedVarTypes));
-
-            m_ShaderTypeToIndexMap[shaderIndex] = i;
+            m_ShaderVariableManagers.emplace(shaderType, ShaderVariableManager(m_ShaderResourceCache, 
+																				srcLayout, 
+																				AllowedVarTypes, 
+																				_countof(AllowedVarTypes)));
         }
     }
 
@@ -38,23 +37,29 @@ namespace RHI
     
     ShaderVariable* ShaderResourceBinding::GetVariableByName(SHADER_TYPE ShaderType, const std::string& Name)
     {
-        INT32 shaderIndex = GetShaderTypePipelineIndex(ShaderType, m_PSO->GetDesc().PipelineType);
-
-        return m_ShaderVariableManagers[shaderIndex].GetVariable(Name);
+        auto ite = m_ShaderVariableManagers.find(ShaderType);
+        if (ite == m_ShaderVariableManagers.end())
+            return nullptr;
+    	
+        return ite->second.GetVariable(Name);
     }
     
     UINT32 ShaderResourceBinding::GetVariableCount(SHADER_TYPE ShaderType) const
     {
-        INT32 shaderIndex = GetShaderTypePipelineIndex(ShaderType, m_PSO->GetDesc().PipelineType);
+        auto ite = m_ShaderVariableManagers.find(ShaderType);
+        if (ite == m_ShaderVariableManagers.end())
+            return 0;
 
-        return m_ShaderVariableManagers[shaderIndex].GetVariableCount();
+        return ite->second.GetVariableCount();
     }
     
     ShaderVariable* ShaderResourceBinding::GetVariableByIndex(SHADER_TYPE ShaderType, UINT32 Index)
     {
-        INT32 shaderIndex = GetShaderTypePipelineIndex(ShaderType, m_PSO->GetDesc().PipelineType);
+        auto ite = m_ShaderVariableManagers.find(ShaderType);
+        if (ite == m_ShaderVariableManagers.end())
+            return nullptr;
 
-        return m_ShaderVariableManagers[shaderIndex].GetVariable(Index);
+        return ite->second.GetVariable(Index);
     }
 
     void ShaderResourceBinding::InitializeStaticResources()

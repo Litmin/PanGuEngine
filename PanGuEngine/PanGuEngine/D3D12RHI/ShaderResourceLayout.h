@@ -56,9 +56,9 @@ namespace RHI
             D3D12Resource& operator = (D3D12Resource&&) = delete;
 
             // TODO:使用位域bitfield优化内存
-            static constexpr const UINT32 InvalidSamplerId = -1;
-            static constexpr const UINT32 InvalidRootIndex = -1;
-            static constexpr const UINT32 InvalidOffset = -1;
+            static constexpr UINT32 InvalidSamplerId = -1;
+            static constexpr UINT32 InvalidRootIndex = -1;
+            static constexpr UINT32 InvalidOffset = -1;
 
             const ShaderResourceLayout& ParentResLayout;
             const ShaderResourceAttribs& Attribs;   // 对应ShaderResource中的一个资源

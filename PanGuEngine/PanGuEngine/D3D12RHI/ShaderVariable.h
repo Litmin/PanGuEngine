@@ -17,12 +17,11 @@ namespace RHI
     public:
         // 为ShaderResourceLayout中的每个Shader资源创建一个ShaderVariable
         ShaderVariableManager(ShaderResourceCache& resourceCache,
-                              ShaderResourceLayout& srcLayout,
+                              const ShaderResourceLayout& srcLayout,
                               const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
                               UINT32 allowedTypeNum) :
             m_ResourceCache{resourceCache}
         {
-            // 只为指定类型的资源创建ShaderVariable，因为PSO管理Static资源，SRB管理Mutable和Dynamic资源
             const UINT32 allowedTypeBits = GetAllowedTypeBits(allowedVarTypes, allowedTypeNum);
 
             for (SHADER_RESOURCE_VARIABLE_TYPE varType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;

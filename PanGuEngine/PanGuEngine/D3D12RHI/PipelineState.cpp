@@ -21,7 +21,7 @@ namespace RHI
 			{
 				if (shader != nullptr)
 				{
-					m_ShaderArray.push_back(shader.get());
+					m_Shaders.push_back(shader.get());
 
 					SHADER_TYPE shaderType = shader->GetShaderType();
 					switch (shaderType)
@@ -36,7 +36,7 @@ namespace RHI
 					}
 
 					INT32 shaderIndex = GetShaderTypePipelineIndex(shaderType, m_Desc.PipelineType);
-					m_ShaderTypeToIndexMap[shaderIndex] = m_ShaderArray.size() - 1;
+					m_ShaderTypeToIndexMap[shaderIndex] = m_Shaders.size() - 1;
 				}
 			};
 
@@ -46,13 +46,8 @@ namespace RHI
 			addShader(m_Desc.GraphicsPipeline.HullShader);
 			addShader(m_Desc.GraphicsPipeline.DomainShader);
 
-			assert(m_ShaderArray.size() > 0 && "没得Shader");
+			assert(m_Shaders.size() > 0 && "没得Shader");
 
-			// 构造ShaderResourceCache、ShaderResourceLayout、ShaderResourceVariable
-			m_StaticResourceCaches.insert(m_StaticResourceCaches.end(), m_ShaderArray.size(), ShaderResourceCache{});
-			
-			m_ShaderResourceLayouts.insert(m_ShaderResourceLayouts.end(), m_ShaderArray.size(), ShaderResourceLayout{});
-			m_StaticShaderResourceLayouts.insert(m_StaticShaderResourceLayouts.end(), m_ShaderArray.size(), ShaderResourceLayout{});
 
 			// 使用Shader中的ShaderResource来初始化ShaderResourceLayout，这一过程中也会初始化RootSignature
 			InitShaderObjects();
@@ -65,9 +60,9 @@ namespace RHI
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC d3d12PSODesc = m_Desc.GraphicsPipeline.GraphicPipelineState;
 
 			// 设置Shader
-			for (UINT32 i = 0; i < m_ShaderArray.size(); ++i)
+			for (UINT32 i = 0; i < m_Shaders.size(); ++i)
 			{
-				auto* shader = m_ShaderArray[i];
+				auto* shader = m_Shaders[i];
 				auto shaderType = shader->GetShaderType();
 
 				D3D12_SHADER_BYTECODE* pd3d12ShaderBytecode = nullptr;
@@ -128,27 +123,27 @@ namespace RHI
 	void PipelineState::InitShaderObjects()
 	{
 		auto pd3d12Device = m_RenderDevice->GetD3D12Device();
-		const auto& pipelineResourceLayout = m_Desc.ResourceLayout;
 
-		for (UINT32 i = 0; i < m_ShaderArray.size(); ++i)
+		m_ShaderResourceLayouts.insert(m_ShaderResourceLayouts.end(), m_Shaders.size(), ShaderResourceLayout{});
+
+		for (UINT32 i = 0; i < m_Shaders.size(); ++i)
 		{
-			auto* shader = m_ShaderArray[i];
-
-			// 初始化所有资源的ShaderResourceLayout
-			m_ShaderResourceLayouts[i].InitializeForAll(pd3d12Device, m_Desc.PipelineType, m_Desc.ResourceLayout, shader->GetShaderResources(), &m_RootSignature);
-
-			// 初始化用来存储Static资源的ShaderResourceCache和ShaderResourceLayout
-			const SHADER_RESOURCE_VARIABLE_TYPE StaticVarType[] = { SHADER_RESOURCE_VARIABLE_TYPE_STATIC };
-			m_StaticShaderResourceLayouts[i].InitializeForStatic(pd3d12Device, 
-																 m_Desc.PipelineType, 
-																 m_Desc.ResourceLayout, 
-																 shader->GetShaderResources(), 
-																 StaticVarType, 
-																 _countof(StaticVarType), 
-																 &m_StaticResourceCaches[i]);
-
-			// 初始化Static Shader Variables
-			m_staticVarManagers.emplace_back(m_StaticResourceCaches[i], m_StaticShaderResourceLayouts[i], StaticVarType, _countof(StaticVarType));
+			auto* shader = m_Shaders[i];
+			m_ShaderResourceLayouts[i].InitializeForAll(pd3d12Device, 
+														m_Desc.PipelineType, 
+														m_Desc.VariableConfig, 
+											shader->GetShaderResources(), 
+														&m_RootSignature);
+		}
+		
+		m_StaticResourceCache.Initialize();
+		
+		// 初始化Static Shader Variables
+		const SHADER_RESOURCE_VARIABLE_TYPE StaticVarType[] = { SHADER_RESOURCE_VARIABLE_TYPE_STATIC };
+		for(UINT32 i = 0;i < m_Shaders.size();++i)
+		{
+			
+			m_staticVarManagers.emplace_back(m_StaticResourceCache, m_ShaderResourceLayouts[i], StaticVarType, _countof(StaticVarType));
 		}
 	}
 
@@ -183,15 +178,5 @@ namespace RHI
 		return &m_SRBs.back();
 	}
 
-	bool PipelineState::ContainsShaderResources() const
-	{
-		for (auto VarType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC; VarType < SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES; VarType = static_cast<SHADER_RESOURCE_VARIABLE_TYPE>(VarType + 1))
-		{
-			if (m_RootSignature.GetNumDescriptorInRootTable(VarType) != 0 ||
-				m_RootSignature.GetNumRootView(VarType) != 0)
-				return true;
-		}
-		return false;
-	}
 }
 

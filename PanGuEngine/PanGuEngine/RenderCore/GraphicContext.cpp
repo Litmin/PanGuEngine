@@ -80,6 +80,7 @@ UINT GraphicContext::GetInputLayoutIndex(
 	if (hasuv3)
 		mask |= (1 << 6);
 
+	// TODO:Why&&
 	auto&& ite = m_InputLayoutMap.find(mask);
 	if (ite == m_InputLayoutMap.end())
 	{
