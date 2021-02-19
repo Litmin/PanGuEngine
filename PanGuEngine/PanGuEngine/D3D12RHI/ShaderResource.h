@@ -171,6 +171,7 @@ namespace RHI
 
     private:
         // TODO:可以使用一个Vector来优化
+    	// 这里分组的目的是把D3D中不同的类型转换为这几种类型：CBV、TexSRV、TexUAV、BufferSRV、BufferUAV
         std::vector<ShaderResourceAttribs> m_CBs;
         std::vector<ShaderResourceAttribs> m_TextureSRVs;
         std::vector<ShaderResourceAttribs> m_TextureUAVs;
@@ -180,7 +181,6 @@ namespace RHI
         const SHADER_TYPE m_ShaderType;
 
         UINT32 m_ShaderVersion = 0;
-
 
         std::string m_ShaderName;
     };

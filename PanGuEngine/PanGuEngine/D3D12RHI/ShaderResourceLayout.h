@@ -18,8 +18,12 @@ namespace RHI
     class ShaderResourceLayout
     {
     public:
-        ShaderResourceLayout() = default;
-
+        ShaderResourceLayout(ID3D12Device* pd3d12Device,
+                             PIPELINE_TYPE pipelineType,
+                             const ShaderVariableConfig& shaderVariableConfig,
+                             const ShaderResource* shaderResource,
+                             RootSignature* rootSignature);
+    	
         // 有两种初始化方式：
         // 这种初始化的用途是定为所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
         void InitializeForAll(ID3D12Device* pd3d12Device,
@@ -36,14 +40,6 @@ namespace RHI
                                  const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
                                  UINT32 allowedTypeNum,
                                  ShaderResourceCache* resourceCache);
-
-        ShaderResourceLayout(const ShaderResourceLayout&) = delete;
-        ShaderResourceLayout(ShaderResourceLayout&&) = delete;
-        ShaderResourceLayout& operator=(const ShaderResourceLayout&) = delete;
-        ShaderResourceLayout& operator=(ShaderResourceLayout&&) = delete;
-
-        ~ShaderResourceLayout() = default;
-
 
 
         // 该结构保存了Shader中的资源到Descriptor Heap中的映射关系，成员包含一个ShaderResourceAttribs的引用、RootIndex、OffsetFromTableStart

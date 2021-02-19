@@ -84,7 +84,7 @@ namespace RHI
 		ShaderVariable* GetStaticVariableByIndex(SHADER_TYPE shaderType, UINT32 index);
 
 		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由PSO所有
-		ShaderResourceBinding* CreateShaderResourceBinding(bool InitStaticResources);
+		ShaderResourceBinding* CreateShaderResourceBinding();
 
 		// 提交资源,用一个结构体来包含众多参数，不然参数太多，不好看
 		struct CommitAndTransitionResourcesAttribs
@@ -102,7 +102,10 @@ namespace RHI
 		template<typename TOperation>
 		void ProcessShaders(TOperation operation) const
 		{
-			
+			for(const auto& [shaderType, shader] : m_Shaders)
+			{
+				
+			}
 		}
 
 		ID3D12PipelineState* GetD3D12PipelineState() const { return m_D3D12PSO.Get(); }
@@ -114,30 +117,20 @@ namespace RHI
 		RenderDevice* m_RenderDevice;
 		PipelineStateDesc m_Desc;
 
-		// 使用shared_ptr,一个Shader可能被多个PSO共用
-		std::shared_ptr<Shader> m_VertexShader;
-		std::shared_ptr<Shader> m_PixelShader;
-		std::shared_ptr<Shader> m_GeometryShader;
-		std::shared_ptr<Shader> m_DomainShader;
-		std::shared_ptr<Shader> m_HullShader;
-		std::shared_ptr<Shader> m_ComputeShader;
-		std::shared_ptr<Shader> m_AmplificationShader;
-		std::shared_ptr<Shader> m_MeshShader;
-
-		std::unordered_map<SHADER_TYPE, Shader*> m_Shaders;
-
-		std::shared_ptr<RenderPass> m_RenderPass;
-
-		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
+		// 资源绑定系统
 		RootSignature m_RootSignature;
-
+		// 使用shared_ptr,一个Shader可能被多个PSO共用
+		std::unordered_map<SHADER_TYPE, std::shared_ptr<Shader>> m_Shaders;
 		std::unordered_map<SHADER_TYPE, ShaderResourceLayout> m_ShaderResourceLayouts;
-
 		// 存储所有Static资源，在切换PSO时，提交Static资源
 		std::unique_ptr<ShaderResourceBinding> m_StaticSRB;
-
 		// 相当于Material
 		std::vector<ShaderResourceBinding> m_MutableDynamicSRBs;
+
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
+
+		
+		std::shared_ptr<RenderPass> m_RenderPass;
 	};
 }
 
