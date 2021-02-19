@@ -27,11 +27,13 @@ namespace RHI
 	{
 	}
 
+	// TODO:Implete
 	DescriptorHeapAllocation RenderDevice::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count)
 	{
 		return DescriptorHeapAllocation();
 	}
 
+	// TODO:Implete
 	DescriptorHeapAllocation RenderDevice::AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count)
 	{
 		return DescriptorHeapAllocation();

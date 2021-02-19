@@ -102,7 +102,7 @@ namespace RHI
 
 
 	// <--------------------RootSignature-------------------------------->
-	RootSignature::RootSignature()
+	RootSignature::RootSignature(RenderDevice* renderDevice) : m_RenderDevice(renderDevice)
 	{
 		m_SrvCbvUavRootTablesMap.fill(InvalidRootTableIndex);
 	}
@@ -110,6 +110,8 @@ namespace RHI
 	// TODO:RootSignature是否要SafeRelease
 	RootSignature::~RootSignature()
 	{
+		if(m_pd3d12RootSignature)
+			m_RenderDevice->SafeReleaseDeviceObject(std::move(m_pd3d12RootSignature));
 	}
 
 	// 完成Root Signature的构造，创建Direct3D 12的Root Signature

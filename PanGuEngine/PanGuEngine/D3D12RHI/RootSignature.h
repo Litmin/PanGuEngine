@@ -238,7 +238,7 @@ namespace RHI
 	class RootSignature
 	{
 	public:
-        RootSignature();
+        RootSignature(RenderDevice* renderDevice);
         ~RootSignature();
 
         // 完成Root Signature的构造，创建Direct3D 12的Root Signature
@@ -348,6 +348,8 @@ namespace RHI
         // 下面的m_SrvCbvUavRootTablesMap存储的是指定Shader阶段和指定Shader Variable类型的Root Table在上面的m_RootTables中的索引（不是Root Index）
         // 用来判断某个Shader的某个Variable Type的RootTable是否已经创建，如果已经创建，就向这个Root Table中添加Descriptor Range，如果没有创建，就创建一个新的Root Table
         RootParamsManager m_RootParams;
+
+        RenderDevice* m_RenderDevice;
 
         // 记录每种Variable类型的所有RootTable的Descriptor的总数量
         std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumDescriptorInRootTable = {};

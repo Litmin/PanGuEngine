@@ -10,46 +10,25 @@ namespace RHI
 
     /**
     * 定义Shader Resource和Descriptor Table中的Descriptor之间的对应关系
-    * 三个用途：
-    *           1，PipelineState为每个Shader的每个资源定义Layout
-    *           2，PipelinesState用来管理Static资源
-    *           3，每个ShaderResourceBinding对象用来管理Mutable和Dynamic资源
     */
     class ShaderResourceLayout
     {
     public:
+        // 遍历一个Shader的所有资源，由RootSignature按照规则分组到不同的Descriptor Table，ShaderResourceLayoutResource记录Shader资源的信息以及RootIndex和OffsetFromTableStart
         ShaderResourceLayout(ID3D12Device* pd3d12Device,
                              PIPELINE_TYPE pipelineType,
                              const ShaderVariableConfig& shaderVariableConfig,
                              const ShaderResource* shaderResource,
                              RootSignature* rootSignature);
-    	
-        // 有两种初始化方式：
-        // 这种初始化的用途是定为所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
-        void InitializeForAll(ID3D12Device* pd3d12Device,
-                              PIPELINE_TYPE pipelineType,
-                              const ShaderVariableConfig& shaderVariableConfig,
-                              const ShaderResource* shaderResource,
-                              RootSignature* rootSignature);
 
-        // 这种方式初始化的用途是帮助管理Static 资源
-        void InitializeForStatic(ID3D12Device* pd3d12Device,
-                                 PIPELINE_TYPE pipelineType,
-                                 const ShaderVariableConfig& shaderVariableConfig,
-                                 const ShaderResource* shaderResource, 
-                                 const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
-                                 UINT32 allowedTypeNum,
-                                 ShaderResourceCache* resourceCache);
-
-
-        // 该结构保存了Shader中的资源到Descriptor Heap中的映射关系，成员包含一个ShaderResourceAttribs的引用、RootIndex、OffsetFromTableStart
-        struct D3D12Resource 
+        // 表示Shader中的一个资源，并且包含RootIndex和OffsetFromTable两个额外信息
+        struct Resource 
         {
         public:
-            D3D12Resource(const D3D12Resource&) = delete;
-            D3D12Resource(D3D12Resource&&) = delete;
-            D3D12Resource& operator = (const D3D12Resource&) = delete;
-            D3D12Resource& operator = (D3D12Resource&&) = delete;
+            Resource(const Resource&) = delete;
+            Resource(Resource&&) = delete;
+            Resource& operator = (const Resource&) = delete;
+            Resource& operator = (Resource&&) = delete;
 
             // TODO:使用位域bitfield优化内存
             static constexpr UINT32 InvalidSamplerId = -1;
@@ -63,7 +42,7 @@ namespace RHI
             const SHADER_RESOURCE_VARIABLE_TYPE VariableType;   // Static、Mutable、Dynamic
             const UINT32 RootIndex;
 
-            D3D12Resource(const ShaderResourceLayout&      _ParentLayout,
+            Resource(const ShaderResourceLayout&      _ParentLayout,
                           const ShaderResourceAttribs&     _Attribs,
                           SHADER_RESOURCE_VARIABLE_TYPE    _VariableType,
                           CachedResourceType               _ResType,
@@ -114,7 +93,7 @@ namespace RHI
         }
 
         // indexInArray就是这个D3D12Resource在数组中的索引，不是RootIndex，因为可能有多个RootIndex相同的D3D12Resource
-        const D3D12Resource& GetSrvCbvUav(SHADER_RESOURCE_VARIABLE_TYPE VarType, UINT32 indexInArray) const
+        const Resource& GetSrvCbvUav(SHADER_RESOURCE_VARIABLE_TYPE VarType, UINT32 indexInArray) const
         {
             return m_SrvCbvUavs[VarType][indexInArray];
         }
@@ -122,11 +101,8 @@ namespace RHI
     private:
         ID3D12Device* m_D3D12Device;
 
-        // ShaderResource存储了一个Shader需要的所有资源
-        const ShaderResource* m_ShaderResources;
-
-        // 保存了映射关系
-        std::vector<D3D12Resource> m_SrvCbvUavs[SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES];
+        // Shader中的所有资源，按照更新频率分了三个vector
+        std::vector<Resource> m_SrvCbvUavs[SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES];
     };
 
 }

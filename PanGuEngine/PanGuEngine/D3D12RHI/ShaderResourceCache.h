@@ -8,9 +8,6 @@ namespace RHI
     /**
     * 只提供个存储空间（GPUDescriptorHeap），其他的啥都不知道
     * 存储绑定到Shader的资源,ShaderResourceCache会分配GPU-visible Descriptor Heap上的空间，来存储资源的Descriptor
-    * 有两种用途：
-    *   1，PSO用一个Cache来存储Static资源
-    *   2，每个ShaderResourceBinding对象用一个Cache来存储Mutable和Dynamic资源,为Mutable资源分配GPUDescriptorHeap的空间
     */
     class ShaderResourceCache
     {

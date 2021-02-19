@@ -61,7 +61,7 @@ namespace RHI
     {
     public:
         ShaderVariable(ShaderVariableManager& parentManager,
-            const ShaderResourceLayout::D3D12Resource& resource) :
+            const ShaderResourceLayout::Resource& resource) :
             m_ParentManager{parentManager},
             m_Resource{resource}
         {
@@ -99,7 +99,7 @@ namespace RHI
             return m_Resource.IsBound(arrayIndex, m_ParentManager.m_ResourceCache);
         }
 
-        const ShaderResourceLayout::D3D12Resource& GetResource() const
+        const ShaderResourceLayout::Resource& GetResource() const
         {
             return m_Resource;
         }
@@ -108,7 +108,7 @@ namespace RHI
         friend ShaderVariableManager;
 
         ShaderVariableManager& m_ParentManager;
-        const ShaderResourceLayout::D3D12Resource& m_Resource;
+        const ShaderResourceLayout::Resource& m_Resource;
 
     };
 }

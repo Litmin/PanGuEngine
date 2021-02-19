@@ -6,7 +6,9 @@
 
 namespace RHI
 {
-    ShaderResourceBinding::ShaderResourceBinding(PipelineState* PSO, bool IsPSOInternal) :
+    ShaderResourceBinding::ShaderResourceBinding(PipelineState* PSO, 
+												 const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
+												 UINT32 allowedTypeNum) :
         m_PSO{PSO},
         m_NumShaders { static_cast<decltype(m_NumShaders)>( PSO->GetNumShaders()) }
     {

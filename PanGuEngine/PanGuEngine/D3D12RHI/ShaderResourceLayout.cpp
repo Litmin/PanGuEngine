@@ -29,41 +29,27 @@ namespace RHI
 		}
 	}
 
-	ShaderResourceLayout::ShaderResourceLayout(ID3D12Device* pd3d12Device, 
+	ShaderResourceLayout::ShaderResourceLayout(ID3D12Device* pd3d12Device,
 											   PIPELINE_TYPE pipelineType,
 											   const ShaderVariableConfig& shaderVariableConfig, 
 											   const ShaderResource* shaderResource,
-												RootSignature* rootSignature)
+											   RootSignature* rootSignature) :
+		m_D3D12Device(pd3d12Device)
 	{
-		
-	}
-
-	// 这种初始化的用途是定位所有的资源     RootIndex和OffsetFromTableStart在初始化的过程中分配
-	void ShaderResourceLayout::InitializeForAll(ID3D12Device* pd3d12Device,
-												PIPELINE_TYPE PipelineType,
-												const ShaderVariableConfig& shaderVariableConfig,
-												const ShaderResource* shaderResource,
-												RootSignature* rootSignature)
-
-	{
-		m_D3D12Device = pd3d12Device;
-		m_ShaderResources = shaderResource;
-
-
 		// 把ShaderResource中的每个资源都通过RootSignature确定RootIndex和OffsetFromTableStart，然后存储下来
 		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
 			CachedResourceType              ResType,
 			SHADER_RESOURCE_VARIABLE_TYPE   VarType) //
 		{
-			UINT32 RootIndex = D3D12Resource::InvalidRootIndex;
-			UINT32 Offset = D3D12Resource::InvalidOffset;
+			UINT32 RootIndex = Resource::InvalidRootIndex;
+			UINT32 Offset = Resource::InvalidOffset;
 
 			D3D12_DESCRIPTOR_RANGE_TYPE DescriptorRangeType = GetDescriptorRangeType(ResType);
 
 			if (rootSignature)
 			{
 				// 按照ShaderResource中的顺序添加到RootSignature中，并分配RootIndex和Offset
-				rootSignature->AllocateResourceSlot(m_ShaderResources->GetShaderType(), PipelineType, Attribs, VarType, DescriptorRangeType, RootIndex, Offset);
+				rootSignature->AllocateResourceSlot(shaderResource->GetShaderType(), pipelineType, Attribs, VarType, DescriptorRangeType, RootIndex, Offset);
 			}
 			else
 			{
@@ -73,115 +59,36 @@ namespace RHI
 			m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset);
 		};
 
-		m_ShaderResources->ProcessResources(
+		shaderResource->ProcessResources(
 			[&](const ShaderResourceAttribs& CB, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(CB, shaderVariableConfig);
-				AddResource(CB, CachedResourceType::CBV, VarType);
-			},
-			[&](const ShaderResourceAttribs& TexSRV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(TexSRV, shaderVariableConfig);
-				AddResource(TexSRV, CachedResourceType::TexSRV, VarType);
-			},
-			[&](const ShaderResourceAttribs& TexUAV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(TexUAV, shaderVariableConfig);
-				AddResource(TexUAV, CachedResourceType::TexUAV, VarType);
-			},
-			[&](const ShaderResourceAttribs& BufSRV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(BufSRV, shaderVariableConfig);
-				AddResource(BufSRV, CachedResourceType::BufSRV, VarType);
-			},
-			[&](const ShaderResourceAttribs& BufUAV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(BufUAV, shaderVariableConfig);
-				AddResource(BufUAV, CachedResourceType::BufUAV, VarType);
-			}
-		);
-	}
-
-	// 这种方式初始化的用途是管理Static 资源
-	void ShaderResourceLayout::InitializeForStatic(ID3D12Device* pd3d12Device, 
-												   PIPELINE_TYPE pipelineType, 
-												   const ShaderVariableConfig& shaderVariableConfig, 
-												   const ShaderResource* shaderResource, 
-												   const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes, 
-												   UINT32 allowedTypeNum, 
-												   ShaderResourceCache* resourceCache)
-	{
-		m_D3D12Device = pd3d12Device;
-		m_ShaderResources = shaderResource;
-
-		const UINT32 AllowedTypeBits = GetAllowedTypeBits(allowedVarTypes, allowedTypeNum);
-
-		UINT32 StaticResCacheTblSizes[4] = { 0, 0, 0, 0 };
-
-		// 把ShaderResource中的每个资源都通过RootSignature确定RootIndex和OffsetFromTableStart，然后存储下来
-		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
-			CachedResourceType              ResType,
-			SHADER_RESOURCE_VARIABLE_TYPE   VarType) //
 		{
-			UINT32 RootIndex = D3D12Resource::InvalidRootIndex;
-			UINT32 Offset = D3D12Resource::InvalidOffset;
-
-			D3D12_DESCRIPTOR_RANGE_TYPE DescriptorRangeType = GetDescriptorRangeType(ResType);
-
-			// Static资源按下列RootIndex存放
-			// SRVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_SRV (0)
-			// UAVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_UAV (1)
-			// CBVs at root index D3D12_DESCRIPTOR_RANGE_TYPE_CBV (2)
-			// Samplers at root index D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER (3)
-
-			RootIndex = DescriptorRangeType;
-			Offset = Attribs.BindPoint;	// Offset就是寄存器的索引，所以最好把Static资源的声明放在前面
-			StaticResCacheTblSizes[RootIndex] = std::max(StaticResCacheTblSizes[RootIndex], Offset + Attribs.BindCount);
-
-			m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset);
-		};
-
-		m_ShaderResources->ProcessResources(
-			[&](const ShaderResourceAttribs& CB, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(CB, shaderVariableConfig);
-				if (IsAllowedType(VarType, AllowedTypeBits))
-					AddResource(CB, CachedResourceType::CBV, VarType);
-			},
+			auto VarType = shaderResource->FindVariableType(CB, shaderVariableConfig);
+			AddResource(CB, CachedResourceType::CBV, VarType);
+		},
 			[&](const ShaderResourceAttribs& TexSRV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(TexSRV, shaderVariableConfig);
-				if (IsAllowedType(VarType, AllowedTypeBits))
-					AddResource(TexSRV, CachedResourceType::TexSRV, VarType);
-			},
-			[&](const ShaderResourceAttribs& TexUAV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(TexUAV, shaderVariableConfig);
-				if (IsAllowedType(VarType, AllowedTypeBits))
-					AddResource(TexUAV, CachedResourceType::TexUAV, VarType);
-			},
-			[&](const ShaderResourceAttribs& BufSRV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(BufSRV, shaderVariableConfig);
-				if (IsAllowedType(VarType, AllowedTypeBits))
-					AddResource(BufSRV, CachedResourceType::BufSRV, VarType);
-			},
-			[&](const ShaderResourceAttribs& BufUAV, UINT32)
-			{
-				auto VarType = m_ShaderResources->FindVariableType(BufUAV, shaderVariableConfig);
-				if (IsAllowedType(VarType, AllowedTypeBits))
-					AddResource(BufUAV, CachedResourceType::BufUAV, VarType);
-			}
-		);
-
-		// 初始化Static Resource Cache
-		if (resourceCache)
 		{
-			resourceCache->Initialize(_countof(StaticResCacheTblSizes), StaticResCacheTblSizes);
+			auto VarType = shaderResource->FindVariableType(TexSRV, shaderVariableConfig);
+			AddResource(TexSRV, CachedResourceType::TexSRV, VarType);
+		},
+			[&](const ShaderResourceAttribs& TexUAV, UINT32)
+		{
+			auto VarType = shaderResource->FindVariableType(TexUAV, shaderVariableConfig);
+			AddResource(TexUAV, CachedResourceType::TexUAV, VarType);
+		},
+			[&](const ShaderResourceAttribs& BufSRV, UINT32)
+		{
+			auto VarType = shaderResource->FindVariableType(BufSRV, shaderVariableConfig);
+			AddResource(BufSRV, CachedResourceType::BufSRV, VarType);
+		},
+			[&](const ShaderResourceAttribs& BufUAV, UINT32)
+		{
+			auto VarType = shaderResource->FindVariableType(BufUAV, shaderVariableConfig);
+			AddResource(BufUAV, CachedResourceType::BufUAV, VarType);
 		}
+		);
 	}
 
-	void ShaderResourceLayout::D3D12Resource::CacheCB(IShaderResource* pBuffer, 
+	void ShaderResourceLayout::Resource::CacheCB(IShaderResource* pBuffer, 
 													  ShaderResourceCache::Resource& dstRes, 
 													  UINT32 arrayIndex, 
 													  D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const
@@ -196,22 +103,15 @@ namespace RHI
 				return;
 			}
 
+			// Constant Buffer不需要Descriptor，直接绑定到Root View
 			dstRes.Type = ResourceType;
-			dstRes.CPUDescriptorHandle = buffer->GetCBVHandle();
-
-			if (shaderVisibleHeapCPUDescriptorHandle.ptr != 0)
-			{
-				ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
-				d3d12Device->CopyDescriptorsSimple(1, shaderVisibleHeapCPUDescriptorHandle, dstRes.CPUDescriptorHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			}
-
 			dstRes.pObject.reset(buffer);
 		}
 	}
 
 	// 该模板函数可以在cpp中定义，因为只在本文件中使用
 	template<typename TResourceViewType>
-	void ShaderResourceLayout::D3D12Resource::CacheResourceView(IShaderResource* pView,
+	void ShaderResourceLayout::Resource::CacheResourceView(IShaderResource* pView,
 																ShaderResourceCache::Resource& dstRes, 
 																UINT32 arrayIndex, 
 																D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const
@@ -239,7 +139,7 @@ namespace RHI
 		}
 	}
 
-	bool ShaderResourceLayout::D3D12Resource::IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const
+	bool ShaderResourceLayout::Resource::IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const
 	{
 		if (RootIndex < resourceCache.GetRootTablesNum())
 		{
@@ -261,7 +161,7 @@ namespace RHI
 
 	// 绑定资源！！！！！！
 	// 这里只是把资源的Descriptor拷贝到了Cache中，没有提交到渲染管线
-	void ShaderResourceLayout::D3D12Resource::BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
+	void ShaderResourceLayout::Resource::BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
 		auto& DstRes = resourceCache.GetRootTable(RootIndex).GetResource(OffsetFromTableStart + arrayIndex);
 

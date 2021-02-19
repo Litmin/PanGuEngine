@@ -29,8 +29,15 @@ namespace RHI
 
 			assert(m_Shaders.size() > 0 && "没得Shader");
 
-			// 使用Shader中的ShaderResource来初始化ShaderResourceLayout，这一过程中也会初始化RootSignature
-			InitShaderObjects();
+			// 遍历所有Shader，初始化ShaderResourceLayout和RootSignature
+			for (const auto& [shaderType, shader] : m_Shaders)
+			{
+				m_ShaderResourceLayouts.insert(make_pair(shaderType, ShaderResourceLayout(pd3d12Device,
+					m_Desc.PipelineType,
+					m_Desc.VariableConfig,
+					shader->GetShaderResources(),
+					&m_RootSignature)));
+			}
 
 			// 根签名完成初始化，创建Direct3D 12的RootSignature
 			m_RootSignature.Finalize(pd3d12Device);
@@ -105,28 +112,6 @@ namespace RHI
 	{
 		if(m_D3D12PSO)
 			m_RenderDevice->SafeReleaseDeviceObject(std::move(m_D3D12PSO));
-	}
-
-	// 初始化ShaderResourceLayout
-	void PipelineState::InitShaderObjects()
-	{
-		auto pd3d12Device = m_RenderDevice->GetD3D12Device();
-
-		for (UINT32 i = 0; i < m_Shaders.size(); ++i)
-		{
-			auto* shader = m_Shaders[i];
-			m_ShaderResourceLayouts[i].InitializeForAll(pd3d12Device, 
-														m_Desc.PipelineType, 
-														m_Desc.VariableConfig, 
-											shader->GetShaderResources(), 
-														&m_RootSignature);
-		}
-
-		
-		for (const auto& [shaderType, shader] : m_Shaders)
-		{
-			m_ShaderResourceLayouts.insert(make_pair(shaderType, ShaderResourceLayout()));
-		}
 	}
 
 	UINT32 PipelineState::GetStaticVariableCount(SHADER_TYPE ShaderType) const

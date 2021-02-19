@@ -13,7 +13,9 @@ namespace RHI
     class ShaderResourceBinding
     {
     public:
-        ShaderResourceBinding(PipelineState* PSO, bool IsPSOInternal);
+        ShaderResourceBinding(PipelineState* PSO, 
+							  const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
+							  UINT32 allowedTypeNum);
         ~ShaderResourceBinding();
 
 

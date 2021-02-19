@@ -75,8 +75,6 @@ namespace RHI
 					  const PipelineStateDesc& desc);
 		~PipelineState();
 
-		void InitShaderObjects();
-
 		const PipelineStateDesc& GetDesc() const { return m_Desc; }
 		
 		UINT32 GetStaticVariableCount(SHADER_TYPE ShaderType) const;
