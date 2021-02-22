@@ -85,4 +85,25 @@ namespace RHI
     SHADER_RESOURCE_VARIABLE_TYPE GetShaderVariableType(SHADER_TYPE shaderType, 
                                                         const std::string& name, 
                                                         const struct ShaderVariableConfig& shaderVariableConfig);
+
+    // CachedResourceType to D3D12_DESCRIPTOR_RANGE_TYPE
+    D3D12_DESCRIPTOR_RANGE_TYPE GetDescriptorRangeType(CachedResourceType cachedResType)
+    {
+        switch (cachedResType)
+        {
+        case CachedResourceType::CBV:
+            return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+        case CachedResourceType::BufSRV:
+        case CachedResourceType::TexSRV:
+            return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+        case CachedResourceType::BufUAV:
+        case CachedResourceType::TexUAV:
+            return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+        case CachedResourceType::Sampler:
+            return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+        default:
+            LOG_ERROR("Unkown CachedResourceType.");
+            return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+        }
+    }
 }

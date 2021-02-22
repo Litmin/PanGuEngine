@@ -246,9 +246,6 @@ namespace RHI
 
         ID3D12RootSignature* GetD3D12RootSignature() const { return m_pd3d12RootSignature.Get(); }
 
-        // 初始化SRB的Cache，因为只有RootSignature知道足够的信息，初始化每个Shader
-        void InitResourceCacheForSRB(RenderDevice* RenderDevice, ShaderResourceCache& ResourceCache) const;
-
         // 为Shader中的每个ShaderResource分配一个容身之地
         void AllocateResourceSlot(SHADER_TYPE                     ShaderType,
                                   PIPELINE_TYPE                   PipelineType,
@@ -270,6 +267,18 @@ namespace RHI
             return m_NumRootView[VarType];
         }
 
+        template <typename TOperation>
+        void ProcessRootViews(TOperation Operation) const
+        {
+            m_RootParams.ProcessRootViews(Operation);
+        }
+
+		template <typename TOperation>
+		void ProcessRootTables(TOperation Operation) const
+		{
+            m_RootParams.ProcessRootTables(Operation);
+		}
+		
 		/*
 		 * 提交资源
 		 * @param isStatic:提交资源的类型，当切换PSO时，提交Static资源，切换SRB时，提交Mutable/Dynamic资源
@@ -328,6 +337,9 @@ namespace RHI
             void AddDescriptorRanges(UINT32 RootTableInd, UINT32 NumExtraRanges = 1);
 
             template <typename TOperation>
+            void ProcessRootViews(TOperation) const;
+        	
+            template <typename TOperation>
             void ProcessRootTables(TOperation) const;
 
             bool   operator==(const RootParamsManager& RootParams) const;
@@ -360,5 +372,25 @@ namespace RHI
 
         std::array<UINT8, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES * MAX_SHADERS_IN_PIPELINE> m_SrvCbvUavRootTablesMap = {};
 	};
+
+    template <typename TOperation>
+    void RootSignature::RootParamsManager::ProcessRootViews(TOperation Operation) const
+    {
+    	for(UINT32 i = 0;i < m_RootViews.size();++i)
+    	{
+            auto& rootView = m_RootViews[i];
+            Operation(rootView);
+    	}
+    }
+
+    template <typename TOperation>
+    void RootSignature::RootParamsManager::ProcessRootTables(TOperation Operation) const
+    {
+    	for(UINT32 i = 0;i < m_RootTables.size();++i)
+    	{
+            auto& rootTable = m_RootTables[i];
+            Operation(rootTable);
+    	}
+    }
 }
 

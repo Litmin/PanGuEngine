@@ -9,7 +9,7 @@ namespace RHI
     class RootSignature;
 
     /**
-    * 定义Shader Resource和Descriptor Table中的Descriptor之间的对应关系
+    * 定义了Shader中的资源与Descriptor Heap中的映射
     */
     class ShaderResourceLayout
     {
@@ -68,24 +68,13 @@ namespace RHI
             // 把要绑定的资源存储到ShaderResourceCache中
             // 几个Cache函数其实就是把一个资源的Descriptor拷贝到ShaderResourceCache中的Descriptor
             void CacheCB(IShaderResource* pBuffer,
-                         ShaderResourceCache::Resource& dstRes,
-                         UINT32 arrayIndex,
-                         D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const;
+                         ShaderResourceCache::Resource* dstRes) const;
 
             template<typename TResourceViewType>
             void CacheResourceView(IShaderResource* pView,
-                                   ShaderResourceCache::Resource& dstRes,
-                                   UINT32 arrayIndex,
+                                   ShaderResourceCache::Resource* dstRes,
                                    D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const;
         };
-
-
-
-        // 拷贝Static资源
-        // 保存Static资源的ShaderResourceCache没有保存在GPUDescriptorHeap，在创建SRB时，会把Static ShaderResourceCache的资源拷贝到SRB中再提交
-        void CopyStaticResourceDesriptorHandles(const ShaderResourceCache& SrcCache,
-                                                const ShaderResourceLayout& DstLayout,
-                                                ShaderResourceCache& DstCache) const;
 
         UINT32 GetCbvSrvUavCount(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
         {

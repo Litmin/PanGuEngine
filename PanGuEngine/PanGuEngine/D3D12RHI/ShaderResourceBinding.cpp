@@ -9,28 +9,20 @@ namespace RHI
     ShaderResourceBinding::ShaderResourceBinding(PipelineState* PSO, 
 												 const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
 												 UINT32 allowedTypeNum) :
-        m_PSO{PSO},
-        m_NumShaders { static_cast<decltype(m_NumShaders)>( PSO->GetNumShaders()) }
+        m_PSO{PSO}
     {
         auto* renderDevice = PSO->GetRenderDevice();
 
         // 初始化Resource Cache
-        PSO->GetRootSignature().InitResourceCacheForSRB(renderDevice, m_ShaderResourceCache);
+        m_ShaderResourceCache.Initialize(renderDevice, m_PSO->GetRootSignature(), allowedVarTypes, allowedTypeNum);
 
-        const SHADER_RESOURCE_VARIABLE_TYPE AllowedVarTypes[] = { SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC };
-
-    	// TODO:修改遍历Shader的方式
-        // 初始化Shader Variable
-        for (UINT32 i = 0; i < m_NumShaders; ++i)
+        m_PSO->ProcessShaders([&](SHADER_TYPE shaderType, const ShaderResourceLayout& layout)
         {
-            const auto shaderType = PSO->GetShaderType(i);
-            const auto& srcLayout = PSO->GetShaderResLayout(shaderType);
-
-            m_ShaderVariableManagers.emplace(shaderType, ShaderVariableManager(m_ShaderResourceCache, 
-																				srcLayout, 
-																				AllowedVarTypes, 
-																				_countof(AllowedVarTypes)));
-        }
+                m_ShaderVariableManagers.emplace(shaderType, ShaderVariableCollection(m_ShaderResourceCache,
+                                                                                    layout,
+                                                                                    allowedVarTypes,
+                                                                                    allowedTypeNum));
+        });
     }
 
     ShaderResourceBinding::~ShaderResourceBinding()
@@ -62,26 +54,5 @@ namespace RHI
             return nullptr;
 
         return ite->second.GetVariable(Index);
-    }
-
-    void ShaderResourceBinding::InitializeStaticResources()
-    {
-        if (StaticResourcesInitialized())
-        {
-            LOG_WARNING("Static resource have already been initialized in this SRB.The operation will be ignored.");
-
-            return;
-        }
-
-        for (UINT32 i = 0; i < m_NumShaders; ++i)
-        {
-            const auto& ShaderResLayout = m_PSO->GetShaderResLayout(i);
-            auto& StaticResLayout = m_PSO->GetStaticShaderResLayout(i);
-            auto& StaticResCache = m_PSO->GetStaticShaderResCache(i);
-
-            StaticResLayout.CopyStaticResourceDesriptorHandles(StaticResCache, ShaderResLayout, m_ShaderResourceCache);
-        }
-
-        m_bStaticResourcesInitialized = true;
     }
 }

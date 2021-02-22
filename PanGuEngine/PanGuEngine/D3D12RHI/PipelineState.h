@@ -98,17 +98,17 @@ namespace RHI
 		 * ±éÀúShader£¬Ö´ÐÐ²Ù×÷
 		 */
 		template<typename TOperation>
-		void ProcessShaders(TOperation operation) const
+		void ProcessShaders(TOperation Operation) const
 		{
 			for(const auto& [shaderType, shader] : m_Shaders)
 			{
-				
+				Operation(shaderType, m_ShaderResourceLayouts.at(shaderType));
 			}
 		}
 
 		ID3D12PipelineState* GetD3D12PipelineState() const { return m_D3D12PSO.Get(); }
 		ID3D12RootSignature* GetD3D12RootSignature() const { return m_RootSignature.GetD3D12RootSignature(); }
-		const RootSignature& GetRootSignature() const { return m_RootSignature; }
+		const RootSignature* GetRootSignature() const { return &m_RootSignature; }
 		RenderDevice* GetRenderDevice() const { return m_RenderDevice; }
 
 	private:

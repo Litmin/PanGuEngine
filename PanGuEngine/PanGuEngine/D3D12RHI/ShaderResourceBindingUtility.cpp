@@ -12,7 +12,7 @@ namespace RHI
         {
             const auto& curVarDesc = shaderVariableConfig.Variables[i];
 
-            if (((curVarDesc.ShaderType & shaderType) != 0) && (name.compare(curVarDesc.Name) == 0))
+            if (((curVarDesc.ShaderType & shaderType) != 0) && (name == curVarDesc.Name))
             {
                 return curVarDesc.Type;
             }

@@ -12,11 +12,11 @@ namespace RHI
     * PipelineState使用Manager来管理Static资源，ShaderResourceBinding使用Manager来管理Mutable和Dynamic资源
     * 把ShaderResourceLayout和ShaderResourceCache关联了起来！！！
     */
-    class ShaderVariableManager
+    class ShaderVariableCollection
     {
     public:
         // 为ShaderResourceLayout中的每个Shader资源创建一个ShaderVariable
-        ShaderVariableManager(ShaderResourceCache& resourceCache,
+        ShaderVariableCollection(ShaderResourceCache& resourceCache,
                               const ShaderResourceLayout& srcLayout,
                               const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
                               UINT32 allowedTypeNum) :
@@ -60,23 +60,17 @@ namespace RHI
     class ShaderVariable
     {
     public:
-        ShaderVariable(ShaderVariableManager& parentManager,
+        ShaderVariable(ShaderVariableCollection& parentManager,
             const ShaderResourceLayout::Resource& resource) :
             m_ParentManager{parentManager},
             m_Resource{resource}
         {
-
         }
 
         ShaderVariable(const ShaderVariable&) = delete;
         ShaderVariable(ShaderVariable&&) = delete;
         ShaderVariable& operator=(const ShaderVariable&) = delete;
         ShaderVariable& operator=(ShaderVariable&&) = delete;
-
-        SHADER_RESOURCE_VARIABLE_TYPE GetType() const
-        {
-            return m_Resource.GetVariableType();
-        }
 
         // 绑定资源!!!!!!
         void Set(IShaderResource* object)
@@ -99,15 +93,10 @@ namespace RHI
             return m_Resource.IsBound(arrayIndex, m_ParentManager.m_ResourceCache);
         }
 
-        const ShaderResourceLayout::Resource& GetResource() const
-        {
-            return m_Resource;
-        }
-
     private:
-        friend ShaderVariableManager;
+        friend ShaderVariableCollection;
 
-        ShaderVariableManager& m_ParentManager;
+        ShaderVariableCollection& m_ParentManager;
         const ShaderResourceLayout::Resource& m_Resource;
 
     };

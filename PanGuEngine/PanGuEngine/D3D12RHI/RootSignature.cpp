@@ -178,53 +178,6 @@ namespace RHI
 		ThrowIfFailed(pd3d12Device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(m_pd3d12RootSignature.GetAddressOf()) ));
 	}
 
-	// 初始化SRB的Cache，因为只有RootSignature知道足够的信息，初始化每个Shader
-	void RootSignature::InitResourceCacheForSRB(RenderDevice* RenderDevice, ShaderResourceCache& ResourceCache) const
-	{
-		auto CacheTableSizes = GetCacheTableSizes();
-
-		ResourceCache.Initialize(static_cast<UINT32>(CacheTableSizes.size()), CacheTableSizes.data());
-
-		// 在GPUDescriptorHeap中为Static和Mutable资源分配空间
-		UINT32 TotalSrvCbvUavDescriptors =
-			m_NumDescriptorInRootTable[SHADER_RESOURCE_VARIABLE_TYPE_STATIC] +
-			m_NumDescriptorInRootTable[SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE];
-
-		DescriptorHeapAllocation CbcSrvUavHeapSpace;
-		if (TotalSrvCbvUavDescriptors)
-		{
-			CbcSrvUavHeapSpace = RenderDevice->AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, TotalSrvCbvUavDescriptors);
-			assert(!CbcSrvUavHeapSpace.IsNull() && "Failed to allocate  GPU-visible CBV/SRV/UAV descriptor");
-		}
-
-		// 设置每个Root Table在GPUDescriptorHeap中的Offset，Dynamic资源不管，它不在GPUDescriptorHeap中分配空间，
-		// RootView也不管，它不需要分配空间!!!!!!
-		UINT32 SrvCbvUavTblStartOffset = 0;
-		for (UINT32 i = 0; i < m_RootParams.GetRootTableNum(); ++i)
-		{
-			auto& RootTable = m_RootParams.GetRootTable(i);
-			const auto& D3D12RootParam = static_cast<const D3D12_ROOT_PARAMETER&>(RootTable); // 隐式转换
-			auto& RootTableCache = ResourceCache.GetRootTable(RootTable.GetRootIndex());
-
-			assert(D3D12RootParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
-
-			auto TableSize = RootTable.GetDescriptorTableSize();
-			assert(TableSize > 0 && "Unexpected empty descriptor table");
-
-			if (RootTable.GetShaderVariableType() != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
-			{
-				RootTableCache.m_TableStartOffset = SrvCbvUavTblStartOffset;
-				SrvCbvUavTblStartOffset += TableSize;
-			}
-			else
-			{
-				assert(RootTableCache.m_TableStartOffset == ShaderResourceCache::InvalidDescriptorOffset);
-			}
-		}
-
-		ResourceCache.SetDescriptorHeapSpace(std::move(CbcSrvUavHeapSpace));
-	}
-
 	// 为Shader中的每个ShaderResource分配一个容身之地
 	void RootSignature::AllocateResourceSlot(SHADER_TYPE ShaderType,
 											 PIPELINE_TYPE PipelineType, 
