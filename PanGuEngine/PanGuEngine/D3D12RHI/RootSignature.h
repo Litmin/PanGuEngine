@@ -287,10 +287,6 @@ namespace RHI
 		
 
 	private:
-        // 计算Resource Cache中需要的Table数量，以及每个Table中Descriptor的数量，Root View当成只有一个Descriptor的Table
-        std::vector<UINT32> GetCacheTableSizes() const;
-
-
         // 内部嵌套类，帮助管理RootParam
         class RootParamsManager
         {
@@ -346,7 +342,6 @@ namespace RHI
             size_t GetHash() const;
 
         private:
-            UINT32 m_TotalDescriptorRanges = 0;
             std::vector<RootParameter> m_RootTables;
             std::vector<RootParameter> m_RootViews; //                  <-----
         };//                                                                  |

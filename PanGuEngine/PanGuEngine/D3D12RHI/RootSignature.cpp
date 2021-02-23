@@ -1,40 +1,12 @@
 #include "pch.h"
 #include "RootSignature.h"
 #include "RenderDevice.h"
+#include "ShaderResourceBindingUtility.h"
 
 using namespace Microsoft::WRL;
 
 namespace RHI
 {
-	D3D12_SHADER_VISIBILITY GetShaderVisibility(SHADER_TYPE ShaderType)
-	{
-		switch (ShaderType)
-		{
-		case SHADER_TYPE_VERTEX:        
-			return D3D12_SHADER_VISIBILITY_VERTEX;
-		case SHADER_TYPE_PIXEL:     
-			return D3D12_SHADER_VISIBILITY_PIXEL;
-		case SHADER_TYPE_GEOMETRY:      
-			return D3D12_SHADER_VISIBILITY_GEOMETRY;
-		case SHADER_TYPE_HULL:          
-			return D3D12_SHADER_VISIBILITY_HULL;
-		case SHADER_TYPE_DOMAIN:        
-			return D3D12_SHADER_VISIBILITY_DOMAIN;
-		case SHADER_TYPE_COMPUTE:       
-			return D3D12_SHADER_VISIBILITY_ALL;
-#   ifdef D3D12_H_HAS_MESH_SHADER
-		case SHADER_TYPE_AMPLIFICATION: 
-			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
-		case SHADER_TYPE_MESH:   
-			return D3D12_SHADER_VISIBILITY_MESH;
-#   endif
-		default: 
-			LOG_ERROR("Unknown shader type"); 
-			return D3D12_SHADER_VISIBILITY_ALL;
-		}
-	}
-
-
 	// <------------------RootParamsManager------------------------------>
 	void RootSignature::RootParamsManager::AddRootView(D3D12_ROOT_PARAMETER_TYPE ParameterType, 
 													   UINT32 RootIndex, 
@@ -244,27 +216,6 @@ namespace RHI
 									0, 
 										 OffsetFromTableStart);
 		}
-	}
-
-	// 计算Resource Cache中需要的Table数量，以及每个Table中Descriptor的数量，Root View当成只有一个Descriptor的Table
-	std::vector<UINT32> RootSignature::GetCacheTableSizes() const
-	{
-		std::vector<UINT32> CacheTableSizes(m_RootParams.GetRootTableNum() + m_RootParams.GetRootViewNum(), 0);
-
-		for (UINT32 i = 0; i < m_RootParams.GetRootTableNum(); ++i)
-		{
-			auto& RootParam = m_RootParams.GetRootTable(i);
-			CacheTableSizes[RootParam.GetRootIndex()] = RootParam.GetDescriptorTableSize();
-		}
-
-		for (UINT32 i = 0; i < m_RootParams.GetRootViewNum(); ++i)
-		{
-			auto& RootParam = m_RootParams.GetRootView(i);
-			// ShaderResourceCache中把RootView当成只有一个Descriptor的Root Table
-			CacheTableSizes[RootParam.GetRootIndex()] = 1;
-		}
-
-		return CacheTableSizes;
 	}
 
 	void RootSignature::CommitResource(bool isStatic)

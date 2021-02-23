@@ -106,4 +106,32 @@ namespace RHI
             return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
         }
     }
+
+    D3D12_SHADER_VISIBILITY GetShaderVisibility(SHADER_TYPE ShaderType)
+    {
+        switch (ShaderType)
+        {
+        case SHADER_TYPE_VERTEX:
+            return D3D12_SHADER_VISIBILITY_VERTEX;
+        case SHADER_TYPE_PIXEL:
+            return D3D12_SHADER_VISIBILITY_PIXEL;
+        case SHADER_TYPE_GEOMETRY:
+            return D3D12_SHADER_VISIBILITY_GEOMETRY;
+        case SHADER_TYPE_HULL:
+            return D3D12_SHADER_VISIBILITY_HULL;
+        case SHADER_TYPE_DOMAIN:
+            return D3D12_SHADER_VISIBILITY_DOMAIN;
+        case SHADER_TYPE_COMPUTE:
+            return D3D12_SHADER_VISIBILITY_ALL;
+#   ifdef D3D12_H_HAS_MESH_SHADER
+        case SHADER_TYPE_AMPLIFICATION:
+            return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+        case SHADER_TYPE_MESH:
+            return D3D12_SHADER_VISIBILITY_MESH;
+#   endif
+        default:
+            LOG_ERROR("Unknown shader type");
+            return D3D12_SHADER_VISIBILITY_ALL;
+        }
+    }
 }

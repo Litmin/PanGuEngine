@@ -8,7 +8,7 @@ namespace RHI
     class ShaderVariable;
 
     /*
-    * ShaderVariableManager持有特定类型的ShaderVariable列表。
+    * ShaderVariableCollection持有特定类型的ShaderVariable列表。
     * PipelineState使用Manager来管理Static资源，ShaderResourceBinding使用Manager来管理Mutable和Dynamic资源
     * 把ShaderResourceLayout和ShaderResourceCache关联了起来！！！
     */
