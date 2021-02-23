@@ -84,15 +84,7 @@ namespace RHI
 		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由PSO所有
 		ShaderResourceBinding* CreateShaderResourceBinding();
 
-		// 提交资源,用一个结构体来包含众多参数，不然参数太多，不好看
-		struct CommitAndTransitionResourcesAttribs
-		{
-			ShaderResourceBinding*  pShaderResourceBinding = nullptr;
-			bool                    CommitResources = false;		// 是否提交资源
-			bool                    TransitionResources = false;	// 是否过度资源状态
-			bool                    ValidateStates = false;			// 是否验证资源的状态
-		};
-		void CommitShaderResource(bool isStatic);
+		void CommitShaderResource(ShaderResourceBinding* SRB);
 
 		/*
 		 * 遍历Shader，执行操作

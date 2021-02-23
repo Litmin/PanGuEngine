@@ -57,4 +57,22 @@ namespace RHI
 			assert(!m_CbvSrvUavGPUHeapSpace.IsNull() && "Failed to allocate  GPU-visible CBV/SRV/UAV descriptor");
 		}
 	}
+
+	void ShaderResourceCache::CommitResource()
+	{
+		// 提交Root View（CBV），只需要绑定Buffer的地址
+		for(const auto& [rootIndex, rootView] : m_RootViews)
+		{
+			const Resource* resource = rootView.GetResource();
+
+			// TODO:
+		}
+
+		// 提交Root Table，Dynamic类型的需要分配空间
+		for(const auto& [rootIndex, rootTable] : m_RootTables)
+		{
+
+		}
+		
+	}
 }

@@ -22,6 +22,8 @@ namespace RHI
         ShaderVariable* GetVariableByIndex(SHADER_TYPE ShaderType, UINT32 Index);
 
     private:
+        friend class PipelineState;
+    	
         PipelineState* m_PSO;
 
         ShaderResourceCache m_ShaderResourceCache;

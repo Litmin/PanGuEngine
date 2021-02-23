@@ -118,19 +118,14 @@ namespace RHI
 
 	bool ShaderResourceLayout::Resource::IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const
 	{
-		if (RootIndex < resourceCache.GetRootTablesNum())
+		const ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
+		if (OffsetFromTableStart + arrayIndex < rootTable.Size())
 		{
-			// ShaderResourceCache::RootTable
-			const ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
-			if (OffsetFromTableStart + arrayIndex < rootTable.Size())
-			{
-				// ShaderResourceCache::Resource
-				const ShaderResourceCache::Resource* CachedRes =
-					rootTable.GetResource(OffsetFromTableStart + arrayIndex);
+			const ShaderResourceCache::Resource* CachedRes =
+				rootTable.GetResource(OffsetFromTableStart + arrayIndex);
 
-				if (CachedRes->pObject != nullptr)
-					return true;
-			}
+			if (CachedRes->pObject != nullptr)
+				return true;
 		}
 
 		return false;

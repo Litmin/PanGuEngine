@@ -136,5 +136,12 @@ namespace RHI
 		return &m_MutableDynamicSRBs.back();
 	}
 
+	void PipelineState::CommitShaderResource(ShaderResourceBinding* SRB)
+	{
+		if(SRB != nullptr)
+		{
+			SRB->m_ShaderResourceCache.CommitResource();
+		}
+	}
 }
 

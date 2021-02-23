@@ -119,6 +119,9 @@ namespace RHI
             return GPUDescriptorHandle;
         }
 
+        void CommitResource();
+    	
+
     	RootView& GetRootView(UINT32 RootIndex)
         {
             return m_RootViews.at(RootIndex);
@@ -141,9 +144,6 @@ namespace RHI
             //return m_RootTables[RootIndex];
         }
         
-        UINT32 GetRootTablesNum() const { return m_RootTables.size(); }
-
-
     private:
         // GPU Descriptor Heap
         DescriptorHeapAllocation m_CbvSrvUavGPUHeapSpace;
