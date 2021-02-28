@@ -34,4 +34,4 @@ protected:
 	static T* ms_Singleton;
 };
 
-template<typename T> T* Singleton<T>::ms_Singleton = 0;
+template<typename T> T* Singleton<T>::ms_Singleton = nullptr;

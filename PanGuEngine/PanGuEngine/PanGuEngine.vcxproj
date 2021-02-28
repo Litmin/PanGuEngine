@@ -152,20 +152,20 @@
   <ItemGroup>
     <ClCompile Include="D3D12RHI\Buffer.cpp" />
     <ClCompile Include="D3D12RHI\BufferView.cpp" />
+    <ClCompile Include="D3D12RHI\CommandAllocatorPool.cpp" />
     <ClCompile Include="D3D12RHI\CommandContext.cpp" />
+    <ClCompile Include="D3D12RHI\CommandListManager.cpp" />
     <ClCompile Include="D3D12RHI\CommandQueue.cpp" />
     <ClCompile Include="D3D12RHI\D3D12DeviceObject.cpp" />
     <ClCompile Include="D3D12RHI\D3D12ResourceBase.cpp" />
     <ClCompile Include="D3D12RHI\DescriptorHeap.cpp" />
     <ClCompile Include="D3D12RHI\DeviceContext.cpp" />
-    <ClCompile Include="D3D12RHI\Fence.cpp" />
     <ClCompile Include="D3D12RHI\IShaderResource.cpp" />
     <ClCompile Include="D3D12RHI\PipelineState.cpp" />
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
     <ClCompile Include="D3D12RHI\RenderPass.cpp" />
     <ClCompile Include="D3D12RHI\RingBuffer.cpp" />
     <ClCompile Include="D3D12RHI\RootSignature.cpp" />
-    <ClCompile Include="D3D12RHI\Sampler.cpp" />
     <ClCompile Include="D3D12RHI\Shader.cpp" />
     <ClCompile Include="D3D12RHI\ShaderResource.cpp" />
     <ClCompile Include="D3D12RHI\ShaderResourceBinding.cpp" />
@@ -219,14 +219,15 @@
     <ClInclude Include="D3D12RHI\Align.h" />
     <ClInclude Include="D3D12RHI\Buffer.h" />
     <ClInclude Include="D3D12RHI\BufferView.h" />
+    <ClInclude Include="D3D12RHI\CommandAllocatorPool.h" />
     <ClInclude Include="D3D12RHI\CommandContext.h" />
+    <ClInclude Include="D3D12RHI\CommandListManager.h" />
     <ClInclude Include="D3D12RHI\CommandQueue.h" />
     <ClInclude Include="D3D12RHI\Constant.h" />
     <ClInclude Include="D3D12RHI\D3D12DeviceObject.h" />
     <ClInclude Include="D3D12RHI\D3D12ResourceBase.h" />
     <ClInclude Include="D3D12RHI\DescriptorHeap.h" />
     <ClInclude Include="D3D12RHI\DeviceContext.h" />
-    <ClInclude Include="D3D12RHI\Fence.h" />
     <ClInclude Include="D3D12RHI\GraphicsEnums.h" />
     <ClInclude Include="D3D12RHI\IShaderResource.h" />
     <ClInclude Include="D3D12RHI\PipelineState.h" />
@@ -234,7 +235,6 @@
     <ClInclude Include="D3D12RHI\RenderPass.h" />
     <ClInclude Include="D3D12RHI\RingBuffer.h" />
     <ClInclude Include="D3D12RHI\RootSignature.h" />
-    <ClInclude Include="D3D12RHI\Sampler.h" />
     <ClInclude Include="D3D12RHI\Shader.h" />
     <ClInclude Include="D3D12RHI\ShaderResource.h" />
     <ClInclude Include="D3D12RHI\ShaderResourceBinding.h" />

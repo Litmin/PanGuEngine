@@ -1,47 +1,44 @@
 #pragma once
+#include "CommandAllocatorPool.h"
 
 namespace RHI 
 {
-    class RenderDevice;
-
-    struct CommandQueueDesc
-    {
-
-    };
-
+    /*
+    * 封装了CommandQueue和CommandAllocatorPool
+    */
     class CommandQueue
     {
+		friend class CommandListManager;
+		friend class CommandContext;
+
     public:
-        CommandQueue(RenderDevice* renderDevice);
-        ~CommandQueue();
+		CommandQueue(D3D12_COMMAND_LIST_TYPE Type, ID3D12Device* Device);
+		~CommandQueue();
 
-        // 把CommandList记录的命令提交到CommandQueue,返回跟CommandList关联的Fence Value
-        UINT64 Submit(ID3D12GraphicsCommandList* commandList);
-
-        // Signal指定的Fence
-        void SignalFence(ID3D12Fence* pFence, UINT64 Value);
-
-        // 等待该CommandQueue中的命令全部执行完成
-        UINT64 FlushCommandQueue();
-
-        ID3D12CommandQueue* GetD3D12CommandQueue() { return m_CmdQueue.Get(); }
-
-        // 获取下一个要Signal的Fence Value
-        UINT64 GetNextFenceValue() const { return m_NextFenceValue; }
-
-        // 获取该CommandQueue完成的Fence Value
-        UINT64 GetCompletedFenceValue();
+		// 同步相关处理
+		uint64_t IncrementFence(void);
+		bool IsFenceComplete(uint64_t FenceValue);
+		void StallForFence(uint64_t FenceValue, D3D12_COMMAND_LIST_TYPE Type);
+		void StallForProducer(CommandQueue& Producer);
+		void WaitForFence(uint64_t FenceValue);
+		void WaitForIdle(void) { WaitForFence(IncrementFence()); }
 
     private:
-        Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CmdQueue;
+		uint64_t ExecuteCommandList(ID3D12CommandList* List);
 
-        Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence;
+		ID3D12CommandAllocator* RequestAllocator(void);
+		void DiscardAllocator(uint64_t FenceValue, ID3D12CommandAllocator* Allocator);
 
-        RenderDevice* m_RenderDevice;
 
-        UINT64 m_NextFenceValue = 1;
-        UINT64 m_LastCompletedFenceValue = 0;
-        HANDLE m_WaitForGPUEventHandle = {};
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+
+		const D3D12_COMMAND_LIST_TYPE m_Type;
+		CommandAllocatorPool m_AllocatorPool;
+
+		Microsoft::WRL::ComPtr<ID3D12Fence> m_pFence;
+		uint64_t m_NextFenceValue;
+		uint64_t m_LastCompletedFenceValue;
+		HANDLE m_FenceEventHandle;
     };
 
 }

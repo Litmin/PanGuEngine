@@ -1,72 +1,104 @@
 #include "pch.h"
 #include "CommandQueue.h"
 #include "RenderDevice.h"
+#include "CommandListManager.h"
+
+using Microsoft::WRL::ComPtr;
 
 namespace RHI
 {
-	CommandQueue::CommandQueue(RenderDevice* renderDevice) :
-		m_RenderDevice{renderDevice}
+	CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE Type, ID3D12Device* Device) :
+		m_Type(Type),
+		m_AllocatorPool(Type, Device),
+		m_NextFenceValue(1),
+		m_LastCompletedFenceValue(0)
 	{
-		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		ThrowIfFailed(m_RenderDevice->GetD3D12Device()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CmdQueue.GetAddressOf())));
+		// 创建CommandQueue
+		D3D12_COMMAND_QUEUE_DESC QueueDesc = {};
+		QueueDesc.Type = m_Type;
+		QueueDesc.NodeMask = 1;
+		ThrowIfFailed(Device->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&m_CommandQueue)));
+		m_CommandQueue->SetName(L"CommandListManager::m_CommandQueue");
 
-		ThrowIfFailed(m_RenderDevice->GetD3D12Device()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
+		// 创建Fence
+		ThrowIfFailed(Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence)));
+		m_pFence->SetName(L"CommandListManager::m_pFence");
+
+		// 创建Event
+		m_FenceEventHandle = CreateEvent(nullptr, false, false, nullptr);
+		assert(m_FenceEventHandle != NULL);
 	}
 
 	CommandQueue::~CommandQueue()
 	{
-		CloseHandle(m_WaitForGPUEventHandle);
+		CloseHandle(m_FenceEventHandle);
 	}
 
-	UINT64 CommandQueue::Submit(ID3D12GraphicsCommandList* commandList)
+	uint64_t CommandQueue::IncrementFence(void)
 	{
-		UINT64 fenceValue = m_NextFenceValue;
-
-		m_NextFenceValue++;
-
-		if (commandList != nullptr)
-		{
-			ID3D12CommandList* const ppCmdLists[] = { commandList };
-			m_CmdQueue->ExecuteCommandLists(1, ppCmdLists);
-		}
-
-		m_CmdQueue->Signal(m_Fence.Get(), fenceValue);
-
-		return fenceValue;
+		m_CommandQueue->Signal(m_pFence.Get(), m_NextFenceValue);
+		return m_NextFenceValue++;
 	}
 
-	void CommandQueue::SignalFence(ID3D12Fence* pFence, UINT64 Value)
+	bool CommandQueue::IsFenceComplete(uint64_t FenceValue)
 	{
-		m_CmdQueue->Signal(pFence, Value);
+		// Avoid querying the fence value by testing against the last one seen.
+		// The max() is to protect against an unlikely race condition that could cause the last
+		// completed fence value to regress.
+		if (FenceValue > m_LastCompletedFenceValue)
+			m_LastCompletedFenceValue = std::max(m_LastCompletedFenceValue, m_pFence->GetCompletedValue());
+
+		return FenceValue <= m_LastCompletedFenceValue;
 	}
 
-	UINT64 CommandQueue::FlushCommandQueue()
+
+	void CommandQueue::StallForFence(uint64_t FenceValue, D3D12_COMMAND_LIST_TYPE Type)
 	{
-		UINT64 LastSignaledFenceValue = m_NextFenceValue;
-
-		m_NextFenceValue++;
-
-		m_CmdQueue->Signal(m_Fence.Get(), LastSignaledFenceValue);
-
-		if (GetCompletedFenceValue() < LastSignaledFenceValue)
-		{
-			m_Fence->SetEventOnCompletion(LastSignaledFenceValue, m_WaitForGPUEventHandle);
-			WaitForSingleObject(m_WaitForGPUEventHandle, INFINITE);
-
-			assert(GetCompletedFenceValue() == LastSignaledFenceValue && "Unexpected signaled fence value");
-		}
-
-		return LastSignaledFenceValue;
+		// TODO: Get Command Queue
+		CommandQueue& Producer = CommandListManager::GetSingleton().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
+		m_CommandQueue->Wait(Producer.m_pFence.Get(), FenceValue);
 	}
 
-	UINT64 CommandQueue::GetCompletedFenceValue()
+	void CommandQueue::StallForProducer(CommandQueue& Producer)
 	{
-		UINT64 CompletedFenceValue = m_Fence->GetCompletedValue();
-		if (CompletedFenceValue > m_LastCompletedFenceValue)
-			m_LastCompletedFenceValue = CompletedFenceValue;
-		return m_LastCompletedFenceValue;
+		assert(Producer.m_NextFenceValue > 0);
+		m_CommandQueue->Wait(Producer.m_pFence.Get(), Producer.m_NextFenceValue - 1);
+	}
+
+	void CommandQueue::WaitForFence(uint64_t FenceValue)
+	{
+		if (IsFenceComplete(FenceValue))
+			return;
+
+		m_pFence->SetEventOnCompletion(FenceValue, m_FenceEventHandle);
+		WaitForSingleObject(m_FenceEventHandle, INFINITE);
+		m_LastCompletedFenceValue = FenceValue;
+	}
+
+	uint64_t CommandQueue::ExecuteCommandList(ID3D12CommandList* List)
+	{
+		ThrowIfFailed(((ID3D12GraphicsCommandList*)List)->Close());
+
+		// Kickoff the command list
+		m_CommandQueue->ExecuteCommandLists(1, &List);
+
+		// Signal the next fence value (with the GPU)
+		m_CommandQueue->Signal(m_pFence.Get(), m_NextFenceValue);
+
+		// And increment the fence value.  
+		return m_NextFenceValue++;
+	}
+
+	ID3D12CommandAllocator* CommandQueue::RequestAllocator(void)
+	{
+		uint64_t CompletedFence = m_pFence->GetCompletedValue();
+
+		return m_AllocatorPool.RequestAllocator(CompletedFence);
+	}
+
+	void CommandQueue::DiscardAllocator(uint64_t FenceValue, ID3D12CommandAllocator* Allocator)
+	{
+		m_AllocatorPool.DiscardAllocator(FenceValue, Allocator);
 	}
 }
 

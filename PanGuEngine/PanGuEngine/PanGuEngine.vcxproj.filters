@@ -140,16 +140,10 @@
     <ClCompile Include="D3D12RHI\TextureView.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
-    <ClCompile Include="D3D12RHI\Sampler.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
     <ClCompile Include="D3D12RHI\D3D12DeviceObject.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\CommandQueue.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D12RHI\Fence.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\StaleResourceWrapper.cpp">
@@ -186,6 +180,12 @@
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\CommandContext.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\CommandAllocatorPool.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\CommandListManager.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -357,16 +357,10 @@
     <ClInclude Include="D3D12RHI\TextureView.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
-    <ClInclude Include="D3D12RHI\Sampler.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
     <ClInclude Include="D3D12RHI\D3D12DeviceObject.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\CommandQueue.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D12RHI\Fence.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\StaleResourceWrapper.h">
@@ -409,6 +403,12 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\CommandContext.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\CommandAllocatorPool.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\CommandListManager.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
