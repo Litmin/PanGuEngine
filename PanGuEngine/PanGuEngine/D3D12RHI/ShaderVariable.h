@@ -2,6 +2,8 @@
 #include "ShaderResourceLayout.h"
 #include "ShaderResourceCache.h"
 #include "IShaderResource.h"
+#include "GpuBuffer.h"
+#include "GpuResourceView.h"
 
 namespace RHI 
 {
@@ -72,20 +74,22 @@ namespace RHI
         ShaderVariable& operator=(const ShaderVariable&) = delete;
         ShaderVariable& operator=(ShaderVariable&&) = delete;
 
-        // 绑定资源!!!!!!
-        void Set(IShaderResource* object)
+        /*  只有CBV和其他Buffer的SRV/UAV可以作为Root Descriptor绑定，因为调用ID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView()函数时，
+        *   是不指定Buffer的大小的，Buffer的大小由Shader确定，因为Texture是需要很多信息来描述的，所以只提供一个地址是不够的
+        *   Buffer直接绑定到Root Descriptor时不存在数组的情况
+        *   目前只有CBV是作为Root Descriptor绑定的
+        *   一个数组也用一个ShaderVariable表示，向数组中绑定资源时需要传在数组中的索引
+        */
+        void Set(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex = 0)
         {
-            m_Resource.BindResource(object, 0/*Array Index*/, m_ParentManager.m_ResourceCache);
+            m_Resource.BindResource(buffer, arrayIndex, m_ParentManager.m_ResourceCache);
+        }
+  
+        void Set(std::shared_ptr<GpuResourceView> view, UINT32 arrayIndex = 0)
+        {
+			m_Resource.BindResource(view, arrayIndex, m_ParentManager.m_ResourceCache);
         }
 
-        // 绑定数组资源
-        void SetArray(IShaderResource* const* ppObjects, UINT32 firstElement, UINT32 elementsNum)
-        {
-            for (UINT32 i = 0; i < elementsNum; ++i)
-            {
-                m_Resource.BindResource(ppObjects[i], firstElement + i, m_ParentManager.m_ResourceCache);
-            }
-        }
 
         // 是否已经绑定
         bool IsBound(UINT32 arrayIndex) const

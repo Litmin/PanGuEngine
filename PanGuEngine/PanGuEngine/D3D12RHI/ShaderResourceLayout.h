@@ -2,6 +2,8 @@
 #include "ShaderResource.h"
 #include "ShaderResourceCache.h"
 #include "IShaderResource.h"
+#include "GpuBuffer.h"
+#include "GpuResourceView.h"
 
 namespace RHI 
 {
@@ -61,6 +63,9 @@ namespace RHI
             bool IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const;
 
             void BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
+			void BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
+			void BindResource(std::shared_ptr<GpuResourceView> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
+
 
             SHADER_RESOURCE_VARIABLE_TYPE GetVariableType() const { return VariableType; }
 

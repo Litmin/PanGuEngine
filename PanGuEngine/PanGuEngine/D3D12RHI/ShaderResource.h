@@ -100,7 +100,10 @@ namespace RHI
     // static_assert(sizeof(ShaderResourceAttribs) == sizeof(void*) + sizeof(UINT32) * 2, "Unexpected sizeof(ShaderResourceAttribs)");
 
 
-    // 描述一个Shader使用的所有资源,使用DX的Shader反射系统实现
+    /* 描述一个Shader使用的所有资源,使用DX的Shader反射系统实现
+    *   关于数组的处理：一个数组会用一个ShaderResourceAttribs表示，但是在RootSignature会根据数组的大小在Root Table分配相应的Descriptor,
+    *                同理一个数组也用一个ShaderVariable表示，向数组中绑定资源时需要传在数组中的索引
+    */
     class ShaderResource
     {
     public:

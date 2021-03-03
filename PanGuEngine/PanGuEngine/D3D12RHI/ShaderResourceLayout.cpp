@@ -179,4 +179,20 @@ namespace RHI
 			}
 		}
 	}
+
+	// 
+	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
+	{
+		// 只有Constant Buffer作为Root Descriptor绑定！！！
+		assert(ResourceType == CachedResourceType::CBV);
+
+
+
+	}
+
+	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceView> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
+	{
+
+	}
+
 }
