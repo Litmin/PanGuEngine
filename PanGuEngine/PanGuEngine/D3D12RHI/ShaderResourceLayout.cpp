@@ -180,18 +180,52 @@ namespace RHI
 		}
 	}
 
-	// 
+	// 绑定Constant Buffer时只需要持有GpuBuffer对象，提交资源时只需要Buffer的GPU地址
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
 		// 只有Constant Buffer作为Root Descriptor绑定！！！
 		assert(ResourceType == CachedResourceType::CBV);
 
+		ShaderResourceCache::RootView& rootView = resourceCache.GetRootView(RootIndex);
 
+		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootView.ConstantBuffer != nullptr)
+		{
+			// 如果已经绑定了资源就不更新，除非是Dynamic资源
+			return;
+		}
 
+		rootView.ConstantBuffer = buffer;
 	}
 
-	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceView> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
+	// 绑定Root Table中的Descriptor时，需要把资源在CPUDescriptorHeap中的Descriptor拷贝到ShaderResourceCache中的GPUDescriptorHeap中
+	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceView> view, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
+		TResourceViewType* resourceView = dynamic_cast<TResourceViewType*>(pView);
+
+		if (resourceView)
+		{
+			if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && dstRes->pObject != nullptr)
+			{
+				// 如果已经绑定了资源就不更新，除非是Dynamic资源
+				return;
+			}
+
+			dstRes->Type = ResourceType;
+			dstRes->CPUDescriptorHandle = resourceView->GetCPUDescriptorHandle();
+
+			if (shaderVisibleHeapCPUDescriptorHandle.ptr != 0)
+			{
+				ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
+				d3d12Device->CopyDescriptorsSimple(1,
+					shaderVisibleHeapCPUDescriptorHandle,
+					dstRes->CPUDescriptorHandle,
+					D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			}
+
+			dstRes->pObject = resourceView;
+		}
+
+		// Static、Mutable的资源会Copy到ShaderResourceCache的GPUDescriptorHeap中，Dynamic资源每帧动态分配，只需要记录资源在CPUDescriptorHeap中的Descriptor
 
 	}
 

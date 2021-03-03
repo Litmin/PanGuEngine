@@ -64,7 +64,7 @@ namespace RHI
 
             void BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
 			void BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
-			void BindResource(std::shared_ptr<GpuResourceView> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
+			void BindResource(std::shared_ptr<GpuResourceView> view, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
 
 
             SHADER_RESOURCE_VARIABLE_TYPE GetVariableType() const { return VariableType; }

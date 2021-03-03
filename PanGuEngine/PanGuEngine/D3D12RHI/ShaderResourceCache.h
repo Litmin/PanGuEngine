@@ -2,6 +2,7 @@
 
 #include "DescriptorHeap.h"
 #include "IShaderResource.h"
+#include "GpuBuffer.h"
 
 namespace RHI 
 {
@@ -32,6 +33,12 @@ namespace RHI
 						UINT32 allowedTypeNum);
 
         static constexpr UINT32 InvalidDescriptorOffset = static_cast<UINT32>(-1);
+
+		// 目前只有Constant Buffer作为Root Descriptor绑定
+		struct RootView
+		{
+			std::shared_ptr<GpuBuffer> ConstantBuffer;
+		};
 
         struct Resource
         {
@@ -70,23 +77,6 @@ namespace RHI
             std::vector<Resource> m_Resources;
         };
 
-    	class RootView
-    	{
-    	public:
-            // 访问RootTable中的某个资源
-            const Resource* GetResource() const
-            {
-                return &m_Resource;
-            }
-
-            Resource* GetResource()
-            {
-                return &m_Resource;
-            }
-    		
-    	private:
-            Resource m_Resource;
-    	};
 
         // ShaderResourceLayout通过该函数来获取Descriptor Handle，并把要绑定的资源的Descriptor拷贝过来!!!
         // OffsetFromTableStart是在Table中的偏移，跟RootParam.m_TableStartOffset不同
@@ -112,6 +102,7 @@ namespace RHI
         {
             const auto& RootParam = GetRootTable(RootIndex);
 
+            // Dynamic资源没有在ShaderResourceCache的Heap中分配空间，所以m_TableStartOffset应该时Invalid
             assert(RootParam.m_TableStartOffset != InvalidDescriptorOffset && "GPU descriptor handle must never be requested for dynamic resources");
 
             D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle = m_CbvSrvUavGPUHeapSpace.GetGpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
