@@ -4,6 +4,8 @@
 
 namespace RHI 
 {
+    class UploadBuffer;
+
     /**
     * 
     */

@@ -19,7 +19,7 @@ namespace RHI
 	{
 		// 把ShaderResource中的每个资源都通过RootSignature确定RootIndex和OffsetFromTableStart，然后存储下来
 		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
-							   CachedResourceType              ResType,
+							   BindingResourceType              ResType,
 							   SHADER_RESOURCE_VARIABLE_TYPE   VarType) //
 		{
 			assert(rootSignature != nullptr);
@@ -40,193 +40,93 @@ namespace RHI
 			[&](const ShaderResourceAttribs& CB, UINT32)
 		{
 			auto VarType = shaderResource->FindVariableType(CB, shaderVariableConfig);
-			AddResource(CB, CachedResourceType::CBV, VarType);
+			AddResource(CB, BindingResourceType::CBV, VarType);
 		},
 			[&](const ShaderResourceAttribs& TexSRV, UINT32)
 		{
 			auto VarType = shaderResource->FindVariableType(TexSRV, shaderVariableConfig);
-			AddResource(TexSRV, CachedResourceType::TexSRV, VarType);
+			AddResource(TexSRV, BindingResourceType::TexSRV, VarType);
 		},
 			[&](const ShaderResourceAttribs& TexUAV, UINT32)
 		{
 			auto VarType = shaderResource->FindVariableType(TexUAV, shaderVariableConfig);
-			AddResource(TexUAV, CachedResourceType::TexUAV, VarType);
+			AddResource(TexUAV, BindingResourceType::TexUAV, VarType);
 		},
 			[&](const ShaderResourceAttribs& BufSRV, UINT32)
 		{
 			auto VarType = shaderResource->FindVariableType(BufSRV, shaderVariableConfig);
-			AddResource(BufSRV, CachedResourceType::BufSRV, VarType);
+			AddResource(BufSRV, BindingResourceType::BufSRV, VarType);
 		},
 			[&](const ShaderResourceAttribs& BufUAV, UINT32)
 		{
 			auto VarType = shaderResource->FindVariableType(BufUAV, shaderVariableConfig);
-			AddResource(BufUAV, CachedResourceType::BufUAV, VarType);
+			AddResource(BufUAV, BindingResourceType::BufUAV, VarType);
 		}
 		);
 	}
 
-	void ShaderResourceLayout::Resource::CacheCB(IShaderResource* pBuffer,
-	                                             ShaderResourceCache::Resource* dstRes) const
-	{
-		Buffer* buffer = dynamic_cast<Buffer*>(pBuffer);
-
-		if (buffer)
-		{
-			if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && dstRes->pObject != nullptr)
-			{
-				// 如果已经绑定了资源就不更新，除非是Dynamic资源
-				return;
-			}
-
-			// Constant Buffer不需要Descriptor，直接绑定到Root View
-			dstRes->Type = ResourceType;
-			dstRes->pObject.reset(buffer);
-		}
-	}
-
-	// 该模板函数可以在cpp中定义，因为只在本文件中使用
-	template<typename TResourceViewType>
-	void ShaderResourceLayout::Resource::CacheResourceView(IShaderResource* pView,
-														   ShaderResourceCache::Resource* dstRes,
-														   D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const
-	{
-		TResourceViewType* resourceView = dynamic_cast<TResourceViewType*>(pView);
-
-		if (resourceView)
-		{
-			if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && dstRes->pObject != nullptr)
-			{
-				// 如果已经绑定了资源就不更新，除非是Dynamic资源
-				return;
-			}
-
-			dstRes->Type = ResourceType;
-			dstRes->CPUDescriptorHandle = resourceView->GetCPUDescriptorHandle();
-
-			if (shaderVisibleHeapCPUDescriptorHandle.ptr != 0)
-			{
-				ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
-				d3d12Device->CopyDescriptorsSimple(1, 
-								shaderVisibleHeapCPUDescriptorHandle, 
-								dstRes->CPUDescriptorHandle, 
-												   D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			}
-
-			dstRes->pObject = resourceView;
-		}
-	}
-
 	bool ShaderResourceLayout::Resource::IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const
 	{
-		const ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
-		if (OffsetFromTableStart + arrayIndex < rootTable.Size())
+		if (ResourceType == BindingResourceType::CBV)
 		{
-			const ShaderResourceCache::Resource* CachedRes =
-				rootTable.GetResource(OffsetFromTableStart + arrayIndex);
-
-			if (CachedRes->pObject != nullptr)
+			const ShaderResourceCache::RootDescriptor& rootDescriptor = resourceCache.GetRootDescriptor(RootIndex);
+			if (rootDescriptor.ConstantBuffer != nullptr)
 				return true;
-		}
-
-		return false;
-	}
-
-	// 绑定资源！！！！！！
-	// 这里只是把资源的Descriptor拷贝到了Cache中，没有提交到渲染管线
-	void ShaderResourceLayout::Resource::BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
-	{
-		ShaderResourceCache::Resource* DstRes;
-		D3D12_CPU_DESCRIPTOR_HANDLE ShdrVisibleHeapCPUDescriptorHandle = {0};
-
-		if(ResourceType == CachedResourceType::CBV)
-		{
-			DstRes = resourceCache.GetRootView(RootIndex).GetResource();
-
 		}
 		else
 		{
-			DstRes = resourceCache.GetRootTable(RootIndex).GetResource(OffsetFromTableStart + arrayIndex);
-			ShdrVisibleHeapCPUDescriptorHandle = resourceCache.GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(RootIndex, OffsetFromTableStart + arrayIndex);
-		}
-		
-		if (pObject)
-		{
-			switch (ResourceType)
+			const ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
+			if (OffsetFromTableStart + arrayIndex < rootTable.Descriptors.size())
 			{
-			case CachedResourceType::CBV:
-				CacheCB(pObject, DstRes);
-				break;
-
-			case CachedResourceType::TexSRV:
-				CacheResourceView<TextureView>(pObject, DstRes, ShdrVisibleHeapCPUDescriptorHandle);
-				break;
-
-			case CachedResourceType::TexUAV:
-				CacheResourceView<TextureView>(pObject, DstRes, ShdrVisibleHeapCPUDescriptorHandle);
-				break;
-
-			case CachedResourceType::BufSRV:
-				CacheResourceView<BufferView>(pObject, DstRes, ShdrVisibleHeapCPUDescriptorHandle);
-				break;
-
-			case CachedResourceType::BufUAV:
-				CacheResourceView<BufferView>(pObject, DstRes, ShdrVisibleHeapCPUDescriptorHandle);
-				break;
-
-			default:
-				LOG_ERROR("Unkown CachedResourceType.");
-				break;
+				if (rootTable.Descriptors[OffsetFromTableStart + arrayIndex] != nullptr)
+					return true;
 			}
 		}
+
+		return false;
 	}
 
 	// 绑定Constant Buffer时只需要持有GpuBuffer对象，提交资源时只需要Buffer的GPU地址
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
 		// 只有Constant Buffer作为Root Descriptor绑定！！！
-		assert(ResourceType == CachedResourceType::CBV);
+		assert(ResourceType == BindingResourceType::CBV);
 
-		ShaderResourceCache::RootView& rootView = resourceCache.GetRootView(RootIndex);
+		ShaderResourceCache::RootDescriptor& rootDescriptor = resourceCache.GetRootDescriptor(RootIndex);
 
-		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootView.ConstantBuffer != nullptr)
+		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootDescriptor.ConstantBuffer != nullptr)
 		{
 			// 如果已经绑定了资源就不更新，除非是Dynamic资源
 			return;
 		}
 
-		rootView.ConstantBuffer = buffer;
+		rootDescriptor.ConstantBuffer = buffer;
 	}
 
 	// 绑定Root Table中的Descriptor时，需要把资源在CPUDescriptorHeap中的Descriptor拷贝到ShaderResourceCache中的GPUDescriptorHeap中
-	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceView> view, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
+	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceDescriptor> descriptor, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
-		TResourceViewType* resourceView = dynamic_cast<TResourceViewType*>(pView);
+		ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
 
-		if (resourceView)
+		// 如果已经绑定了资源就不更新，除非是Dynamic资源
+		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootTable.Descriptors[OffsetFromTableStart + arrayIndex] != nullptr)
 		{
-			if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && dstRes->pObject != nullptr)
-			{
-				// 如果已经绑定了资源就不更新，除非是Dynamic资源
-				return;
-			}
-
-			dstRes->Type = ResourceType;
-			dstRes->CPUDescriptorHandle = resourceView->GetCPUDescriptorHandle();
-
-			if (shaderVisibleHeapCPUDescriptorHandle.ptr != 0)
-			{
-				ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
-				d3d12Device->CopyDescriptorsSimple(1,
-					shaderVisibleHeapCPUDescriptorHandle,
-					dstRes->CPUDescriptorHandle,
-					D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			}
-
-			dstRes->pObject = resourceView;
+			return;
 		}
+		// 保存descriptor对象的引用
+		rootTable.Descriptors[OffsetFromTableStart + arrayIndex] = descriptor;
 
 		// Static、Mutable的资源会Copy到ShaderResourceCache的GPUDescriptorHeap中，Dynamic资源每帧动态分配，只需要记录资源在CPUDescriptorHeap中的Descriptor
+		D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle = resourceCache.
+			GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(RootIndex, OffsetFromTableStart + arrayIndex);
 
+		if (shaderVisibleHeapCPUDescriptorHandle.ptr != 0)
+		{
+			ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
+			d3d12Device->CopyDescriptorsSimple(1,
+				shaderVisibleHeapCPUDescriptorHandle,
+				descriptor->CPUDescriptorHandle,
+				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		}
 	}
-
 }

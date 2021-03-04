@@ -8,13 +8,13 @@ using namespace Microsoft::WRL;
 namespace RHI
 {
 	// <------------------RootParamsManager------------------------------>
-	void RootSignature::RootParamsManager::AddRootView(D3D12_ROOT_PARAMETER_TYPE ParameterType, 
+	void RootSignature::RootParamsManager::AddRootDescriptor(D3D12_ROOT_PARAMETER_TYPE ParameterType, 
 													   UINT32 RootIndex, 
 													   UINT Register, 
 													   D3D12_SHADER_VISIBILITY Visibility, 
 													   SHADER_RESOURCE_VARIABLE_TYPE VarType)
 	{
-		m_RootViews.emplace_back(ParameterType, RootIndex, Register, 0u/*Register Space*/, Visibility, VarType);
+		m_RootDescriptors.emplace_back(ParameterType, RootIndex, Register, 0u/*Register Space*/, Visibility, VarType);
 	}
 
 	void RootSignature::RootParamsManager::AddRootTable(UINT32 RootIndex, 
@@ -35,14 +35,14 @@ namespace RHI
 	{
 		// 比较Root Table和Root View的数量
 		if (m_RootTables.size() != RootParams.m_RootTables.size() ||
-			m_RootViews.size() != RootParams.m_RootViews.size())
+			m_RootDescriptors.size() != RootParams.m_RootDescriptors.size())
 			return false;
 
 		// 比较Root View
-		for (UINT32 i = 0; i < m_RootViews.size(); ++i)
+		for (UINT32 i = 0; i < m_RootDescriptors.size(); ++i)
 		{
-			const auto& rootView0 = GetRootView(i);
-			const auto& rootView1 = RootParams.GetRootView(i);
+			const auto& rootView0 = GetRootDescriptor(i);
+			const auto& rootView1 = RootParams.GetRootDescriptor(i);
 			if (rootView0 != rootView1)
 				return false;
 		}
@@ -61,9 +61,9 @@ namespace RHI
 
 	size_t RootSignature::RootParamsManager::GetHash() const
 	{
-		size_t hash = ComputeHash(m_RootTables.size(), m_RootViews.size());
-		for (UINT32 i = 0; i < m_RootViews.size(); ++i)
-			HashCombine(hash, GetRootView(i).GetHash());
+		size_t hash = ComputeHash(m_RootTables.size(), m_RootDescriptors.size());
+		for (UINT32 i = 0; i < m_RootDescriptors.size(); ++i)
+			HashCombine(hash, GetRootDescriptor(i).GetHash());
 
 		for (UINT32 i = 0; i < m_RootTables.size(); ++i)
 			HashCombine(hash, GetRootTable(i).GetHash());
@@ -103,17 +103,17 @@ namespace RHI
 		}
 
 		// 统计Root View的数量
-		for (UINT32 i = 0; i < m_RootParams.GetRootViewNum(); ++i)
+		for (UINT32 i = 0; i < m_RootParams.GetRootDescriptorNum(); ++i)
 		{
-			const auto& RootView = m_RootParams.GetRootView(i);
-			++m_NumRootView[RootView.GetShaderVariableType()];
+			const auto& RootView = m_RootParams.GetRootDescriptor(i);
+			++m_NumRootDescriptor[RootView.GetShaderVariableType()];
 		}
 
 		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
 		rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 		// RootParameter的总数
-		auto TotalParams = m_RootParams.GetRootTableNum() + m_RootParams.GetRootViewNum();
+		auto TotalParams = m_RootParams.GetRootTableNum() + m_RootParams.GetRootDescriptorNum();
 
 		std::vector<D3D12_ROOT_PARAMETER> D3D12Parameters(TotalParams, D3D12_ROOT_PARAMETER{});
 		// 设置每个Root Paramter
@@ -124,9 +124,9 @@ namespace RHI
 			assert(SrcParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE && SrcParam.DescriptorTable.NumDescriptorRanges > 0 && "Non-empty descriptor table is expected");
 			D3D12Parameters[RootTable.GetRootIndex()] = SrcParam;
 		}
-		for (UINT32 i = 0; i < m_RootParams.GetRootViewNum(); ++i)
+		for (UINT32 i = 0; i < m_RootParams.GetRootDescriptorNum(); ++i)
 		{
-			const auto& RootView = m_RootParams.GetRootView(i);
+			const auto& RootView = m_RootParams.GetRootDescriptor(i);
 			const D3D12_ROOT_PARAMETER& SrcParam = RootView;
 			assert(SrcParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_CBV && "Root CBV is expected");
 			D3D12Parameters[RootView.GetRootIndex()] = SrcParam;
@@ -164,10 +164,10 @@ namespace RHI
 		// 分配一个CBV，当作一个Root View
 		if (RangeType == D3D12_DESCRIPTOR_RANGE_TYPE_CBV && ShaderResAttribs.BindCount == 1)
 		{
-			RootIndex = m_RootParams.GetRootTableNum() + m_RootParams.GetRootViewNum();
+			RootIndex = m_RootParams.GetRootTableNum() + m_RootParams.GetRootDescriptorNum();
 			OffsetFromTableStart = 0;
 
-			m_RootParams.AddRootView(D3D12_ROOT_PARAMETER_TYPE_CBV, RootIndex, ShaderResAttribs.BindPoint, shaderVisibility, VariableType);
+			m_RootParams.AddRootDescriptor(D3D12_ROOT_PARAMETER_TYPE_CBV, RootIndex, ShaderResAttribs.BindPoint, shaderVisibility, VariableType);
 		}
 		// 分配一个新的Root Table，或者在现有的Root Table中添加Descriptor
 		else
@@ -183,7 +183,7 @@ namespace RHI
 			if (RootTableArrayInd == InvalidRootTableIndex)
 			{
 				// 该Table还没创建，创建一个新的Root Table
-				RootIndex = m_RootParams.GetRootTableNum() + m_RootParams.GetRootViewNum();
+				RootIndex = m_RootParams.GetRootTableNum() + m_RootParams.GetRootDescriptorNum();
 				RootTableArrayInd = static_cast<UINT8>(m_RootParams.GetRootTableNum());
 				// 添加有一个Descriptor Range的Root Table
 				m_RootParams.AddRootTable(RootIndex, shaderVisibility, VariableType, 1);

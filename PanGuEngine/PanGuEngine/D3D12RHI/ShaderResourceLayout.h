@@ -3,7 +3,7 @@
 #include "ShaderResourceCache.h"
 #include "IShaderResource.h"
 #include "GpuBuffer.h"
-#include "GpuResourceView.h"
+#include "GpuResourceDescriptor.h"
 
 namespace RHI 
 {
@@ -40,14 +40,14 @@ namespace RHI
             const ShaderResourceLayout& ParentResLayout;
             const ShaderResourceAttribs& Attribs;   // 对应ShaderResource中的一个资源
             const UINT32 OffsetFromTableStart;
-            const CachedResourceType ResourceType;   // CBV、TexSRV、BufSRV、TexUAV、BufUAV、Sampler
+            const BindingResourceType ResourceType;   // CBV、TexSRV、BufSRV、TexUAV、BufUAV、Sampler
             const SHADER_RESOURCE_VARIABLE_TYPE VariableType;   // Static、Mutable、Dynamic
             const UINT32 RootIndex;
 
             Resource(const ShaderResourceLayout&      _ParentLayout,
                           const ShaderResourceAttribs&     _Attribs,
                           SHADER_RESOURCE_VARIABLE_TYPE    _VariableType,
-                          CachedResourceType               _ResType,
+                          BindingResourceType               _ResType,
                           UINT32                           _RootIndex,
                           UINT32                           _OffsetFromTableStart) noexcept :
                 ParentResLayout{ _ParentLayout },
@@ -62,23 +62,8 @@ namespace RHI
             // 是否已经绑定了资源
             bool IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const;
 
-            void BindResource(IShaderResource* pObject, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
 			void BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
-			void BindResource(std::shared_ptr<GpuResourceView> view, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
-
-
-            SHADER_RESOURCE_VARIABLE_TYPE GetVariableType() const { return VariableType; }
-
-        private:
-            // 把要绑定的资源存储到ShaderResourceCache中
-            // 几个Cache函数其实就是把一个资源的Descriptor拷贝到ShaderResourceCache中的Descriptor
-            void CacheCB(IShaderResource* pBuffer,
-                         ShaderResourceCache::Resource* dstRes) const;
-
-            template<typename TResourceViewType>
-            void CacheResourceView(IShaderResource* pView,
-                                   ShaderResourceCache::Resource* dstRes,
-                                   D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle) const;
+			void BindResource(std::shared_ptr<GpuResourceDescriptor> descriptor, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
         };
 
         UINT32 GetCbvSrvUavCount(SHADER_RESOURCE_VARIABLE_TYPE VarType) const

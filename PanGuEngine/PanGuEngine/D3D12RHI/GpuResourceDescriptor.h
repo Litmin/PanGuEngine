@@ -6,7 +6,7 @@ namespace RHI
     /**
     * 
     */
-    class GpuResourceView
+    class GpuResourceDescriptor
     {
     public:
 

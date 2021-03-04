@@ -322,7 +322,7 @@ namespace RHI
 		SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES
 	};
 
-	enum class CachedResourceType
+	enum class BindingResourceType
 	{
 		Unknown = -1,
 		CBV = 0,

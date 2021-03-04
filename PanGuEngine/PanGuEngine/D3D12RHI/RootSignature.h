@@ -262,15 +262,15 @@ namespace RHI
         }
 
         // VarType类型的RootView的数量
-        UINT32 GetNumRootView(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
+        UINT32 GetNumRootDescriptor(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
         {
-            return m_NumRootView[VarType];
+            return m_NumRootDescriptor[VarType];
         }
 
         template <typename TOperation>
-        void ProcessRootViews(TOperation Operation) const
+        void ProcessRootDescriptors(TOperation Operation) const
         {
-            m_RootParams.ProcessRootViews(Operation);
+            m_RootParams.ProcessRootDescriptors(Operation);
         }
 
 		template <typename TOperation>
@@ -292,7 +292,7 @@ namespace RHI
         {
         public:
             UINT32 GetRootTableNum() const { return m_RootTables.size(); }
-            UINT32 GetRootViewNum() const { return m_RootViews.size(); }
+            UINT32 GetRootDescriptorNum() const { return m_RootDescriptors.size(); }
 
             const RootParameter& GetRootTable(UINT32 tableIndex) const
             {
@@ -306,20 +306,20 @@ namespace RHI
                 return m_RootTables[tableIndex];
             }
 
-            const RootParameter& GetRootView(UINT32 viewIndex) const
+            const RootParameter& GetRootDescriptor(UINT32 descriptorIndex) const
             {
-                assert(viewIndex < m_RootViews.size());
-                return m_RootViews[viewIndex];
+                assert(descriptorIndex < m_RootDescriptors.size());
+                return m_RootDescriptors[descriptorIndex];
             }
 
-            RootParameter& GetRootView(UINT32 viewIndex)
+            RootParameter& GetRootDescriptor(UINT32 descriptorIndex)
             {
-                assert(viewIndex < m_RootViews.size());
-                return m_RootViews[viewIndex];
+                assert(descriptorIndex < m_RootDescriptors.size());
+                return m_RootDescriptors[descriptorIndex];
             }
 
             // 添加一个新的RootView
-            void AddRootView(D3D12_ROOT_PARAMETER_TYPE     ParameterType,
+            void AddRootDescriptor(D3D12_ROOT_PARAMETER_TYPE     ParameterType,
                              UINT32                        RootIndex,
                              UINT                          Register,
                              D3D12_SHADER_VISIBILITY       Visibility,
@@ -333,7 +333,7 @@ namespace RHI
             void AddDescriptorRanges(UINT32 RootTableInd, UINT32 NumExtraRanges = 1);
 
             template <typename TOperation>
-            void ProcessRootViews(TOperation) const;
+            void ProcessRootDescriptors(TOperation) const;
         	
             template <typename TOperation>
             void ProcessRootTables(TOperation) const;
@@ -343,7 +343,7 @@ namespace RHI
 
         private:
             std::vector<RootParameter> m_RootTables;
-            std::vector<RootParameter> m_RootViews; //                  <-----
+            std::vector<RootParameter> m_RootDescriptors; //                  <-----
         };//                                                                  |
         //                                                                    |
         //                                                                    |
@@ -360,8 +360,8 @@ namespace RHI
 
         // 记录每种Variable类型的所有RootTable的Descriptor的总数量
         std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumDescriptorInRootTable = {};
-        // 记录每种Variable类型的所有RootView的数量
-        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumRootView = {};
+        // 记录每种Variable类型的所有RootDescriptor的数量
+        std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumRootDescriptor = {};
 
         static constexpr UINT8 InvalidRootTableIndex = static_cast<UINT8>(-1);
 
@@ -369,11 +369,11 @@ namespace RHI
 	};
 
     template <typename TOperation>
-    void RootSignature::RootParamsManager::ProcessRootViews(TOperation Operation) const
+    void RootSignature::RootParamsManager::ProcessRootDescriptors(TOperation Operation) const
     {
-    	for(UINT32 i = 0;i < m_RootViews.size();++i)
+    	for(UINT32 i = 0;i < m_RootDescriptors.size();++i)
     	{
-            auto& rootView = m_RootViews[i];
+            auto& rootView = m_RootDescriptors[i];
             Operation(rootView);
     	}
     }

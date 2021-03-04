@@ -17,13 +17,13 @@ namespace RHI
 
 		const UINT32 allowedTypeBits = GetAllowedTypeBits(allowedVarTypes, allowedTypeNum);
 
-		rootSignature->ProcessRootViews([&](RootParameter& rootView)
+		rootSignature->ProcessRootDescriptors([&](RootParameter& rootView)
 		{
 			SHADER_RESOURCE_VARIABLE_TYPE variableType = rootView.GetShaderVariableType();
 			UINT32 rootIndex = rootView.GetRootIndex();
 			
 			if (IsAllowedType(variableType, allowedTypeBits))
-				m_RootViews.insert(make_pair(rootIndex, RootView()));
+				m_RootViews.insert(make_pair(rootIndex, RootDescriptor()));
 		});
 
 		UINT32 descriptorNum = 0;
@@ -45,7 +45,7 @@ namespace RHI
 			if (variableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{
 				// 设置每个Root Table在Heap中的起始位置，因为Root Table是紧密排列的，所以起始位置就是当前的总数
-				m_RootTables[rootIndex].m_TableStartOffset = descriptorNum;
+				m_RootTables[rootIndex].TableStartOffset = descriptorNum;
 				descriptorNum += rootTableSize;
 			}
 		});
@@ -63,8 +63,6 @@ namespace RHI
 		// 提交Root View（CBV），只需要绑定Buffer的地址
 		for(const auto& [rootIndex, rootView] : m_RootViews)
 		{
-			const Resource* resource = rootView.GetResource();
-
 			// TODO:
 		}
 

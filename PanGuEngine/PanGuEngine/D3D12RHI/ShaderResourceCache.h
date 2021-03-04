@@ -3,6 +3,7 @@
 #include "DescriptorHeap.h"
 #include "IShaderResource.h"
 #include "GpuBuffer.h"
+#include "GpuResourceDescriptor.h"
 
 namespace RHI 
 {
@@ -35,46 +36,20 @@ namespace RHI
         static constexpr UINT32 InvalidDescriptorOffset = static_cast<UINT32>(-1);
 
 		// 目前只有Constant Buffer作为Root Descriptor绑定
-		struct RootView
+		struct RootDescriptor
 		{
 			std::shared_ptr<GpuBuffer> ConstantBuffer;
 		};
 
-        struct Resource
+        struct RootTable
         {
-            CachedResourceType Type = CachedResourceType::Unknown;
-            // 该变量存储的是CPUDescriptorHeap中的Descriptor Handle
-            D3D12_CPU_DESCRIPTOR_HANDLE CPUDescriptorHandle = { 0 };
-            // 强引用资源
-            std::shared_ptr<IShaderResource> pObject;
-        };
-
-        class RootTable
-        {
-        public:
-            RootTable(UINT32 tableSize) : m_Resources(tableSize){}
-
-            // 访问RootTable中的某个资源
-            const Resource* GetResource(UINT32 OffsetFromTableStart) const
-            {
-                assert((OffsetFromTableStart < m_Resources.size()) && "Index out of range.");
-                return &m_Resources[OffsetFromTableStart];
-            }
-
-            Resource* GetResource(UINT32 OffsetFromTableStart)
-            {
-                assert((OffsetFromTableStart < m_Resources.size()) && "Index out of range.");
-                return &m_Resources[OffsetFromTableStart];
-            }
-
-            // RootTable的大小
-            UINT32 Size() const { return m_Resources.size(); }
+            RootTable(UINT32 tableSize) : Descriptors(tableSize){}
 
             // 每个Root Table在GPUDescriptorHeap中的起始位置
-            UINT32 m_TableStartOffset = InvalidDescriptorOffset;
-        private:
+            UINT32 TableStartOffset = InvalidDescriptorOffset;
+
             // 该Table中资源的数量
-            std::vector<Resource> m_Resources;
+            std::vector<std::shared_ptr<GpuResourceDescriptor>> Descriptors;
         };
 
 
@@ -87,9 +62,9 @@ namespace RHI
 
             D3D12_CPU_DESCRIPTOR_HANDLE CPUDescriptorHandle = { 0 };
 
-            if (RootParam.m_TableStartOffset != InvalidDescriptorOffset)
+            if (RootParam.TableStartOffset != InvalidDescriptorOffset)
             {
-                CPUDescriptorHandle = m_CbvSrvUavGPUHeapSpace.GetCpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
+                CPUDescriptorHandle = m_CbvSrvUavGPUHeapSpace.GetCpuHandle(RootParam.TableStartOffset + OffsetFromTableStart);
             }
 
             return CPUDescriptorHandle;
@@ -103,9 +78,9 @@ namespace RHI
             const auto& RootParam = GetRootTable(RootIndex);
 
             // Dynamic资源没有在ShaderResourceCache的Heap中分配空间，所以m_TableStartOffset应该时Invalid
-            assert(RootParam.m_TableStartOffset != InvalidDescriptorOffset && "GPU descriptor handle must never be requested for dynamic resources");
+            assert(RootParam.TableStartOffset != InvalidDescriptorOffset && "GPU descriptor handle must never be requested for dynamic resources");
 
-            D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle = m_CbvSrvUavGPUHeapSpace.GetGpuHandle(RootParam.m_TableStartOffset + OffsetFromTableStart);
+            D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle = m_CbvSrvUavGPUHeapSpace.GetGpuHandle(RootParam.TableStartOffset + OffsetFromTableStart);
 
             return GPUDescriptorHandle;
         }
@@ -113,12 +88,12 @@ namespace RHI
         void CommitResource();
     	
 
-    	RootView& GetRootView(UINT32 RootIndex)
+    	RootDescriptor& GetRootDescriptor(UINT32 RootIndex)
         {
             return m_RootViews.at(RootIndex);
         }
 
-    	const RootView& GetRootView(UINT32 RootIndex) const
+    	const RootDescriptor& GetRootDescriptor(UINT32 RootIndex) const
         {
             return m_RootViews.at(RootIndex);
         }
@@ -139,7 +114,7 @@ namespace RHI
         // GPU Descriptor Heap
         DescriptorHeapAllocation m_CbvSrvUavGPUHeapSpace;
 
-        std::unordered_map<UINT32/*RootIndex*/, RootView> m_RootViews;
+        std::unordered_map<UINT32/*RootIndex*/, RootDescriptor> m_RootViews;
         std::unordered_map<UINT32/*RootIndex*/, RootTable> m_RootTables;
     };
 }
