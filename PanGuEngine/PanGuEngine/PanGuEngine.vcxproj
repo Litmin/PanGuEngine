@@ -159,9 +159,11 @@
     <ClCompile Include="D3D12RHI\DescriptorHeap.cpp" />
     <ClCompile Include="D3D12RHI\DeviceContext.cpp" />
     <ClCompile Include="D3D12RHI\GpuBuffer.cpp" />
+    <ClCompile Include="D3D12RHI\GpuRenderTexture.cpp" />
     <ClCompile Include="D3D12RHI\GpuResource.cpp" />
     <ClCompile Include="D3D12RHI\GpuResourceDescriptor.cpp" />
     <ClCompile Include="D3D12RHI\GpuTexture.cpp" />
+    <ClCompile Include="D3D12RHI\GpuTexture2D.cpp" />
     <ClCompile Include="D3D12RHI\PipelineState.cpp" />
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
     <ClCompile Include="D3D12RHI\RenderPass.cpp" />
@@ -229,9 +231,11 @@
     <ClInclude Include="D3D12RHI\DescriptorHeap.h" />
     <ClInclude Include="D3D12RHI\DeviceContext.h" />
     <ClInclude Include="D3D12RHI\GpuBuffer.h" />
+    <ClInclude Include="D3D12RHI\GpuRenderTexture.h" />
     <ClInclude Include="D3D12RHI\GpuResource.h" />
     <ClInclude Include="D3D12RHI\GpuResourceDescriptor.h" />
     <ClInclude Include="D3D12RHI\GpuTexture.h" />
+    <ClInclude Include="D3D12RHI\GpuTexture2D.h" />
     <ClInclude Include="D3D12RHI\GraphicsEnums.h" />
     <ClInclude Include="D3D12RHI\PipelineState.h" />
     <ClInclude Include="D3D12RHI\RenderDevice.h" />

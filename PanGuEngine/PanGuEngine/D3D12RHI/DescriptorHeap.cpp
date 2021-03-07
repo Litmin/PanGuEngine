@@ -14,11 +14,11 @@ namespace RHI
 		m_RenderDevice					{renderDevice},
 		m_ThisManagerId					{thisManagerId},
 		m_HeapDesc						{heapDesc},
-		m_DescriptorSize				{m_RenderDevice.GetD3D12Device()->GetDescriptorHandleIncrementSize(heapDesc.Type)},
+		m_DescriptorIncrementSize		{m_RenderDevice.GetD3D12Device()->GetDescriptorHandleIncrementSize(heapDesc.Type)},
 		m_NumDescriptorsInAllocation	{heapDesc.NumDescriptors},
 		m_FreeBlockManager				{heapDesc.NumDescriptors}
 	{
-		auto d3d12Device = renderDevice.GetD3D12Device();
+		auto* d3d12Device = renderDevice.GetD3D12Device();
 
 		m_FirstCPUHandle.ptr = 0;
 		m_FirstGPUHandle.ptr = 0;
@@ -35,22 +35,22 @@ namespace RHI
 																	 ID3D12DescriptorHeap* descriptorHeap, 
 																	 UINT32 firstDescriptor, 
 																	 UINT32 numDescriptors) :
-		m_ParentAllocator	{parentAllocator},
-		m_RenderDevice	{renderDevice},
-		m_ThisManagerId	{thisManagerId},
-		m_HeapDesc	{descriptorHeap->GetDesc()},
-		m_DescriptorSize	{renderDevice.GetD3D12Device()->GetDescriptorHandleIncrementSize(m_HeapDesc.Type)},
+		m_ParentAllocator				{parentAllocator},
+		m_RenderDevice					{renderDevice},
+		m_ThisManagerId					{thisManagerId},
+		m_HeapDesc						{descriptorHeap->GetDesc()},
+		m_DescriptorIncrementSize		{renderDevice.GetD3D12Device()->GetDescriptorHandleIncrementSize(m_HeapDesc.Type)},
 		m_NumDescriptorsInAllocation	{numDescriptors},
-		m_FreeBlockManager	{numDescriptors},
-		m_DescriptorHeap	{descriptorHeap}
+		m_FreeBlockManager				{numDescriptors},
+		m_DescriptorHeap				{descriptorHeap}
 	{
 		m_FirstCPUHandle = m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_FirstCPUHandle.ptr += m_DescriptorSize * firstDescriptor;
+		m_FirstCPUHandle.ptr += m_DescriptorIncrementSize * firstDescriptor;
 
 		if (m_HeapDesc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
 		{
 			m_FirstGPUHandle = m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-			m_FirstGPUHandle.ptr += m_DescriptorSize * firstDescriptor;
+			m_FirstGPUHandle.ptr += m_DescriptorIncrementSize * firstDescriptor;
 		}
 	}
 
@@ -71,10 +71,10 @@ namespace RHI
 
 		// 用allocation的Offset计算这次分配的CPU、GPU Descriptor Handle
 		auto CPUHandle = m_FirstCPUHandle;
-		CPUHandle.ptr += allocation.unalignedOffset * m_DescriptorSize;
+		CPUHandle.ptr += allocation.unalignedOffset * m_DescriptorIncrementSize;
 
 		auto GPUHandle = m_FirstGPUHandle;
-		GPUHandle.ptr += allocation.unalignedOffset * m_DescriptorSize;
+		GPUHandle.ptr += allocation.unalignedOffset * m_DescriptorIncrementSize;
 
 		// 分配过的Descriptor最大的数量
 		m_MaxAllocatedNum = std::max(m_MaxAllocatedNum, m_FreeBlockManager.GetUsedSize());
@@ -89,7 +89,7 @@ namespace RHI
 		if (allocation.IsNull())
 			return;
 
-		auto descriptorOffset = (allocation.GetCpuHandle().ptr - m_FirstCPUHandle.ptr) / m_DescriptorSize;
+		auto descriptorOffset = (allocation.GetCpuHandle().ptr - m_FirstCPUHandle.ptr) / m_DescriptorIncrementSize;
 		m_FreeBlockManager.Free(descriptorOffset, allocation.GetNumHandles());
 
 		allocation.Reset();

@@ -1,3 +1,3 @@
 #include "pch.h"
-#include "GpuResource.h"
+#include "GpuTexture.h"
 

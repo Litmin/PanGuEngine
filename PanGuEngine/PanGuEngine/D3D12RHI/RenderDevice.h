@@ -7,29 +7,14 @@
 
 namespace RHI
 {
-	class RenderDevice
+	class RenderDevice : public Singleton<RenderDevice>
 	{
 	public:
 		RenderDevice(Microsoft::WRL::ComPtr<ID3D12Device> d3d12Device);
 		~RenderDevice();
 
 		// 创建资源
-		// 提供数据创建Buffer
-		std::unique_ptr<Buffer> CreateBuffer(const BufferDesc& bufferDesc,
-											 const BufferData* bufferData);
-		// 用已有的D3D12资源创建Buffer
-		std::unique_ptr<Buffer> CreateBufferFromD3DResource(ID3D12Resource* buffer,
-															const BufferDesc& bufferDesc,
-															D3D12_RESOURCE_STATES initialState);
-		// 提供数据创建Texture
-		std::unique_ptr<Texture> CreateTexture(const TextureDesc& texDesc,
-											   const TextureData* texData);
-		// 用已有的D3D12资源创建Texture
-		std::unique_ptr<Texture> CreateTextureFromD3DResource(ID3D12Resource* texture,
-															  const TextureDesc& texDesc,
-															  D3D12_RESOURCE_STATES initialState);
 
-		std::unique_ptr<Sampler> CreateSampler(const D3D12_SAMPLER_DESC& samplerDesc);
 
 		// 分配Descriptor
 		DescriptorHeapAllocation AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
@@ -55,8 +40,6 @@ namespace RHI
 		// 创建资源时，每个资源的Descriptor保存在CPUDescriptorHeap中，在绘制命令执行前，会拷贝到GPUDescriptorHeap
 		GPUDescriptorHeap m_GPUDescriptorHeaps[2];
 
-		// TODO:实现多个CommandQueue
-		CommandQueue m_CommandQueue;
 
 		// 负责释放资源的队列
 		// 调用SafeReleaseDeviceObject释放资源时，会把该资源添加到m_StaleResources中，

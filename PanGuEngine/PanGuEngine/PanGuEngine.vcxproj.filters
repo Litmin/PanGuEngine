@@ -194,6 +194,12 @@
     <ClCompile Include="D3D12RHI\UploadBuffer.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\GpuTexture2D.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\GpuRenderTexture.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -421,6 +427,12 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\UploadBuffer.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\GpuTexture2D.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\GpuRenderTexture.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>

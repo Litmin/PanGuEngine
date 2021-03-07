@@ -2,6 +2,7 @@
 
 namespace RHI 
 {
+    // Currently unused
     class RingBuffer
     {
     public:

@@ -1,6 +1,8 @@
 #pragma once
 #include "DescriptorHeap.h"
 #include "PipelineState.h"
+#include "GpuBuffer.h"
+#include "GpuTexture.h"
 
 namespace RHI 
 {
@@ -39,6 +41,7 @@ namespace RHI
 
 		// CommandContext由ContextManager创建,所以把构造函数的访问权限设为private
 	private:
+
 		CommandContext(D3D12_COMMAND_LIST_TYPE Type);
 		// 创建CommandContext时调用，该函数会创建一个CommandList，并请求一个Allocator
 		void Initialize();
@@ -46,6 +49,7 @@ namespace RHI
 		void Reset();
 
 	public:
+
 		// 开始记录命令
 		 static CommandContext& Begin(const std::wstring ID = L"");
 		// Flush existing commands to the GPU but keep the context alive
@@ -65,6 +69,13 @@ namespace RHI
 		{
 			return reinterpret_cast<ComputeContext&>(*this);
 		}
+
+
+		// 初始化资源
+		static void InitializeBuffer(GpuBuffer& Dest, const void* Data, size_t NumBytes, size_t DestOffset = 0);
+		static void InitializeBuffer(GpuBuffer& Dest, const UploadBuffer& Src, size_t SrcOffset, size_t NumBytes = -1, size_t DestOffset = 0);
+		static void InitializeTexture(GpuResource& Dest, UINT NumSubresources, D3D12_SUBRESOURCE_DATA SubData[]);
+
 
 		// Resource Barrier
 

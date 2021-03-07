@@ -107,4 +107,19 @@ namespace RHI
 		return FenceValue;
 	}
 
+	void CommandContext::InitializeBuffer(GpuBuffer& Dest, const void* Data, size_t NumBytes, size_t DestOffset /*= 0*/)
+	{
+
+	}
+
+	void CommandContext::InitializeBuffer(GpuBuffer& Dest, const UploadBuffer& Src, size_t SrcOffset, size_t NumBytes /*= -1*/, size_t DestOffset /*= 0*/)
+	{
+
+	}
+
+	void CommandContext::InitializeTexture(GpuResource& Dest, UINT NumSubresources, D3D12_SUBRESOURCE_DATA SubData[])
+	{
+
+	}
+
 }

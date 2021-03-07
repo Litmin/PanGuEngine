@@ -25,7 +25,7 @@ namespace RHI
         DescriptorHeapAllocation() noexcept :
             m_NumHandles        {1},
             m_pDescriptorHeap   { nullptr },
-            m_DescriptorSize    { 0 }
+            m_DescriptorIncrementSize    { 0 }
         {
             m_FirstCpuHandle.ptr = 0;
             m_FirstGpuHandle.ptr = 0;
@@ -45,7 +45,7 @@ namespace RHI
             m_AllocationManagerId   { allocationManagerID }
         {
             auto DescriptorSize = m_pAllocator->GetDescriptorSize();
-            m_DescriptorSize = static_cast<UINT16>(DescriptorSize);
+            m_DescriptorIncrementSize = static_cast<UINT16>(DescriptorSize);
         }
 
         // 移动构造函数（不允许复制)
@@ -56,7 +56,7 @@ namespace RHI
             m_pAllocator          {std::move(allocation.m_pAllocator)         },
             m_AllocationManagerId {std::move(allocation.m_AllocationManagerId)},
             m_pDescriptorHeap     {std::move(allocation.m_pDescriptorHeap)    },
-            m_DescriptorSize      {std::move(allocation.m_DescriptorSize)     }
+            m_DescriptorIncrementSize      {std::move(allocation.m_DescriptorIncrementSize)     }
         {
             allocation.Reset();
         }
@@ -70,14 +70,14 @@ namespace RHI
             m_pAllocator = std::move(allocation.m_pAllocator);
             m_AllocationManagerId = std::move(allocation.m_AllocationManagerId);
             m_pDescriptorHeap = std::move(allocation.m_pDescriptorHeap);
-            m_DescriptorSize = std::move(allocation.m_DescriptorSize);
+            m_DescriptorIncrementSize = std::move(allocation.m_DescriptorIncrementSize);
 
             allocation.Reset();
 
             return *this;
         }
 
-        // Destructor automatically releases this allocation through the allocator
+        // 析构函数中会自动释放，不需要手动释放!!!
         ~DescriptorHeapAllocation()
         {
             // 释放这次分配
@@ -97,14 +97,14 @@ namespace RHI
             m_pDescriptorHeap = nullptr;
             m_NumHandles = 0;
             m_AllocationManagerId = static_cast<UINT16>(-1);
-            m_DescriptorSize = 0;
+            m_DescriptorIncrementSize = 0;
         }
 
         // 返回指定Offset的CPU Descriptor Handle
         D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(UINT32 Offset = 0) const
         {
             D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = m_FirstCpuHandle;
-            CPUHandle.ptr += m_DescriptorSize * Offset;
+            CPUHandle.ptr += m_DescriptorIncrementSize * Offset;
 
             return CPUHandle;
         }
@@ -113,7 +113,7 @@ namespace RHI
         D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle(UINT32 Offset = 0) const
         {
             D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = m_FirstGpuHandle;
-            GPUHandle.ptr += m_DescriptorSize * Offset;
+            GPUHandle.ptr += m_DescriptorIncrementSize * Offset;
 
             return GPUHandle;
         }
@@ -124,36 +124,41 @@ namespace RHI
         bool   IsNull()                 const { return m_FirstCpuHandle.ptr == 0; }
         bool   IsShaderVisible()        const { return m_FirstGpuHandle.ptr != 0; }
         size_t GetAllocationManagerId() const { return m_AllocationManagerId; }
-        UINT  GetDescriptorSize()       const { return m_DescriptorSize; }
+        UINT  GetDescriptorSize()       const { return m_DescriptorIncrementSize; }
 
     private:
-        // First CPU descriptor handle in this allocation
+        /* 该Allocation的第一个Descriptor的CPU Handle，CPU Handle用在以下函数中
+        * ID3D12Device::CopyDescriptors、ID3D12Device::CopyDescriptorsSimple
+        * ID3D12Device::CreateConstantBufferView等创建Descriptor的接口
+        * ID3D12GraphicsCommandList::ClearDepthStencilView等Clear接口
+        * ID3D12GraphicsCommandList::OMSetRenderTargets
+        */
         D3D12_CPU_DESCRIPTOR_HANDLE m_FirstCpuHandle = { 0 };
 
-        // First GPU descriptor handle in this allocation
+        /* 该Allocation的第一个Descriptor的GPU Handle，GPU Handle用在以下函数中
+		* ID3D12GraphicsCommandList::ClearUnorderedAccessViewFloat
+        * ID3D12GraphicsCommandList::ClearUnorderedAccessViewUint
+        * ID3D12GraphicsCommandList::SetComputeRootDescriptorTable
+        * ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable
+        */
         D3D12_GPU_DESCRIPTOR_HANDLE m_FirstGpuHandle = { 0 };
 
-        // Pointer to the descriptor heap allocator that created this allocation
+        // 创建该Allocation的Allocator
         IDescriptorAllocator* m_pAllocator = nullptr;
 
-        // Pointer to the D3D12 descriptor heap that contains descriptors in this allocation
         ID3D12DescriptorHeap* m_pDescriptorHeap = nullptr;
 
-        // Number of descriptors in the allocation
         UINT32 m_NumHandles = 0;
 
-        // Allocation manager ID. One allocator may support several
-        // allocation managers. This field is required to identify
-        // the manager within the allocator that was used to create
-        // this allocation
+        // Allocation manager ID.一个Allocator可能有多个Allocation Manager。该ID用于查找创建该Allocation的Allocation Manager
         UINT16 m_AllocationManagerId = static_cast<UINT16>(-1);
 
-        // Descriptor size
-        UINT16 m_DescriptorSize = 0;
+        // Descriptor Increment size，用于查找Allocation中的某一个Descriptor
+        UINT16 m_DescriptorIncrementSize = 0;
     };
 
     /**
-    * 管理一个完整的DX12 Descriptor Heap，或者一个Descriptor Heap的一部分
+    * 管理一个完整的D3D12 Descriptor Heap，或者一个Descriptor Heap的一部分
     * 在CPU-only的Descriptor Heap中都是管理一个完整的Descriptor Heap
     * 在GPU-visible的Descriptor Heap中，因为只有一个DX12 Descriptor Heap，所以Manager只是管理其中的一部分
     * 使用VariableSizeAllocationsManager管理堆中的空闲内存
@@ -185,11 +190,11 @@ namespace RHI
             m_RenderDevice              { rhs.m_RenderDevice },
             m_ThisManagerId             { rhs.m_ThisManagerId },
             m_HeapDesc                  { rhs.m_HeapDesc },
-            m_DescriptorSize            { rhs.m_DescriptorSize },
+            m_DescriptorIncrementSize            { rhs.m_DescriptorIncrementSize },
             m_NumDescriptorsInAllocation{ rhs.m_NumDescriptorsInAllocation },
             m_FirstCPUHandle            { rhs.m_FirstCPUHandle },
             m_FirstGPUHandle            { rhs.m_FirstGPUHandle },
-            m_MaxAllocatedNum          { rhs.m_MaxAllocatedNum },
+            m_MaxAllocatedNum           { rhs.m_MaxAllocatedNum },
             m_FreeBlockManager          { std::move(rhs.m_FreeBlockManager) },
             m_DescriptorHeap            { std::move(rhs.m_DescriptorHeap) }
         {
@@ -222,7 +227,7 @@ namespace RHI
 
         const D3D12_DESCRIPTOR_HEAP_DESC m_HeapDesc;
 
-        const UINT m_DescriptorSize = 0;
+        const UINT m_DescriptorIncrementSize = 0;
 
         // 可以分配的Descriptor总数量
         UINT32 m_NumDescriptorsInAllocation = 0;
