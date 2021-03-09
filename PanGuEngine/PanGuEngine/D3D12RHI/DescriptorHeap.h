@@ -181,7 +181,8 @@ namespace RHI
         DescriptorHeapAllocationManager(RenderDevice&         renderDevice,
                                         IDescriptorAllocator& parentAllocator,
                                         size_t                thisManagerId,
-                                        ID3D12DescriptorHeap* descriptorHeap,
+                                        // TODO: 检查是否正确。Diligent中传入原始指针
+                                        Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> descriptorHeap,
                                         UINT32                firstDescriptor,
                                         UINT32                numDescriptors);
 
@@ -246,7 +247,7 @@ namespace RHI
 
     /**
     * CPUDescriptorHeap存储资源的Descriptor Handle。
-    * 它包含一个DescriptorHeapAllocationManager的对象池，每个Manager都会创建一个DX12 Descriptor Heap，每个对象管理CPU-only Descriptor Heap的一部分：
+    * 它包含一个DescriptorHeapAllocationManager的对象池，每个Manager都会创建一个DX12 Descriptor Heap，每个对象管理CPU-only Descriptor Heap的一部分(?)：
     *         m_HeapPool[0]                m_HeapPool[1]                 m_HeapPool[2]
     * |  X  X  X  X  X  X  X  X |, |  X  X  X  O  O  X  X  O  |, |  X  O  O  O  O  O  O  O  |
     *

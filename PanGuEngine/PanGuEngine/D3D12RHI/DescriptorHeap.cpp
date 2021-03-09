@@ -32,7 +32,7 @@ namespace RHI
 	DescriptorHeapAllocationManager::DescriptorHeapAllocationManager(RenderDevice& renderDevice, 
 																	 IDescriptorAllocator& parentAllocator, 
 																	 size_t thisManagerId, 
-																	 ID3D12DescriptorHeap* descriptorHeap, 
+																	 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap,
 																	 UINT32 firstDescriptor, 
 																	 UINT32 numDescriptors) :
 		m_ParentAllocator				{parentAllocator},
@@ -127,7 +127,8 @@ namespace RHI
 		auto availableHeapIt = m_AvailableHeaps.begin();
 		while (availableHeapIt != m_AvailableHeaps.end())
 		{
-			// 缓存下一个迭代器，可能导致迭代器失效
+			// 缓存下一个迭代器，调用erase会使当前迭代器失效
+			// 对vector和deque，erase可能造成指向其他元素的iterator和reference失效，但是对于其他所有容器，指向其他元素的iterator和reference永远保持有效
 			auto nextIt = availableHeapIt;
 			++nextIt;
 			// 尝试使用当前Manager分配Descriptor
@@ -206,7 +207,7 @@ namespace RHI
 		auto managerID = allocation.GetAllocationManagerId();
 		m_CurrentSize -= static_cast<UINT32>(allocation.GetNumHandles());
 		m_HeapPool[managerID].FreeAllocation(std::move(allocation));
-		// 插入失败也没关系
+		// 插入失败也没关系!
 		m_AvailableHeaps.insert(managerID);
 	}
 
@@ -223,7 +224,7 @@ namespace RHI
 			flags,
 			1 // NodeMask
 		},
-		// ???
+		// TODO: WTF
 		m_DescriptorHeap
 		{
 			[&]
@@ -234,8 +235,8 @@ namespace RHI
 			}()
 		},
 		m_DescriptorSize	{renderDevice.GetD3D12Device()->GetDescriptorHandleIncrementSize(type)},
-		m_HeapAllocationManager	{renderDevice, *this, 0, m_DescriptorHeap.Get(), 0, numDescriptorsInHeap},
-		m_DynamicAllocationsManager	{renderDevice, *this, 1, m_DescriptorHeap.Get(), numDescriptorsInHeap, numDynamicDescriptors}
+		m_HeapAllocationManager	{renderDevice, *this, 0, m_DescriptorHeap, 0, numDescriptorsInHeap},
+		m_DynamicAllocationsManager	{renderDevice, *this, 1, m_DescriptorHeap, numDescriptorsInHeap, numDynamicDescriptors}
 
 	{
 	}

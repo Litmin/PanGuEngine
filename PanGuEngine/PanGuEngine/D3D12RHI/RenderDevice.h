@@ -16,8 +16,9 @@ namespace RHI
 		// 创建资源
 
 
-		// 分配Descriptor
+		// 在CPU Descriptor Heap中分配资源的Descriptor
 		DescriptorHeapAllocation AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
+		// 把资源绑定到Shader时，在GPU Descriptor Heap中分配Descriptor
 		DescriptorHeapAllocation AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
 
 		// 安全释放GPU对象，当GPU不再使用这个对象时才真正释放它，传入的对象必须实现移动操作
