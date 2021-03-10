@@ -385,7 +385,8 @@ namespace RHI
     };
 
 
-    /* TODO: Diligent Engine的最新版本（也就是现在的实现）中，GPU Descriptor Heap的动态部分也是无锁的，还没有看懂
+    /* TODO: 以下参考Diligent Engine的最新版本中，GPU Descriptor Heap的动态部分也是无锁的，还没有看懂，
+    * Diligent文档中讲的是每个线程（CommandContext）拥有自己的DynamicSuballocationManager，在分配一个Chunk时要求对GPUDescriptorHeap的独占访问，
     * MiniEngine中，是每个CommandContext分配了一个Descriptor Heap,Diligent Engine是所有Command Context共享一个Descriptor Heap
     */
 

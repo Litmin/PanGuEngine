@@ -26,16 +26,16 @@ namespace RHI
 	{
 	}
 
-	// TODO:Implete
 	DescriptorHeapAllocation RenderDevice::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count)
 	{
-		return DescriptorHeapAllocation();
+		assert(Type >= D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV && Type < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES && "Invalid heap type");
+		return m_CPUDescriptorHeaps[Type].Allocate(Count);
 	}
 
-	// TODO:Implete
 	DescriptorHeapAllocation RenderDevice::AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count)
 	{
-		return DescriptorHeapAllocation();
+		assert(Type >= D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV && Type <= D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER && "Invalid heap type");
+		return m_GPUDescriptorHeaps[Type].Allocate(Count);
 	}
 
 	void RenderDevice::PurgeReleaseQueue(bool forceRelease)

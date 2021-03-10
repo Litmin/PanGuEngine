@@ -78,6 +78,8 @@ namespace RHI
 		static void InitializeTexture(GpuResource& Dest, UINT NumSubresources, D3D12_SUBRESOURCE_DATA SubData[]);
 
 
+		DescriptorHeapAllocation AllocateDynamicGPUVisibleDescriptor(UINT Count = 1);
+
 		// Resource Barrier
 
 
@@ -98,6 +100,7 @@ namespace RHI
 		UINT m_NumBarriersToFlush;
 
 		// Dynamic Descriptor
+		DynamicSuballocationsManager* m_DynamicGPUDescriptorAllocator;
 
 		// Dynamic Constant Buffer
 

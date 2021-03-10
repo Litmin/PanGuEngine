@@ -99,8 +99,11 @@ namespace RHI
 		Queue.DiscardAllocator(FenceValue, m_CurrentAllocator);
 		m_CurrentAllocator = nullptr;
 
+		// ÊÍ·Å·ÖÅäµÄDynamic Descriptor
+		m_DynamicGPUDescriptorAllocator->ReleaseAllocations();
+
 		if (WaitForCompletion)
-			CommandListManager::GetSingleton().WaitForFence(FenceValue);
+			CommandListManager::GetSingleton().WaitForFence(FenceValue, m_Type);
 
 		ContextManager::GetSingleton().FreeContext(this);
 
@@ -120,6 +123,11 @@ namespace RHI
 	void CommandContext::InitializeTexture(GpuResource& Dest, UINT NumSubresources, D3D12_SUBRESOURCE_DATA SubData[])
 	{
 
+	}
+
+	DescriptorHeapAllocation CommandContext::AllocateDynamicGPUVisibleDescriptor(UINT Count /*= 1*/)
+	{
+		return m_DynamicGPUDescriptorAllocator->Allocate(Count);
 	}
 
 }
