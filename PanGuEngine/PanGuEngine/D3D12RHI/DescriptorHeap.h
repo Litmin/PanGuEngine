@@ -5,6 +5,7 @@ namespace RHI
 {
     class RenderDevice;
     class DescriptorHeapAllocation;
+    class DynamicSuballocationsManager;
 
 
     class IDescriptorAllocator
@@ -331,6 +332,8 @@ namespace RHI
     */
     class GPUDescriptorHeap final : public IDescriptorAllocator
     {
+        friend class DynamicSuballocationsManager;
+
     public:
         GPUDescriptorHeap(RenderDevice& renderDevice,
                           UINT32 numDescriptorsInHeap,
@@ -353,16 +356,19 @@ namespace RHI
         virtual void   Free(DescriptorHeapAllocation&& allocation) override final;
         virtual UINT32 GetDescriptorSize() const override final { return m_DescriptorSize; }
 
-        DescriptorHeapAllocation AllocateDynamic(UINT32 count)
-        {
-            return m_DynamicAllocationsManager.Allocate(count);
-        }
+
 
         const D3D12_DESCRIPTOR_HEAP_DESC& GetHeapDesc() const { return m_HeapDesc; }
         UINT32                            GetMaxStaticDescriptors() const { return m_HeapAllocationManager.GetMaxDescriptors(); }
         UINT32                            GetMaxDynamicDescriptors() const { return m_DynamicAllocationsManager.GetMaxDescriptors(); }
 
     private:
+
+		DescriptorHeapAllocation AllocateDynamic(UINT32 count)
+		{
+			return m_DynamicAllocationsManager.Allocate(count);
+		}
+
         RenderDevice& m_RenderDevice;
 
         // GPU Descriptor Heap只会创建一个DX12 Descriptor Heap
@@ -377,6 +383,11 @@ namespace RHI
         // dynamic部分的Manager
         DescriptorHeapAllocationManager m_DynamicAllocationsManager;
     };
+
+
+    /* TODO: Diligent Engine的最新版本（也就是现在的实现）中，GPU Descriptor Heap的动态部分也是无锁的，还没有看懂
+    * MiniEngine中，是每个CommandContext分配了一个Descriptor Heap,Diligent Engine是所有Command Context共享一个Descriptor Heap
+    */
 
     /**
     * 该类辅助管理动态的Descriptor Handle。它从GPU Descriptor Heap中请求一个Chunk，然后在Chunk中进行线性的子分配，

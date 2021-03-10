@@ -3,6 +3,7 @@
 #include "PipelineState.h"
 #include "GpuBuffer.h"
 #include "GpuTexture.h"
+#include "DescriptorHeap.h"
 
 namespace RHI 
 {
@@ -96,9 +97,8 @@ namespace RHI
 		D3D12_RESOURCE_BARRIER m_ResourceBarrierBuffer[16];
 		UINT m_NumBarriersToFlush;
 
-		// TODO:Descriptor Heap
-
 		// Dynamic Descriptor
+
 		// Dynamic Constant Buffer
 
 		std::wstring m_ID;
