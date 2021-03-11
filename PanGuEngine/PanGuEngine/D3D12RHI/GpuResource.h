@@ -26,7 +26,7 @@ namespace RHI
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_pResource;
 		D3D12_RESOURCE_STATES m_UsageState;
-		D3D12_RESOURCE_STATES m_TransitioningState;
+		D3D12_RESOURCE_STATES m_TransitioningState = (D3D12_RESOURCE_STATES)-1;
     };
 
 }

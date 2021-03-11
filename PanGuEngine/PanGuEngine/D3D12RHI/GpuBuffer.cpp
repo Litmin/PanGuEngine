@@ -110,6 +110,7 @@ namespace RHI
 		Desc.DepthOrArraySize = 1;
 		Desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		// Buffer的Format是Unkown
 		Desc.Format = DXGI_FORMAT_UNKNOWN;
 		Desc.Height = 1;
 		Desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
@@ -120,14 +121,39 @@ namespace RHI
 		return Desc;
 	}
 
-	GpuResourceDescriptor GpuStructuredBuffer::CreateSRV()
+	std::shared_ptr<GpuResourceDescriptor> GpuStructuredBuffer::CreateSRV()
 	{
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		SRVDesc.Format = DXGI_FORMAT_UNKNOWN;
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		SRVDesc.Buffer.NumElements = m_ElementCount;
+		SRVDesc.Buffer.StructureByteStride = m_ElementSize;
+		SRVDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+		RenderDevice::GetSingleton().GetD3D12Device()->CreateShaderResourceView(m_pResource.Get(), &SRVDesc, descriptor->GetCpuHandle());
+
+		return descriptor;
 	}
 
-	GpuResourceDescriptor GpuStructuredBuffer::CreateUAV()
+	std::shared_ptr<GpuResourceDescriptor> GpuStructuredBuffer::CreateUAV()
 	{
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+		// TODO: UAV需要实现Counter Buffer
+// 		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
+// 		UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+// 		UAVDesc.Format = DXGI_FORMAT_UNKNOWN;
+// 		UAVDesc.Buffer.CounterOffsetInBytes = 0;
+// 		UAVDesc.Buffer.NumElements = m_ElementCount;
+// 		UAVDesc.Buffer.StructureByteStride = m_ElementSize;
+// 		UAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+// 
+// 		RenderDevice::GetSingleton().GetD3D12Device()->CreateUnorderedAccessView(m_pResource.Get(), &UAVDesc, descriptor->GetCpuHandle());
+
+		return descriptor;
 	}
 
 }
