@@ -19,6 +19,9 @@
     <Filter Include="RenderPipeline">
       <UniqueIdentifier>{4e200492-2273-410f-ba30-0251fe090eb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{42f000eb-770c-4e73-b2c4-e3e41ee7c309}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -105,9 +108,6 @@
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\PipelineState.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D12RHI\DeviceContext.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\SwapChain.cpp">
@@ -199,6 +199,15 @@
     </ClCompile>
     <ClCompile Include="D3D12RHI\GpuRenderTexture.cpp">
       <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\GpuRenderTextureColor.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D12RHI\GpuRenderTextureDepth.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Color.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -330,9 +339,6 @@
     <ClInclude Include="D3D12RHI\RootSignature.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
-    <ClInclude Include="D3D12RHI\DeviceContext.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
     <ClInclude Include="D3D12RHI\SwapChain.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
@@ -434,6 +440,15 @@
     </ClInclude>
     <ClInclude Include="D3D12RHI\GpuRenderTexture.h">
       <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\GpuRenderTextureColor.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\GpuRenderTextureDepth.h">
+      <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Color.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

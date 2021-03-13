@@ -13,7 +13,7 @@ namespace RHI
 
         GpuTexture2D(UINT32 width, UINT32 height, DXGI_FORMAT format, UINT64 RowPitchBytes, const void* InitialData);
 
-        virtual std::shared_ptr<GpuResourceDescriptor> CreateSRV() override;
+        std::shared_ptr<GpuResourceDescriptor> CreateSRV();
 
     protected:
 

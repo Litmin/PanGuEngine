@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Color.cpp" />
     <ClCompile Include="D3D12RHI\Buffer.cpp" />
     <ClCompile Include="D3D12RHI\BufferView.cpp" />
     <ClCompile Include="D3D12RHI\CommandAllocatorPool.cpp" />
@@ -157,9 +158,10 @@
     <ClCompile Include="D3D12RHI\CommandListManager.cpp" />
     <ClCompile Include="D3D12RHI\CommandQueue.cpp" />
     <ClCompile Include="D3D12RHI\DescriptorHeap.cpp" />
-    <ClCompile Include="D3D12RHI\DeviceContext.cpp" />
     <ClCompile Include="D3D12RHI\GpuBuffer.cpp" />
     <ClCompile Include="D3D12RHI\GpuRenderTexture.cpp" />
+    <ClCompile Include="D3D12RHI\GpuRenderTextureColor.cpp" />
+    <ClCompile Include="D3D12RHI\GpuRenderTextureDepth.cpp" />
     <ClCompile Include="D3D12RHI\GpuResource.cpp" />
     <ClCompile Include="D3D12RHI\GpuResourceDescriptor.cpp" />
     <ClCompile Include="D3D12RHI\GpuTexture.cpp" />
@@ -220,6 +222,7 @@
     <ClCompile Include="Utility\MathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Color.h" />
     <ClInclude Include="D3D12RHI\Align.h" />
     <ClInclude Include="D3D12RHI\Buffer.h" />
     <ClInclude Include="D3D12RHI\BufferView.h" />
@@ -229,9 +232,10 @@
     <ClInclude Include="D3D12RHI\CommandQueue.h" />
     <ClInclude Include="D3D12RHI\Constant.h" />
     <ClInclude Include="D3D12RHI\DescriptorHeap.h" />
-    <ClInclude Include="D3D12RHI\DeviceContext.h" />
     <ClInclude Include="D3D12RHI\GpuBuffer.h" />
     <ClInclude Include="D3D12RHI\GpuRenderTexture.h" />
+    <ClInclude Include="D3D12RHI\GpuRenderTextureColor.h" />
+    <ClInclude Include="D3D12RHI\GpuRenderTextureDepth.h" />
     <ClInclude Include="D3D12RHI\GpuResource.h" />
     <ClInclude Include="D3D12RHI\GpuResourceDescriptor.h" />
     <ClInclude Include="D3D12RHI\GpuTexture.h" />

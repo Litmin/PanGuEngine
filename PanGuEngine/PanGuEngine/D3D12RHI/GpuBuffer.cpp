@@ -6,7 +6,7 @@
 namespace RHI
 {
 
-	GpuBuffer::GpuBuffer(const std::wstring& name, UINT32 NumElements, UINT32 ElementSize, const void* initialData)
+	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData)
 	{
 		m_ElementCount = NumElements;
 		m_ElementSize = ElementSize;
@@ -34,11 +34,9 @@ namespace RHI
 		// 如果提供了初始数据就会把数据上传到Upload堆中，然后Copy到Buffer
 		if (initialData)
 			CommandContext::InitializeBuffer(*this, initialData, m_BufferSize);
-
-		m_pResource->SetName(name.c_str());
 	}
 
-	GpuBuffer::GpuBuffer(const std::wstring& name, UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset)
+	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset)
 	{
 		m_ElementCount = NumElements;
 		m_ElementSize = ElementSize;
@@ -64,8 +62,6 @@ namespace RHI
 		m_GpuVirtualAddress = m_pResource->GetGPUVirtualAddress();
 
 		CommandContext::InitializeBuffer(*this, srcData, srcOffset);
-
-		m_pResource->SetName(name.c_str());
 	}
 
 

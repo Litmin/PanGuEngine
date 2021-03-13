@@ -16,9 +16,9 @@ namespace RHI
     public:
 
         // 创建一个Buffer，如果提供了初始数据就会把数据上传到Upload堆中，然后Copy到Buffer
-        GpuBuffer(const std::wstring& name, UINT32 NumElements, UINT32 ElementSize, const void* initialData);
+        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData);
 
-        GpuBuffer(const std::wstring& name, UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset);
+        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset);
 
         // Descriptor
 		D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return m_GpuVirtualAddress; }
@@ -54,14 +54,14 @@ namespace RHI
     {
     public:
 
-        GpuStructuredBuffer(const std::wstring& name, UINT32 NumElements, UINT32 ElementSize, const void* initialData) :
-            GpuBuffer(name, NumElements, ElementSize, initialData)
+        GpuStructuredBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData) :
+            GpuBuffer(NumElements, ElementSize, initialData)
         {
 
         }
 
-        GpuStructuredBuffer(const std::wstring& name, UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset) :
-            GpuBuffer(name, NumElements, ElementSize, srcData, srcOffset)
+        GpuStructuredBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset) :
+            GpuBuffer(NumElements, ElementSize, srcData, srcOffset)
         {
 
         }

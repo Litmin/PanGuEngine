@@ -19,6 +19,8 @@ namespace RHI
 
         virtual ~GpuResource();
 
+        void SetName(const std::wstring& name) { m_pResource->SetName(name.c_str()); }
+
 		ID3D12Resource* GetResource() { return m_pResource.Get(); }
 		const ID3D12Resource* GetResource() const { return m_pResource.Get(); }
 

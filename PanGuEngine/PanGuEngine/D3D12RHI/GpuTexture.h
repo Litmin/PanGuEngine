@@ -23,9 +23,15 @@ namespace RHI
         {
         }
 
-        virtual std::shared_ptr<GpuResourceDescriptor> CreateSRV() = 0;
-
     protected:
+
+        // ¸ñÊ½×ª»»
+		static DXGI_FORMAT GetBaseFormat(DXGI_FORMAT Format);
+		static DXGI_FORMAT GetUAVFormat(DXGI_FORMAT Format);
+		static DXGI_FORMAT GetDSVFormat(DXGI_FORMAT Format);
+		static DXGI_FORMAT GetDepthFormat(DXGI_FORMAT Format);
+		static DXGI_FORMAT GetStencilFormat(DXGI_FORMAT Format);
+		static size_t BytesPerPixel(DXGI_FORMAT Format);
 
 		UINT64 m_Width;
         UINT64 m_Height;
