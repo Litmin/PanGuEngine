@@ -11,6 +11,9 @@ namespace RHI
     class GpuRenderTextureColor : public GpuRenderTexture
     {
     public:
+
+        GpuRenderTextureColor(ID3D12Resource)
+
         GpuRenderTextureColor(UINT32 width, UINT32 height, 
                               D3D12_RESOURCE_DIMENSION dimension, 
                               DXGI_FORMAT format, 

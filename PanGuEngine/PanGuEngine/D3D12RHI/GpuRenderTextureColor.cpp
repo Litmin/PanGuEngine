@@ -18,7 +18,7 @@ namespace RHI
 		Desc.DepthOrArraySize = 1;
 		Desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-		Desc.Format = GetBaseFormat(Format);
+		Desc.Format = GetBaseFormat(format);
 		Desc.Height = (UINT)m_Height;
 		Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		Desc.MipLevels = 0;
@@ -27,7 +27,7 @@ namespace RHI
 		Desc.Width = (UINT64)m_Width;
 
 		D3D12_CLEAR_VALUE ClearValue = {};
-		ClearValue.Format = Format;
+		ClearValue.Format = format;
 		ClearValue.Color[0] = m_ClearColor.R();
 		ClearValue.Color[1] = m_ClearColor.G();
 		ClearValue.Color[2] = m_ClearColor.B();

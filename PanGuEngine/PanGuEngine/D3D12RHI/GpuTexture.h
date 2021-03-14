@@ -26,6 +26,7 @@ namespace RHI
     protected:
 
         // 格式转换
+        // 转换成TypeLess
 		static DXGI_FORMAT GetBaseFormat(DXGI_FORMAT Format);
 		static DXGI_FORMAT GetUAVFormat(DXGI_FORMAT Format);
 		static DXGI_FORMAT GetDSVFormat(DXGI_FORMAT Format);
