@@ -14,6 +14,7 @@ namespace RHI
 	class ComputeContext;
 
 
+	// Compute Command List只支持这几种状态的过渡
 	#define VALID_COMPUTE_QUEUE_RESOURCE_STATES \
 	    ( D3D12_RESOURCE_STATE_UNORDERED_ACCESS \
 	    | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE \
