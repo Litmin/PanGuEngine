@@ -12,7 +12,8 @@ namespace RHI
     {
     public:
 
-        GpuRenderTextureColor(ID3D12Resource)
+        // 从Swapchain的资源创建
+        GpuRenderTextureColor(ID3D12Resource* resource, D3D12_RESOURCE_DESC desc, Color clearColor = Color(0.0f, 0.0f, 0.0f, 0.0f));
 
         GpuRenderTextureColor(UINT32 width, UINT32 height, 
                               D3D12_RESOURCE_DIMENSION dimension, 
@@ -23,6 +24,8 @@ namespace RHI
         std::shared_ptr<GpuResourceDescriptor> CreateSRV();
         std::shared_ptr<GpuResourceDescriptor> CreateRTV();
         std::shared_ptr<GpuResourceDescriptor> CreateUAV();
+
+        Color GetClearColor() const { return m_ClearColor; }
 
     protected:
 

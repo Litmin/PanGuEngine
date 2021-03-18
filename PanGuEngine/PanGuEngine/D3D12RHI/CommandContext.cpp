@@ -57,7 +57,7 @@ namespace RHI
 		m_CurrentAllocator = CommandListManager::GetSingleton().GetQueue(m_Type).RequestAllocator();
 		m_CommandList->Reset(m_CurrentAllocator, nullptr);
 
-		// TODO:������Ⱦ״̬
+		// TODO:重置渲染状态
 	}
 
 	CommandContext& CommandContext::Begin(const std::wstring ID /*= L""*/)
@@ -80,7 +80,7 @@ namespace RHI
 
 		m_CommandList->Reset(m_CurrentAllocator, nullptr);
 
-		// TODO:��������һ����Ⱦ״̬
+		// TODO:重新设置一边渲染状态
 
 		return FenceValue;
 	}
@@ -99,7 +99,7 @@ namespace RHI
 		Queue.DiscardAllocator(FenceValue, m_CurrentAllocator);
 		m_CurrentAllocator = nullptr;
 
-		// �ͷŷ����Dynamic Descriptor
+		// 释放分配的Dynamic Descriptor
 		m_DynamicGPUDescriptorAllocator->ReleaseAllocations();
 
 		if (WaitForCompletion)
@@ -128,6 +128,163 @@ namespace RHI
 	DescriptorHeapAllocation CommandContext::AllocateDynamicGPUVisibleDescriptor(UINT Count /*= 1*/)
 	{
 		return m_DynamicGPUDescriptorAllocator->Allocate(Count);
+	}
+
+	// TODO:为什么要缓存起来，等到16个了以后再执行呢？？？
+	void CommandContext::TransitionResource(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate /*= false*/)
+	{
+		D3D12_RESOURCE_STATES OldState = Resource.m_UsageState;
+
+		// 限制Compute管线可以过度的状态
+		if (m_Type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
+		{
+			assert((OldState & VALID_COMPUTE_QUEUE_RESOURCE_STATES) == OldState);
+			assert((NewState & VALID_COMPUTE_QUEUE_RESOURCE_STATES) == NewState);
+		}
+
+		if (OldState != NewState)
+		{
+			assert(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers");
+			D3D12_RESOURCE_BARRIER& BarrierDesc = m_ResourceBarrierBuffer[m_NumBarriersToFlush++];
+
+			BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			BarrierDesc.Transition.pResource = Resource.GetResource();
+			BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			BarrierDesc.Transition.StateBefore = OldState;
+			BarrierDesc.Transition.StateAfter = NewState;
+
+			// Check to see if we already started the transition
+			if (NewState == Resource.m_TransitioningState)
+			{
+				BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
+				Resource.m_TransitioningState = (D3D12_RESOURCE_STATES)-1;
+			}
+			else
+				BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+
+			Resource.m_UsageState = NewState;
+		}
+
+		if (FlushImmediate || m_NumBarriersToFlush == 16)
+			FlushResourceBarriers();
+	}
+
+	void CommandContext::BeginResourceTransition(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate /*= false*/)
+	{
+		// If it's already transitioning, finish that transition
+		if (Resource.m_TransitioningState != (D3D12_RESOURCE_STATES)-1)
+			TransitionResource(Resource, Resource.m_TransitioningState);
+
+		D3D12_RESOURCE_STATES OldState = Resource.m_UsageState;
+
+		if (OldState != NewState)
+		{
+			assert(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers");
+			D3D12_RESOURCE_BARRIER& BarrierDesc = m_ResourceBarrierBuffer[m_NumBarriersToFlush++];
+
+			BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			BarrierDesc.Transition.pResource = Resource.GetResource();
+			BarrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			BarrierDesc.Transition.StateBefore = OldState;
+			BarrierDesc.Transition.StateAfter = NewState;
+
+			BarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY;
+
+			Resource.m_TransitioningState = NewState;
+		}
+
+		if (FlushImmediate || m_NumBarriersToFlush == 16)
+			FlushResourceBarriers();
+	}
+
+	void CommandContext::FlushResourceBarriers(void)
+	{
+
+	}
+
+	// TODO: Remove dynamic_cast
+	void GraphicsContext::ClearColor(GpuResourceDescriptor& RTV, D3D12_RECT* Rect /*= nullptr*/)
+	{
+		FlushResourceBarriers();
+
+		const GpuResource* resource = RTV.GetResource();
+		const GpuRenderTextureColor* rt = dynamic_cast<const GpuRenderTextureColor*>(resource);
+		if(rt != nullptr)
+			m_CommandList->ClearRenderTargetView(RTV.GetCpuHandle(), rt->GetClearColor().GetPtr(), (Rect == nullptr) ? 0 : 1, Rect);
+	}
+
+	void GraphicsContext::ClearColor(GpuResourceDescriptor& RTV, Color Colour, D3D12_RECT* Rect /*= nullptr*/)
+	{
+		FlushResourceBarriers();
+
+		const GpuResource* resource = RTV.GetResource();
+		const GpuRenderTextureColor* rt = dynamic_cast<const GpuRenderTextureColor*>(resource);
+		if (rt != nullptr)
+			m_CommandList->ClearRenderTargetView(RTV.GetCpuHandle(), Colour.GetPtr(), (Rect == nullptr) ? 0 : 1, Rect);
+	}
+
+	void GraphicsContext::ClearDepth(GpuResourceDescriptor& DSV)
+	{
+		FlushResourceBarriers();
+
+		const GpuResource* resource = DSV.GetResource();
+		const GpuRenderTextureDepth* depth = dynamic_cast<const GpuRenderTextureDepth*>(resource);
+		if(depth != nullptr)
+			m_CommandList->ClearDepthStencilView(DSV.GetCpuHandle(), D3D12_CLEAR_FLAG_DEPTH, depth->GetClearDepth(), depth->GetClearStencil(), 0, nullptr);
+	}
+
+	void GraphicsContext::ClearStencil(GpuResourceDescriptor& DSV)
+	{
+		FlushResourceBarriers();
+
+		const GpuResource* resource = DSV.GetResource();
+		const GpuRenderTextureDepth* depth = dynamic_cast<const GpuRenderTextureDepth*>(resource);
+		if (depth != nullptr)
+			m_CommandList->ClearDepthStencilView(DSV.GetCpuHandle(), D3D12_CLEAR_FLAG_STENCIL, depth->GetClearDepth(), depth->GetClearStencil(), 0, nullptr);
+	}
+
+	void GraphicsContext::ClearDepthAndStencil(GpuResourceDescriptor& DSV)
+	{
+		FlushResourceBarriers();
+
+		const GpuResource* resource = DSV.GetResource();
+		const GpuRenderTextureDepth* depth = dynamic_cast<const GpuRenderTextureDepth*>(resource);
+		if (depth != nullptr)
+			m_CommandList->ClearDepthStencilView(DSV.GetCpuHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL , depth->GetClearDepth(), depth->GetClearStencil(), 0, nullptr);
+	}
+
+	void GraphicsContext::SetVertexBuffer(UINT Slot, const D3D12_VERTEX_BUFFER_VIEW& VBView)
+	{
+		m_CommandList->IASetVertexBuffers(Slot, 1, &VBView);
+	}
+
+	void GraphicsContext::SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& IBView)
+	{
+		m_CommandList->IASetIndexBuffer(&IBView);
+	}
+
+	void GraphicsContext::Draw(UINT VertexCount, UINT VertexStartOffset /*= 0*/)
+	{
+		DrawInstanced(VertexCount, 1, VertexStartOffset, 0);
+	}
+
+	void GraphicsContext::DrawIndexed(UINT IndexCount, UINT StartIndexLocation /*= 0*/, INT BaseVertexLocation /*= 0*/)
+	{
+		DrawIndexedInstanced(IndexCount, 1, StartIndexLocation, BaseVertexLocation, 0);
+	}
+
+	void GraphicsContext::DrawInstanced(UINT VertexCountPerInstance, UINT InstanceCount, UINT StartVertexLocation /*= 0*/, UINT StartInstanceLocation /*= 0*/)
+	{
+		FlushResourceBarriers();
+
+		m_CommandList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
+	}
+
+	void GraphicsContext::DrawIndexedInstanced(UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation)
+	{
+		FlushResourceBarriers();
+
+		m_CommandList->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
 	}
 
 }

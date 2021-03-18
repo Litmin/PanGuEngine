@@ -5,7 +5,7 @@
 namespace RHI 
 {
     /**
-    * ±íÊ¾×ÊÔ´µÄDescriptor»òÕßRTV¡¢DSV£¬ËùÒÔÊÇÔÚCPUDescriptorHeapÖĞ·ÖÅäµÄ
+    * è¡¨ç¤ºèµ„æºçš„Descriptoræˆ–è€…RTVã€DSVï¼Œæ‰€ä»¥æ˜¯åœ¨CPUDescriptorHeapä¸­åˆ†é…çš„
     */
     class GpuResourceDescriptor
     {
@@ -16,11 +16,13 @@ namespace RHI
         D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const;
         D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const;
 
+        const GpuResource* GetResource() const { return m_Resource.get(); }
+
 		bool   IsNull()                 const { return m_Allocation.IsNull(); }
 		bool   IsShaderVisible()        const { return m_Allocation.IsShaderVisible(); }
 
     protected:
-        // ¶Ô×ÊÔ´ÓµÓĞËùÓĞÈ¨£¬GpuResourceView´æÔÚÊ±±£Ö¤×ÊÔ´²»±»ÊÍ·Å
+        // å¯¹èµ„æºæ‹¥æœ‰æ‰€æœ‰æƒï¼ŒGpuResourceViewå­˜åœ¨æ—¶ä¿è¯èµ„æºä¸è¢«é‡Šæ”¾
         std::shared_ptr<GpuResource> m_Resource;
 
         DescriptorHeapAllocation m_Allocation;

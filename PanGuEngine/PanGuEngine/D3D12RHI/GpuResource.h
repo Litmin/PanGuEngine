@@ -5,18 +5,21 @@ namespace RHI
     class RenderDevice;
 
     /**
-    * GPUÉÏËùÓĞ×ÊÔ´µÄ»ùÀà
-    * GPU×ÊÔ´°üÀ¨£º
-    *   GpuBuffer£ºStructuredBuffer¡¢ByteAddressBuffer¡¢IndirectArgsBuffer¡¢ReadbackBuffer¡¢TypedBuffer
-    *   PixelBuffer£ºColorBuffer¡¢DepthBuffer
+    * GPUä¸Šæ‰€æœ‰èµ„æºçš„åŸºç±»
+    * GPUèµ„æºåŒ…æ‹¬ï¼š
+    *   GpuBufferï¼šStructuredBufferã€ByteAddressBufferã€IndirectArgsBufferã€ReadbackBufferã€TypedBuffer
+    *   PixelBufferï¼šColorBufferã€DepthBuffer
     *   UploadBuffer
-    *   Texture£º
-    * GpuResource¼Ì³Ğenable_shared_from_this£¬ÒòÎªÔÚÄÚ²¿»á´´½¨GpuResourceView£¬GpuResourceView»áÓµÓĞGpuResourceµÄËùÓĞÈ¨£¬À´±£Ö¤Ê¹ÓÃGpuResourceViewÊ±£¬GpuResource²»±»ÊÍ·Å
+    *   Textureï¼š
+    * GpuResourceç»§æ‰¿enable_shared_from_thisï¼Œå› ä¸ºåœ¨å†…éƒ¨ä¼šåˆ›å»ºGpuResourceViewï¼ŒGpuResourceViewä¼šæ‹¥æœ‰GpuResourceçš„æ‰€æœ‰æƒï¼Œæ¥ä¿è¯ä½¿ç”¨GpuResourceViewæ—¶ï¼ŒGpuResourceä¸è¢«é‡Šæ”¾
     */
     class GpuResource : public std::enable_shared_from_this<GpuResource>
     {
-    public:
+        friend class CommandContext;
+        friend class GraphicsContext;
+        friend class ComputeContext;
 
+    public:
         virtual ~GpuResource();
 
         void SetName(const std::wstring& name) { m_pResource->SetName(name.c_str()); }
@@ -25,7 +28,6 @@ namespace RHI
 		const ID3D12Resource* GetResource() const { return m_pResource.Get(); }
 
     protected:
-
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_pResource;
 		D3D12_RESOURCE_STATES m_UsageState;
 		D3D12_RESOURCE_STATES m_TransitioningState = (D3D12_RESOURCE_STATES)-1;
