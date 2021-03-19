@@ -91,7 +91,15 @@ namespace RHI
 		DescriptorHeapAllocation AllocateDynamicGPUVisibleDescriptor(UINT Count = 1);
 
 
-		// Resource Barrier TODO: UAVBarrier
+		/* Resource Barrier TODO: UAVBarrier
+		* GpuResource有两个成员：m_UsageState、m_TransitioningState，
+		* m_UsageState:表示资源当前的状态，调用TransitionResource，会使用m_UsageState检查资源的当前状态和过度之后的状态，如果不相等才提交Resource Barrier
+		* m_TransitioningState:表示资源正在过度的状态，用在Split Barrier，标记资源已经进行了Begin Barrier
+		* BeginResourceTransition使用Split Barrier来优化性能
+		* https://docs.microsoft.com/en-us/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12
+		* 文档中有说明：Applications should batch multiple transitions into one API call wherever possible.
+		* TODO: 所以这里尽量缓存到16个以后再一起执行(FlushResourceBarriers),还不清楚原因
+		*/
 		void TransitionResource(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate = false);
 		void BeginResourceTransition(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate = false);
 		inline void FlushResourceBarriers(void);

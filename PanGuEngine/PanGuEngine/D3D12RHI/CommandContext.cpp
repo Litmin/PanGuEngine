@@ -130,7 +130,6 @@ namespace RHI
 		return m_DynamicGPUDescriptorAllocator->Allocate(Count);
 	}
 
-	// TODO:为什么要缓存起来，等到16个了以后再执行呢？？？
 	void CommandContext::TransitionResource(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate /*= false*/)
 	{
 		D3D12_RESOURCE_STATES OldState = Resource.m_UsageState;
@@ -169,6 +168,7 @@ namespace RHI
 			FlushResourceBarriers();
 	}
 
+	// 使用Split Barrier来优化性能
 	void CommandContext::BeginResourceTransition(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate /*= false*/)
 	{
 		// If it's already transitioning, finish that transition
@@ -197,9 +197,16 @@ namespace RHI
 			FlushResourceBarriers();
 	}
 
+	// https://docs.microsoft.com/en-us/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12
+	// 文档中有说明：Applications should batch multiple transitions into one API call wherever possible. 
+	// TODO: 所以这里尽量缓存到16个以后再一起执行,还不清楚原因
 	void CommandContext::FlushResourceBarriers(void)
 	{
-
+		if (m_NumBarriersToFlush > 0)
+		{
+			m_CommandList->ResourceBarrier(m_NumBarriersToFlush, m_ResourceBarrierBuffer);
+			m_NumBarriersToFlush = 0;
+		}
 	}
 
 	// TODO: Remove dynamic_cast
