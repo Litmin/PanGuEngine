@@ -13,15 +13,15 @@ namespace RHI
 		RenderDevice(Microsoft::WRL::ComPtr<ID3D12Device> d3d12Device);
 		~RenderDevice();
 
-		// ´´½¨×ÊÔ´
+		// åˆ›å»ºèµ„æº
 
 
-		// ÔÚCPU Descriptor HeapÖĞ·ÖÅä×ÊÔ´µÄDescriptor
+		// åœ¨CPU Descriptor Heapä¸­åˆ†é…èµ„æºçš„Descriptor
 		DescriptorHeapAllocation AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
-		// °Ñ×ÊÔ´°ó¶¨µ½ShaderÊ±£¬ÔÚGPU Descriptor HeapÖĞ·ÖÅäDescriptor
+		// æŠŠèµ„æºç»‘å®šåˆ°Shaderæ—¶ï¼Œåœ¨GPU Descriptor Heapä¸­åˆ†é…Descriptor
 		DescriptorHeapAllocation AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);
 
-		// °²È«ÊÍ·ÅGPU¶ÔÏó£¬µ±GPU²»ÔÙÊ¹ÓÃÕâ¸ö¶ÔÏóÊ±²ÅÕæÕıÊÍ·ÅËü£¬´«ÈëµÄ¶ÔÏó±ØĞëÊµÏÖÒÆ¶¯²Ù×÷
+		// å®‰å…¨é‡Šæ”¾GPUå¯¹è±¡ï¼Œå½“GPUä¸å†ä½¿ç”¨è¿™ä¸ªå¯¹è±¡æ—¶æ‰çœŸæ­£é‡Šæ”¾å®ƒï¼Œä¼ å…¥çš„å¯¹è±¡å¿…é¡»å®ç°ç§»åŠ¨æ“ä½œ
 		template <typename DeviceObjectType>
 		void SafeReleaseDeviceObject(DeviceObjectType&& object);
 
@@ -29,23 +29,25 @@ namespace RHI
 
 		ID3D12Device* GetD3D12Device() { return m_D3D12Device.Get(); }
 
+		GPUDescriptorHeap& GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type);
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Device> m_D3D12Device;
 
 		// Descriptor Heap
-		// ËÄ¸öCPUDescriptorHeap¶ÔÏó£¬¶ÔÓ¦DX12µÄËÄÖÖDescriptor HeapÀàĞÍ:CBV_SRV_UAV,Sampler,RTV,DSV
-		// Ã¿¸ö¶ÔÏó¿ÉÄÜÓĞ¶à¸öDX12 Descriptor Heap
+		// å››ä¸ªCPUDescriptorHeapå¯¹è±¡ï¼Œå¯¹åº”DX12çš„å››ç§Descriptor Heapç±»å‹:CBV_SRV_UAV,Sampler,RTV,DSV
+		// æ¯ä¸ªå¯¹è±¡å¯èƒ½æœ‰å¤šä¸ªDX12 Descriptor Heap
 		CPUDescriptorHeap m_CPUDescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
-		// Á½¸öGPUDescriptorHeap¶ÔÏó£¬ÒòÎªÖ»ÓĞCBV_SRV_UAV,Sampler¿ÉÒÔ¶ÔGPU¿É¼û£¬
-		// Ã¿¸öGPUDescriptorHeap¶ÔÏóÖ»»á´´½¨Ò»¸öDX12 Descriptor Heap£¬ÒòÎªÇĞ»»Descriptor Heap·Ç³£°º¹ó
-		// ´´½¨×ÊÔ´Ê±£¬Ã¿¸ö×ÊÔ´µÄDescriptor±£´æÔÚCPUDescriptorHeapÖĞ£¬ÔÚ»æÖÆÃüÁîÖ´ĞĞÇ°£¬»á¿½±´µ½GPUDescriptorHeap
+		// ä¸¤ä¸ªGPUDescriptorHeapå¯¹è±¡ï¼Œå› ä¸ºåªæœ‰CBV_SRV_UAV,Samplerå¯ä»¥å¯¹GPUå¯è§ï¼Œ
+		// æ¯ä¸ªGPUDescriptorHeapå¯¹è±¡åªä¼šåˆ›å»ºä¸€ä¸ªDX12 Descriptor Heapï¼Œå› ä¸ºåˆ‡æ¢Descriptor Heapéå¸¸æ˜‚è´µ
+		// åˆ›å»ºèµ„æºæ—¶ï¼Œæ¯ä¸ªèµ„æºçš„Descriptorä¿å­˜åœ¨CPUDescriptorHeapä¸­ï¼Œåœ¨ç»˜åˆ¶å‘½ä»¤æ‰§è¡Œå‰ï¼Œä¼šæ‹·è´åˆ°GPUDescriptorHeap
 		GPUDescriptorHeap m_GPUDescriptorHeaps[2];
 
 
-		// ¸ºÔğÊÍ·Å×ÊÔ´µÄ¶ÓÁĞ
-		// µ÷ÓÃSafeReleaseDeviceObjectÊÍ·Å×ÊÔ´Ê±£¬»á°Ñ¸Ã×ÊÔ´Ìí¼Óµ½m_StaleResourcesÖĞ£¬
-		// µ±Ìá½»Ò»¸öCommandListÊ±£¬»á°ÑÏÂÒ»¸öCommandListµÄ±àºÅºÍm_StaleResourcesÖĞµÄ×ÊÔ´Ìí¼Óµ½m_ReleaseQueueÖĞ£¬
-		// ÔÚÃ¿Ö¡µÄÄ©Î²£¬µ÷ÓÃPurgeReleaseQueueÀ´ÊÍ·Å¿ÉÒÔ°²È«ÊÍ·ÅµÄ×ÊÔ´£¨Ò²¾ÍÊÇ¼ÇÂ¼µÄCmd±àºÅ±ÈGPUÒÑ¾­Íê³ÉµÄCmdListÊıÁ¿Ğ¡µÄËùÓĞ×ÊÔ´£©
+		// è´Ÿè´£é‡Šæ”¾èµ„æºçš„é˜Ÿåˆ—
+		// è°ƒç”¨SafeReleaseDeviceObjecté‡Šæ”¾èµ„æºæ—¶ï¼Œä¼šæŠŠè¯¥èµ„æºæ·»åŠ åˆ°m_StaleResourcesä¸­ï¼Œ
+		// å½“æäº¤ä¸€ä¸ªCommandListæ—¶ï¼Œä¼šæŠŠä¸‹ä¸€ä¸ªCommandListçš„ç¼–å·å’Œm_StaleResourcesä¸­çš„èµ„æºæ·»åŠ åˆ°m_ReleaseQueueä¸­ï¼Œ
+		// åœ¨æ¯å¸§çš„æœ«å°¾ï¼Œè°ƒç”¨PurgeReleaseQueueæ¥é‡Šæ”¾å¯ä»¥å®‰å…¨é‡Šæ”¾çš„èµ„æºï¼ˆä¹Ÿå°±æ˜¯è®°å½•çš„Cmdç¼–å·æ¯”GPUå·²ç»å®Œæˆçš„CmdListæ•°é‡å°çš„æ‰€æœ‰èµ„æºï¼‰
 		using ReleaseQueueElementType = std::pair<UINT64, StaleResourceWrapper>;
 		std::deque<ReleaseQueueElementType> m_ReleaseQueue;
 		std::deque<ReleaseQueueElementType> m_StaleResources;

@@ -2,6 +2,7 @@
 #include "CommandContext.h"
 #include "CommandListManager.h"
 #include "CommandQueue.h"
+#include "RenderDevice.h"
 
 namespace RHI
 {
@@ -40,7 +41,8 @@ namespace RHI
 		m_Type(Type),
 		m_CommandList(nullptr),
 		m_CurrentAllocator(nullptr),
-		m_NumBarriersToFlush(0)
+		m_NumBarriersToFlush(0),
+		m_DynamicGPUDescriptorAllocator(RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV), 128, "DynamicGPUDescriptorMgr")
 	{
 
 	}
@@ -207,6 +209,16 @@ namespace RHI
 			m_CommandList->ResourceBarrier(m_NumBarriersToFlush, m_ResourceBarrierBuffer);
 			m_NumBarriersToFlush = 0;
 		}
+	}
+
+	void CommandContext::SetPipelineState(PipelineState* PSO)
+	{
+		// 绑定PSO
+		m_CommandList->SetPipelineState(PSO->GetD3D12PipelineState());
+
+		// 提交Static资源
+
+
 	}
 
 	// TODO: Remove dynamic_cast

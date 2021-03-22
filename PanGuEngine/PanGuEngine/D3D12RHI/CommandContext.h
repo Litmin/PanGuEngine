@@ -106,7 +106,7 @@ namespace RHI
 
 
 		// 渲染状态和资源绑定
-		void SetPipelineState();
+		void SetPipelineState(PipelineState* PSO);
 
 
 	protected:
@@ -122,7 +122,7 @@ namespace RHI
 		UINT m_NumBarriersToFlush;
 
 		// Dynamic Descriptor
-		DynamicSuballocationsManager* m_DynamicGPUDescriptorAllocator;
+		DynamicSuballocationsManager m_DynamicGPUDescriptorAllocator;
 
 		// Dynamic Constant Buffer
 
