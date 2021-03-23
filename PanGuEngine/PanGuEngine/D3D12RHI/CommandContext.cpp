@@ -3,11 +3,12 @@
 #include "CommandListManager.h"
 #include "CommandQueue.h"
 #include "RenderDevice.h"
+#include "GpuBuffer.h"
 
 namespace RHI
 {
 
-	RHI::CommandContext* ContextManager::AllocateContext(D3D12_COMMAND_LIST_TYPE Type)
+	CommandContext* ContextManager::AllocateContext(D3D12_COMMAND_LIST_TYPE Type)
 	{
 		auto& AvailableContexts = m_AvailableContexts[Type];
 
@@ -42,7 +43,7 @@ namespace RHI
 		m_CommandList(nullptr),
 		m_CurrentAllocator(nullptr),
 		m_NumBarriersToFlush(0),
-		m_DynamicGPUDescriptorAllocator(RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV), 128, "DynamicGPUDescriptorMgr")
+		m_DynamicGPUDescriptorAllocator(RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV), 128, "DynamicDescriptorMgr")
 	{
 
 	}
@@ -101,8 +102,10 @@ namespace RHI
 		Queue.DiscardAllocator(FenceValue, m_CurrentAllocator);
 		m_CurrentAllocator = nullptr;
 
+
 		// 释放分配的Dynamic Descriptor
-		m_DynamicGPUDescriptorAllocator->ReleaseAllocations();
+		m_DynamicGPUDescriptorAllocator.ReleaseAllocations();
+
 
 		if (WaitForCompletion)
 			CommandListManager::GetSingleton().WaitForFence(FenceValue, m_Type);
@@ -114,12 +117,34 @@ namespace RHI
 
 	void CommandContext::InitializeBuffer(GpuBuffer& Dest, const void* Data, size_t NumBytes, size_t DestOffset /*= 0*/)
 	{
+		CommandContext& InitContext = CommandContext::Begin();
 
+		// Copy到UploadBuffer
+		UploadBuffer uploadBuffer(1, NumBytes);
+		void* dataPtr = uploadBuffer.Map();
+		memcpy(dataPtr, Data, NumBytes);
+		
+		InitContext.TransitionResource(Dest, D3D12_RESOURCE_STATE_COPY_DEST, true);
+		InitContext.m_CommandList->CopyBufferRegion(Dest.GetResource(), DestOffset, uploadBuffer.GetResource(), 0, NumBytes);
+		InitContext.TransitionResource(Dest, D3D12_RESOURCE_STATE_GENERIC_READ, true);
+
+		// Execute the command list and wait for it to finish so we can release the upload buffer
+		InitContext.Finish(true);
 	}
 
 	void CommandContext::InitializeBuffer(GpuBuffer& Dest, const UploadBuffer& Src, size_t SrcOffset, size_t NumBytes /*= -1*/, size_t DestOffset /*= 0*/)
 	{
+		CommandContext& InitContext = CommandContext::Begin();
 
+		size_t MaxBytes = std::min<size_t>(Dest.GetBufferSize() - DestOffset, Src.GetBufferSize() - SrcOffset);
+		NumBytes = std::min<size_t>(MaxBytes, NumBytes);
+
+		InitContext.TransitionResource(Dest, D3D12_RESOURCE_STATE_COPY_DEST, true);
+		InitContext.m_CommandList->CopyBufferRegion(Dest.GetResource(), DestOffset, (ID3D12Resource*)Src.GetResource(), SrcOffset, NumBytes);
+		InitContext.TransitionResource(Dest, D3D12_RESOURCE_STATE_GENERIC_READ, true);
+
+		// Execute the command list and wait for it to finish so we can release the upload buffer
+		InitContext.Finish(true);
 	}
 
 	void CommandContext::InitializeTexture(GpuResource& Dest, UINT NumSubresources, D3D12_SUBRESOURCE_DATA SubData[])
@@ -129,7 +154,7 @@ namespace RHI
 
 	DescriptorHeapAllocation CommandContext::AllocateDynamicGPUVisibleDescriptor(UINT Count /*= 1*/)
 	{
-		return m_DynamicGPUDescriptorAllocator->Allocate(Count);
+		return m_DynamicGPUDescriptorAllocator.Allocate(Count);
 	}
 
 	void CommandContext::TransitionResource(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate /*= false*/)
@@ -213,12 +238,13 @@ namespace RHI
 
 	void CommandContext::SetPipelineState(PipelineState* PSO)
 	{
+		assert(PSO != nullptr);
+
 		// 绑定PSO
 		m_CommandList->SetPipelineState(PSO->GetD3D12PipelineState());
 
 		// 提交Static资源
-
-
+		PSO->CommitStaticShaderResource();
 	}
 
 	// TODO: Remove dynamic_cast

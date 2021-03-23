@@ -1,23 +1,22 @@
 #pragma once
 #include "ShaderResourceLayout.h"
 #include "ShaderResourceCache.h"
-#include "IShaderResource.h"
 #include "GpuBuffer.h"
-#include "GpuResourceView.h"
+#include "GpuResourceDescriptor.h"
 
 namespace RHI 
 {
     class ShaderVariable;
 
     /*
-    * ShaderVariableCollection³ÖÓĞÌØ¶¨ÀàĞÍµÄShaderVariableÁĞ±í¡£
-    * PipelineStateÊ¹ÓÃManagerÀ´¹ÜÀíStatic×ÊÔ´£¬ShaderResourceBindingÊ¹ÓÃManagerÀ´¹ÜÀíMutableºÍDynamic×ÊÔ´
-    * °ÑShaderResourceLayoutºÍShaderResourceCache¹ØÁªÁËÆğÀ´£¡£¡£¡
+    * ShaderVariableCollectionæŒæœ‰ç‰¹å®šç±»å‹çš„ShaderVariableåˆ—è¡¨ã€‚
+    * PipelineStateä½¿ç”¨Manageræ¥ç®¡ç†Staticèµ„æºï¼ŒShaderResourceBindingä½¿ç”¨Manageræ¥ç®¡ç†Mutableå’ŒDynamicèµ„æº
+    * æŠŠShaderResourceLayoutå’ŒShaderResourceCacheå…³è”äº†èµ·æ¥ï¼ï¼ï¼
     */
     class ShaderVariableCollection
     {
     public:
-        // ÎªShaderResourceLayoutÖĞµÄÃ¿¸öShader×ÊÔ´´´½¨Ò»¸öShaderVariable
+        // ä¸ºShaderResourceLayoutä¸­çš„æ¯ä¸ªShaderèµ„æºåˆ›å»ºä¸€ä¸ªShaderVariable
         ShaderVariableCollection(ShaderResourceCache& resourceCache,
                               const ShaderResourceLayout& srcLayout,
                               const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
@@ -57,7 +56,7 @@ namespace RHI
     };
 
     /**
-    * ±íÊ¾ShaderÖĞµÄÒ»¸ö±äÁ¿£¬Íâ²¿¿ÉÒÔÍ¨¹ıÕâ¸ö±äÁ¿°ó¶¨×ÊÔ´(Ò»¸ö³£Á¿»òÕßÒ»ÕÅÌùÍ¼)
+    * è¡¨ç¤ºShaderä¸­çš„ä¸€ä¸ªå˜é‡ï¼Œå¤–éƒ¨å¯ä»¥é€šè¿‡è¿™ä¸ªå˜é‡ç»‘å®šèµ„æº(ä¸€ä¸ªå¸¸é‡æˆ–è€…ä¸€å¼ è´´å›¾)
     */
     class ShaderVariable
     {
@@ -74,24 +73,24 @@ namespace RHI
         ShaderVariable& operator=(const ShaderVariable&) = delete;
         ShaderVariable& operator=(ShaderVariable&&) = delete;
 
-        /*  Ö»ÓĞCBVºÍÆäËûBufferµÄSRV/UAV¿ÉÒÔ×÷ÎªRoot Descriptor°ó¶¨£¬ÒòÎªµ÷ÓÃID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView()º¯ÊıÊ±£¬
-        *   ÊÇ²»Ö¸¶¨BufferµÄ´óĞ¡µÄ£¬BufferµÄ´óĞ¡ÓÉShaderÈ·¶¨£¬ÒòÎªTextureÊÇĞèÒªºÜ¶àĞÅÏ¢À´ÃèÊöµÄ£¬ËùÒÔÖ»Ìá¹©Ò»¸öµØÖ·ÊÇ²»¹»µÄ
-        *   BufferÖ±½Ó°ó¶¨µ½Root DescriptorÊ±²»´æÔÚÊı×éµÄÇé¿ö
-        *   Ä¿Ç°Ö»ÓĞCBVÊÇ×÷ÎªRoot Descriptor°ó¶¨µÄ
-        *   Ò»¸öÊı×éÒ²ÓÃÒ»¸öShaderVariable±íÊ¾£¬ÏòÊı×éÖĞ°ó¶¨×ÊÔ´Ê±ĞèÒª´«ÔÚÊı×éÖĞµÄË÷Òı
+        /*  åªæœ‰CBVå’Œå…¶ä»–Bufferçš„SRV/UAVå¯ä»¥ä½œä¸ºRoot Descriptorç»‘å®šï¼Œå› ä¸ºè°ƒç”¨ID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView()å‡½æ•°æ—¶ï¼Œ
+        *   æ˜¯ä¸æŒ‡å®šBufferçš„å¤§å°çš„ï¼ŒBufferçš„å¤§å°ç”±Shaderç¡®å®šï¼Œå› ä¸ºTextureæ˜¯éœ€è¦å¾ˆå¤šä¿¡æ¯æ¥æè¿°çš„ï¼Œæ‰€ä»¥åªæä¾›ä¸€ä¸ªåœ°å€æ˜¯ä¸å¤Ÿçš„
+        *   Bufferç›´æ¥ç»‘å®šåˆ°Root Descriptoræ—¶ä¸å­˜åœ¨æ•°ç»„çš„æƒ…å†µ
+        *   ç›®å‰åªæœ‰CBVæ˜¯ä½œä¸ºRoot Descriptorç»‘å®šçš„
+        *   ä¸€ä¸ªæ•°ç»„ä¹Ÿç”¨ä¸€ä¸ªShaderVariableè¡¨ç¤ºï¼Œå‘æ•°ç»„ä¸­ç»‘å®šèµ„æºæ—¶éœ€è¦ä¼ åœ¨æ•°ç»„ä¸­çš„ç´¢å¼•
         */
         void Set(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex = 0)
         {
             m_Resource.BindResource(buffer, arrayIndex, m_ParentManager.m_ResourceCache);
         }
   
-        void Set(std::shared_ptr<GpuResourceView> view, UINT32 arrayIndex = 0)
+        void Set(std::shared_ptr<GpuResourceDescriptor> view, UINT32 arrayIndex = 0)
         {
 			m_Resource.BindResource(view, arrayIndex, m_ParentManager.m_ResourceCache);
         }
 
 
-        // ÊÇ·ñÒÑ¾­°ó¶¨
+        // æ˜¯å¦å·²ç»ç»‘å®š
         bool IsBound(UINT32 arrayIndex) const
         {
             return m_Resource.IsBound(arrayIndex, m_ParentManager.m_ResourceCache);

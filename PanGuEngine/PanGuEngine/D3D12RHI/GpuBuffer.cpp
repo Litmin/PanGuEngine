@@ -6,7 +6,8 @@
 namespace RHI
 {
 
-	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData)
+	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData, 
+						 D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState)
 	{
 		m_ElementCount = NumElements;
 		m_ElementSize = ElementSize;
@@ -18,7 +19,7 @@ namespace RHI
 		D3D12_RESOURCE_DESC ResourceDesc = DescribeBuffer();
 
 		D3D12_HEAP_PROPERTIES HeapProps;
-		HeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+		HeapProps.Type = heapType;
 		HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 		HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 		HeapProps.CreationNodeMask = 1;
@@ -31,12 +32,13 @@ namespace RHI
 
 		m_GpuVirtualAddress = m_pResource->GetGPUVirtualAddress();
 
-		// Èç¹ûÌá¹©ÁË³õÊ¼Êı¾İ¾Í»á°ÑÊı¾İÉÏ´«µ½Upload¶ÑÖĞ£¬È»ºóCopyµ½Buffer
+		// å¦‚æœæä¾›äº†åˆå§‹æ•°æ®å°±ä¼šæŠŠæ•°æ®ä¸Šä¼ åˆ°Uploadå †ä¸­ï¼Œç„¶åCopyåˆ°Buffer
 		if (initialData)
 			CommandContext::InitializeBuffer(*this, initialData, m_BufferSize);
 	}
 
-	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset)
+	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset, 
+						 D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState)
 	{
 		m_ElementCount = NumElements;
 		m_ElementSize = ElementSize;
@@ -48,7 +50,7 @@ namespace RHI
 		D3D12_RESOURCE_DESC ResourceDesc = DescribeBuffer();
 
 		D3D12_HEAP_PROPERTIES HeapProps;
-		HeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+		HeapProps.Type = heapType;
 		HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 		HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 		HeapProps.CreationNodeMask = 1;
@@ -65,7 +67,7 @@ namespace RHI
 	}
 
 
-	// Offset:ÆğÊ¼µØÖ·Æ«ÒÆ£¬Size£ºBufferµÄ´óĞ¡£¬Stride£ºÃ¿¸öElementµÄ´óĞ¡
+	// Offset:èµ·å§‹åœ°å€åç§»ï¼ŒSizeï¼šBufferçš„å¤§å°ï¼ŒStrideï¼šæ¯ä¸ªElementçš„å¤§å°
 	D3D12_VERTEX_BUFFER_VIEW GpuBuffer::CreateVBV(size_t Offset, uint32_t Size, uint32_t Stride) const
 	{
 		D3D12_VERTEX_BUFFER_VIEW VBView;
@@ -81,7 +83,7 @@ namespace RHI
 		return CreateVBV(Offset, (uint32_t)(m_BufferSize - Offset), m_ElementSize);
 	}
 
-	// Offset:ÆğÊ¼µØÖ·Æ«ÒÆ£¬ Size£ºBufferµÄ´óĞ¡£¬ b32Bit:¸ñÊ½ÊÇ32Î»»¹ÊÇ16Î»
+	// Offset:èµ·å§‹åœ°å€åç§»ï¼Œ Sizeï¼šBufferçš„å¤§å°ï¼Œ b32Bit:æ ¼å¼æ˜¯32ä½è¿˜æ˜¯16ä½
 	D3D12_INDEX_BUFFER_VIEW GpuBuffer::CreateIBV(size_t Offset, uint32_t Size, bool b32Bit) const
 	{
 		D3D12_INDEX_BUFFER_VIEW IBView;
@@ -97,27 +99,7 @@ namespace RHI
 		return CreateIBV(Offset, (uint32_t)(m_BufferSize - Offset), m_ElementSize == 4);
 	}
 
-	D3D12_RESOURCE_DESC GpuBuffer::DescribeBuffer()
-	{
-		assert(m_BufferSize != 0);
-
-		D3D12_RESOURCE_DESC Desc = {};
-		Desc.Alignment = 0;
-		Desc.DepthOrArraySize = 1;
-		Desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-		// BufferµÄFormatÊÇUnkown
-		Desc.Format = DXGI_FORMAT_UNKNOWN;
-		Desc.Height = 1;
-		Desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		Desc.MipLevels = 1;
-		Desc.SampleDesc.Count = 1;
-		Desc.SampleDesc.Quality = 0;
-		Desc.Width = (UINT64)m_BufferSize;
-		return Desc;
-	}
-
-	std::shared_ptr<GpuResourceDescriptor> GpuStructuredBuffer::CreateSRV()
+	std::shared_ptr<GpuResourceDescriptor> GpuBuffer::CreateSRV()
 	{
 		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
@@ -134,11 +116,11 @@ namespace RHI
 		return descriptor;
 	}
 
-	std::shared_ptr<GpuResourceDescriptor> GpuStructuredBuffer::CreateUAV()
+	std::shared_ptr<GpuResourceDescriptor> GpuBuffer::CreateUAV()
 	{
 		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-		// TODO: UAVĞèÒªÊµÏÖCounter Buffer
+		// TODO: UAVéœ€è¦å®ç°Counter Buffer
 // 		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
 // 		UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 // 		UAVDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -152,5 +134,24 @@ namespace RHI
 		return descriptor;
 	}
 
+	D3D12_RESOURCE_DESC GpuBuffer::DescribeBuffer()
+	{
+		assert(m_BufferSize != 0);
+
+		D3D12_RESOURCE_DESC Desc = {};
+		Desc.Alignment = 0;
+		Desc.DepthOrArraySize = 1;
+		Desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		// Bufferçš„Formatæ˜¯Unkown
+		Desc.Format = DXGI_FORMAT_UNKNOWN;
+		Desc.Height = 1;
+		Desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		Desc.MipLevels = 1;
+		Desc.SampleDesc.Count = 1;
+		Desc.SampleDesc.Quality = 0;
+		Desc.Width = (UINT64)m_BufferSize;
+		return Desc;
+	}
 }
 

@@ -182,7 +182,6 @@
     <ClCompile Include="D3D12RHI\SwapChain.cpp" />
     <ClCompile Include="D3D12RHI\Texture.cpp" />
     <ClCompile Include="D3D12RHI\TextureView.cpp" />
-    <ClCompile Include="D3D12RHI\UploadBuffer.cpp" />
     <ClCompile Include="D3D12RHI\VariableSizeAllocationsManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameTimer.cpp" />
@@ -257,7 +256,6 @@
     <ClInclude Include="D3D12RHI\SwapChain.h" />
     <ClInclude Include="D3D12RHI\Texture.h" />
     <ClInclude Include="D3D12RHI\TextureView.h" />
-    <ClInclude Include="D3D12RHI\UploadBuffer.h" />
     <ClInclude Include="D3D12RHI\VariableSizeAllocationsManager.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameTimer.h" />

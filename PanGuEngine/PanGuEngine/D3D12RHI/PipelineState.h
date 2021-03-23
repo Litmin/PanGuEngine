@@ -13,7 +13,7 @@ namespace RHI
 {
 	class RenderDevice;
 
-	// Graphic¹ÜÏß
+	// Graphicç®¡çº¿
 	struct GraphicsPipelineDesc
 	{
 		std::shared_ptr<Shader> VertexShader;
@@ -31,7 +31,7 @@ namespace RHI
 		std::shared_ptr<RenderPass> pRenderPass;
 	};
 
-	// Compute¹ÜÏß
+	// Computeç®¡çº¿
 	struct ComputePipelineDesc
 	{
 		Shader* ComputeShader;
@@ -44,7 +44,7 @@ namespace RHI
 		SHADER_RESOURCE_VARIABLE_TYPE Type;
 	};
 
-	// ÃèÊö¸ÃPSOÖĞShaderVariableTypeµÄÅäÖÃ£¬ÉÏ²ã¿ÉÒÔÖ¸¶¨ShaderVariableµÄÀàĞÍ£¬Ã»ÓĞÖ¸¶¨µÄ¾ÍÊÇDefaultVariableType
+	// æè¿°è¯¥PSOä¸­ShaderVariableTypeçš„é…ç½®ï¼Œä¸Šå±‚å¯ä»¥æŒ‡å®šShaderVariableçš„ç±»å‹ï¼Œæ²¡æœ‰æŒ‡å®šçš„å°±æ˜¯DefaultVariableType
 	struct ShaderVariableConfig
 	{
 		SHADER_RESOURCE_VARIABLE_TYPE DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
@@ -66,10 +66,12 @@ namespace RHI
 	};
 
 	/*
-	* °üº¬ÁË¹ÜÏßÖĞµÄËùÓĞ×´Ì¬
+	* åŒ…å«äº†ç®¡çº¿ä¸­çš„æ‰€æœ‰çŠ¶æ€
 	*/
 	class PipelineState
 	{
+		friend class CommandContext;
+
 	public:
 		PipelineState(RenderDevice* renderDevice,
 					  const PipelineStateDesc& desc);
@@ -81,13 +83,13 @@ namespace RHI
 		ShaderVariable* GetStaticVariableByName(SHADER_TYPE shaderType, std::string name);
 		ShaderVariable* GetStaticVariableByIndex(SHADER_TYPE shaderType, UINT32 index);
 
-		// ´´½¨SRB,Ó¦ÓÃ³ÌĞòÍ¨¹ıSRB°ó¶¨MutableºÍDynamic×ÊÔ´,SRB¶ÔÏóÓÉPSOËùÓĞ
+		// åˆ›å»ºSRB,åº”ç”¨ç¨‹åºé€šè¿‡SRBç»‘å®šMutableå’ŒDynamicèµ„æº,SRBå¯¹è±¡ç”±PSOæ‰€æœ‰
 		ShaderResourceBinding* CreateShaderResourceBinding();
 
 		void CommitShaderResource(ShaderResourceBinding* SRB);
 
 		/*
-		 * ±éÀúShader£¬Ö´ĞĞ²Ù×÷
+		 * éå†Shaderï¼Œæ‰§è¡Œæ“ä½œ
 		 */
 		template<typename TOperation>
 		void ProcessShaders(TOperation Operation) const
@@ -104,17 +106,20 @@ namespace RHI
 		RenderDevice* GetRenderDevice() const { return m_RenderDevice; }
 
 	private:
+		// æäº¤Staticèµ„æº
+		void CommitStaticShaderResource();
+
 		RenderDevice* m_RenderDevice;
 		PipelineStateDesc m_Desc;
 
-		// ×ÊÔ´°ó¶¨ÏµÍ³
+		// èµ„æºç»‘å®šç³»ç»Ÿ
 		RootSignature m_RootSignature;
-		// Ê¹ÓÃshared_ptr,Ò»¸öShader¿ÉÄÜ±»¶à¸öPSO¹²ÓÃ
+		// ä½¿ç”¨shared_ptr,ä¸€ä¸ªShaderå¯èƒ½è¢«å¤šä¸ªPSOå…±ç”¨
 		std::unordered_map<SHADER_TYPE, std::shared_ptr<Shader>> m_Shaders;
 		std::unordered_map<SHADER_TYPE, ShaderResourceLayout> m_ShaderResourceLayouts;
-		// ´æ´¢ËùÓĞStatic×ÊÔ´£¬ÔÚÇĞ»»PSOÊ±£¬Ìá½»Static×ÊÔ´
+		// å­˜å‚¨æ‰€æœ‰Staticèµ„æºï¼Œåœ¨åˆ‡æ¢PSOæ—¶ï¼Œæäº¤Staticèµ„æº
 		std::unique_ptr<ShaderResourceBinding> m_StaticSRB;
-		// Ïàµ±ÓÚMaterial
+		// ç›¸å½“äºMaterial
 		std::vector<ShaderResourceBinding> m_MutableDynamicSRBs;
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;

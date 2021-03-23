@@ -1,10 +1,11 @@
 #pragma once
 #include "CommandQueue.h"
+#include "DescriptorHeap.h"
 
 namespace RHI 
 {
     /**
-    * µ¥ÀıÀà£¬³ÖÓĞÈı¸öCommandQueue£ºGraphic¡¢Compute¡¢Copy£¬¶ÔÓ¦GPUÖĞµÄÈıÖÖ¿ÉÒÔ²¢ĞĞµÄ¹ÜÏß
+    * å•ä¾‹ç±»ï¼ŒæŒæœ‰ä¸‰ä¸ªCommandQueueï¼šGraphicã€Computeã€Copyï¼Œå¯¹åº”GPUä¸­çš„ä¸‰ç§å¯ä»¥å¹¶è¡Œçš„ç®¡çº¿
     */
     class CommandListManager : public Singleton<CommandListManager>
     {
@@ -51,7 +52,6 @@ namespace RHI
 		}
 
     private:
-
         ID3D12Device* m_Device;
 
         CommandQueue m_GraphicsQueue;

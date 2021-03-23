@@ -9,16 +9,18 @@ namespace RHI
     class GpuResourceDescriptor;
 
     /**
-    * 
+    * Default: GPUè¯»å†™  Upload: CPUå†™ GPUè¯»
     */
     class GpuBuffer : public GpuResource
     {
     public:
 
-        // ´´½¨Ò»¸öBuffer£¬Èç¹ûÌá¹©ÁË³õÊ¼Êı¾İ¾Í»á°ÑÊı¾İÉÏ´«µ½Upload¶ÑÖĞ£¬È»ºóCopyµ½Buffer
-        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData);
+        // åˆ›å»ºä¸€ä¸ªBufferï¼Œå¦‚æœæä¾›äº†åˆå§‹æ•°æ®å°±ä¼šæŠŠæ•°æ®ä¸Šä¼ åˆ°Uploadå †ä¸­ï¼Œç„¶åCopyåˆ°Buffer
+        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData, 
+                  D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState);
 
-        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset);
+        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset, 
+                  D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState);
 
         // Descriptor
 		D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return m_GpuVirtualAddress; }
@@ -30,8 +32,8 @@ namespace RHI
         D3D12_INDEX_BUFFER_VIEW CreateIBV(size_t StartIndex = 0) const;
 
 
-        virtual std::shared_ptr<GpuResourceDescriptor> CreateSRV() = 0;
-        virtual std::shared_ptr<GpuResourceDescriptor> CreateUAV() = 0;
+        virtual std::shared_ptr<GpuResourceDescriptor> CreateSRV();
+        virtual std::shared_ptr<GpuResourceDescriptor> CreateUAV();
 
         UINT64 GetBufferSize() const { return m_BufferSize; }
         UINT32 GetElementCount() const { return m_ElementCount; }
@@ -42,7 +44,7 @@ namespace RHI
 		D3D12_RESOURCE_DESC DescribeBuffer();
 
 
-        // BufferµÄGPUµØÖ·
+        // Bufferçš„GPUåœ°å€
 		D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress;
 
 		UINT64 m_BufferSize;
@@ -50,25 +52,42 @@ namespace RHI
 		UINT32 m_ElementSize;
     };
 
-    class GpuStructuredBuffer : public GpuBuffer
+    class GpuDefaultBuffer : public GpuBuffer
     {
     public:
 
-        GpuStructuredBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData) :
-            GpuBuffer(NumElements, ElementSize, initialData)
+        GpuDefaultBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData) :
+            GpuBuffer(NumElements, ElementSize, initialData, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON)
         {
 
         }
 
-        GpuStructuredBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset) :
-            GpuBuffer(NumElements, ElementSize, srcData, srcOffset)
+        GpuDefaultBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset) :
+            GpuBuffer(NumElements, ElementSize, srcData, srcOffset, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON)
         {
 
         }
-
-		virtual std::shared_ptr<GpuResourceDescriptor> CreateSRV() override;
-		virtual std::shared_ptr<GpuResourceDescriptor> CreateUAV() override;
-
     };
+
+	class UploadBuffer : public GpuBuffer
+	{
+	public:
+        UploadBuffer(UINT32 NumElements, UINT32 ElementSize) :
+            GpuBuffer(NumElements, ElementSize, nullptr, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ)
+        {
+        }
+
+        void* Map(void)
+        {
+			void* Memory;
+			m_pResource->Map(0, &CD3DX12_RANGE(0, m_BufferSize), &Memory);
+			return Memory;
+        }
+
+        void Unmap(size_t begin = 0, size_t end = -1)
+        {
+			m_pResource->Unmap(0, &CD3DX12_RANGE(begin, std::min(end, m_BufferSize)));
+        }
+	};
 
 }

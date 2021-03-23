@@ -27,9 +27,9 @@ namespace RHI
 			addShader(m_Desc.GraphicsPipeline.HullShader);
 			addShader(m_Desc.GraphicsPipeline.DomainShader);
 
-			assert(m_Shaders.size() > 0 && "没得Shader");
+			assert(m_Shaders.size() > 0 && "娌″緱Shader");
 
-			// 遍历所有Shader，初始化ShaderResourceLayout和RootSignature
+			// 閬嶅巻鎵�鏈塖hader锛屽垵濮嬪寲ShaderResourceLayout鍜孯ootSignature
 			for (const auto& [shaderType, shader] : m_Shaders)
 			{
 				m_ShaderResourceLayouts.insert(make_pair(shaderType, ShaderResourceLayout(pd3d12Device,
@@ -39,14 +39,14 @@ namespace RHI
 					&m_RootSignature)));
 			}
 
-			// 根签名完成初始化，创建Direct3D 12的RootSignature
+			// 鏍圭鍚嶅畬鎴愬垵濮嬪寲锛屽垱寤篋irect3D 12鐨凴ootSignature
 			m_RootSignature.Finalize(pd3d12Device);
 
 
-			// 设置Direc3D 12的PSO Desc
+			// 璁剧疆Direc3D 12鐨凱SO Desc
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC d3d12PSODesc = m_Desc.GraphicsPipeline.GraphicPipelineState;
 
-			// 设置PSO的Shader
+			// 璁剧疆PSO鐨凷hader
 			for(const auto& [shaderType, shader] : m_Shaders)
 			{
 				switch (shaderType)
@@ -78,7 +78,7 @@ namespace RHI
 			}
 
 
-			// 设置RootSignature
+			// 璁剧疆RootSignature
 			d3d12PSODesc.pRootSignature = m_RootSignature.GetD3D12RootSignature();
 
 			memset(&d3d12PSODesc.StreamOutput, 0, sizeof(d3d12PSODesc.StreamOutput));
@@ -94,10 +94,10 @@ namespace RHI
 			// The only valid bit is D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG, which can only be set on WARP devices.
 			d3d12PSODesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-			// 创建D3D12 PSO
+			// 鍒涘缓D3D12 PSO
 			ThrowIfFailed(pd3d12Device->CreateGraphicsPipelineState(&d3d12PSODesc, IID_PPV_ARGS(&m_D3D12PSO)));
 
-			// 设置名字
+			// 璁剧疆鍚嶅瓧
 			m_D3D12PSO->SetName(m_Desc.Name.c_str());
 			std::wstring rootSignatureName(L"RootSignature For PSO ");
 			rootSignatureName.append(m_Desc.Name);
@@ -143,5 +143,14 @@ namespace RHI
 			SRB->m_ShaderResourceCache.CommitResource();
 		}
 	}
+
+	void PipelineState::CommitStaticShaderResource()
+	{
+		if (m_StaticSRB != nullptr)
+		{
+			m_StaticSRB->m_ShaderResourceCache.CommitResource();
+		}
+	}
+
 }
 
