@@ -374,7 +374,7 @@ namespace RHI
     	for(UINT32 i = 0;i < m_RootDescriptors.size();++i)
     	{
             const RootParameter& rootView = m_RootDescriptors[i];
-            Operation(rootView);
+            Operation(m_RootDescriptors[i]);
     	}
     }
 
@@ -384,7 +384,7 @@ namespace RHI
     	for(UINT32 i = 0;i < m_RootTables.size();++i)
     	{
             const RootParameter& rootTable = m_RootTables[i];
-            Operation(rootTable);
+            Operation(m_RootTables[i]);
     	}
     }
 }

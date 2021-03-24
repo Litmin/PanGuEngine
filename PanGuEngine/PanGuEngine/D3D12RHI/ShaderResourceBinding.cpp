@@ -13,7 +13,7 @@ namespace RHI
     {
         auto* renderDevice = PSO->GetRenderDevice();
 
-        // ³õÊ¼»¯Resource Cache
+        // åˆå§‹åŒ–Resource Cache
         m_ShaderResourceCache.Initialize(renderDevice, m_PSO->GetRootSignature(), allowedVarTypes, allowedTypeNum);
 
         m_PSO->ProcessShaders([&](SHADER_TYPE shaderType, const ShaderResourceLayout& layout)

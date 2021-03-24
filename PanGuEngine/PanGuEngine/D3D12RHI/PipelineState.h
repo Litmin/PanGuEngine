@@ -118,7 +118,7 @@ namespace RHI
 		// 存储所有Static资源，在切换PSO时，提交Static资源
 		std::unique_ptr<ShaderResourceBinding> m_StaticSRB;
 		// 相当于Material
-		std::vector<ShaderResourceBinding> m_MutableDynamicSRBs;
+		std::vector<std::unique_ptr<ShaderResourceBinding>> m_MutableDynamicSRBs;
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
 	};

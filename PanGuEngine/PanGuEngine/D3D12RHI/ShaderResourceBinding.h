@@ -7,27 +7,33 @@ namespace RHI
     class PipelineState;
 
     /**
-    * ¹ÜÀí×ÊÔ´°ó¶¨
+    * ç®¡ç†èµ„æºç»‘å®š
     */
     class ShaderResourceBinding
     {
-    public:
+		friend class PipelineState;
+
+	public:
         ShaderResourceBinding(PipelineState* PSO, 
 							  const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
 							  UINT32 allowedTypeNum);
         ~ShaderResourceBinding();
+        
+		ShaderResourceBinding(const ShaderResourceBinding& rhs) = delete;
+		ShaderResourceBinding& operator=(const ShaderResourceBinding& rhs) = delete;
+		ShaderResourceBinding(ShaderResourceBinding&& rhs) = delete;
+		ShaderResourceBinding& operator=(const ShaderResourceBinding&& rhs) = delete;
 
         ShaderVariable* GetVariableByName(SHADER_TYPE ShaderType, const std::string& Name);
         UINT32 GetVariableCount(SHADER_TYPE ShaderType) const;
         ShaderVariable* GetVariableByIndex(SHADER_TYPE ShaderType, UINT32 Index);
 
     private:
-        friend class PipelineState;
     	
         PipelineState* m_PSO;
 
         ShaderResourceCache m_ShaderResourceCache;
-        // Ò»¸öSRB¶ÔÏó¿ÉÒÔ°ó¶¨Ò»¸ö¹ÜÏßÖĞËùÓĞShaderµÄ×ÊÔ´£¬ËùÒÔÓĞ¼¸¸öShader¾ÍÓĞ¼¸¸öShaderVariableManager£¬Ò»¸öShaderVariableManager±íÊ¾Ò»¸öShaderµÄ±äÁ¿
+        // ä¸€ä¸ªSRBå¯¹è±¡å¯ä»¥ç»‘å®šä¸€ä¸ªç®¡çº¿ä¸­æ‰€æœ‰Shaderçš„èµ„æºï¼Œæ‰€ä»¥æœ‰å‡ ä¸ªShaderå°±æœ‰å‡ ä¸ªShaderVariableManagerï¼Œä¸€ä¸ªShaderVariableManagerè¡¨ç¤ºä¸€ä¸ªShaderçš„å˜é‡
         std::unordered_map<SHADER_TYPE, ShaderVariableCollection> m_ShaderVariableManagers;
     };
 }

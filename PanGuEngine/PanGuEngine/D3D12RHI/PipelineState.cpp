@@ -132,9 +132,10 @@ namespace RHI
 
 	ShaderResourceBinding* PipelineState::CreateShaderResourceBinding()
 	{
-		m_MutableDynamicSRBs.emplace_back(this);
-
-		return &m_MutableDynamicSRBs.back();
+ 		std::unique_ptr<ShaderResourceBinding> SRB = std::make_unique<ShaderResourceBinding>(this);
+ 		m_MutableDynamicSRBs.push_back(std::move(SRB));
+ 
+ 		return m_MutableDynamicSRBs.back().get();
 	}
 
 	void PipelineState::CommitShaderResource(ShaderResourceBinding* SRB)
