@@ -7,7 +7,7 @@ using namespace std;
 
 namespace RHI
 {
-	// Ö»´´½¨RootTableºÍResource¶ÔÏó
+	// åªåˆ›å»ºRootTableå’ŒResourceå¯¹è±¡
 	void ShaderResourceCache::Initialize(RenderDevice* device, 
 										 const RootSignature* rootSignature,
 										 const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
@@ -17,7 +17,7 @@ namespace RHI
 
 		const UINT32 allowedTypeBits = GetAllowedTypeBits(allowedVarTypes, allowedTypeNum);
 
-		rootSignature->ProcessRootDescriptors([&](RootParameter& rootView)
+		rootSignature->ProcessRootDescriptors([&](const RootParameter& rootView)
 		{
 			SHADER_RESOURCE_VARIABLE_TYPE variableType = rootView.GetShaderVariableType();
 			UINT32 rootIndex = rootView.GetRootIndex();
@@ -28,12 +28,12 @@ namespace RHI
 
 		UINT32 descriptorNum = 0;
 		
-		rootSignature->ProcessRootTables([&](RootParameter& rootTable)
+		rootSignature->ProcessRootTables([&](const RootParameter& rootTable)
 		{
 			SHADER_RESOURCE_VARIABLE_TYPE variableType = rootTable.GetShaderVariableType();
 			UINT32 rootIndex = rootTable.GetRootIndex();
 			UINT32 rootTableSize = rootTable.GetDescriptorTableSize();
-			const auto& D3D12RootParam = static_cast<const D3D12_ROOT_PARAMETER&>(rootTable); // ÒşÊ½×ª»»
+			const auto& D3D12RootParam = static_cast<const D3D12_ROOT_PARAMETER&>(rootTable); // éšå¼è½¬æ¢
 
 			assert(D3D12RootParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
 			assert(rootTableSize > 0 && "Unexpected empty descriptor table");
@@ -44,13 +44,13 @@ namespace RHI
 
 			if (variableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{
-				// ÉèÖÃÃ¿¸öRoot TableÔÚHeapÖĞµÄÆğÊ¼Î»ÖÃ£¬ÒòÎªRoot TableÊÇ½ôÃÜÅÅÁĞµÄ£¬ËùÒÔÆğÊ¼Î»ÖÃ¾ÍÊÇµ±Ç°µÄ×ÜÊı
+				// è®¾ç½®æ¯ä¸ªRoot Tableåœ¨Heapä¸­çš„èµ·å§‹ä½ç½®ï¼Œå› ä¸ºRoot Tableæ˜¯ç´§å¯†æ’åˆ—çš„ï¼Œæ‰€ä»¥èµ·å§‹ä½ç½®å°±æ˜¯å½“å‰çš„æ€»æ•°
 				m_RootTables[rootIndex].TableStartOffset = descriptorNum;
 				descriptorNum += rootTableSize;
 			}
 		});
 
-		// ·ÖÅäGPU Descriptor HeapÉÏµÄ¿Õ¼ä
+		// åˆ†é…GPU Descriptor Heapä¸Šçš„ç©ºé—´
 		if (descriptorNum)
 		{
 			m_CbvSrvUavGPUHeapSpace = device->AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, descriptorNum);
@@ -60,13 +60,13 @@ namespace RHI
 
 	void ShaderResourceCache::CommitResource()
 	{
-		// Ìá½»Root View£¨CBV£©£¬Ö»ĞèÒª°ó¶¨BufferµÄµØÖ·
+		// æäº¤Root Viewï¼ˆCBVï¼‰ï¼Œåªéœ€è¦ç»‘å®šBufferçš„åœ°å€
 		for(const auto& [rootIndex, rootView] : m_RootViews)
 		{
 			// TODO:
 		}
 
-		// Ìá½»Root Table£¬DynamicÀàĞÍµÄĞèÒª·ÖÅä¿Õ¼ä
+		// æäº¤Root Tableï¼ŒDynamicç±»å‹çš„éœ€è¦åˆ†é…ç©ºé—´
 		for(const auto& [rootIndex, rootTable] : m_RootTables)
 		{
 

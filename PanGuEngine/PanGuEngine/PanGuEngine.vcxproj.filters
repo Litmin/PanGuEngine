@@ -4,9 +4,6 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{a312e714-6491-4257-a0cb-7ea797486021}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RenderCore">
-      <UniqueIdentifier>{6d0ff1c5-01d6-453c-a9c9-0d992014b2f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Math">
       <UniqueIdentifier>{38361d77-3a8a-4fef-9004-124b50f62057}</UniqueIdentifier>
     </Filter>
@@ -16,11 +13,11 @@
     <Filter Include="D3D12RHI">
       <UniqueIdentifier>{5702e2a3-29d8-4f19-8d5a-59eb37931d46}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RenderPipeline">
-      <UniqueIdentifier>{4e200492-2273-410f-ba30-0251fe090eb4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{42f000eb-770c-4e73-b2c4-e3e41ee7c309}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{6d0ff1c5-01d6-453c-a9c9-0d992014b2f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,72 +29,15 @@
     <ClCompile Include="Utility\d3dUtil.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="RenderCore\Mesh.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Camera.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="RenderCore\Material.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="GameTimer.cpp" />
-    <ClCompile Include="RenderCore\FrameResource.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="Resource\ResourceManager.cpp">
       <Filter>Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Light.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\MeshRenderer.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Renderer.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\SceneManager.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\RenderQueue.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\GraphicContext.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\ShaderManager.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Shader.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\StandardShader.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\RendererStateDesc.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\GeometryGenerator.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\GeometryFactory.cpp">
-      <Filter>RenderCore</Filter>
     </ClCompile>
     <ClCompile Include="Utility\MathHelper.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="RenderCore\GameObject.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderCore\Component.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="Input.cpp" />
-    <ClCompile Include="RenderCore\Transform.cpp">
-      <Filter>RenderCore</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Random.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -113,15 +53,6 @@
     <ClCompile Include="D3D12RHI\SwapChain.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
-    <ClCompile Include="RenderPipeline\RenderPipeline.cpp">
-      <Filter>RenderPipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D12RHI\Buffer.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D12RHI\BufferView.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\Debug.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
@@ -131,19 +62,10 @@
     <ClCompile Include="D3D12RHI\VariableSizeAllocationsManager.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
-    <ClCompile Include="D3D12RHI\Texture.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D12RHI\TextureView.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
     <ClCompile Include="D3D12RHI\CommandQueue.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\StaleResourceWrapper.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D12RHI\RingBuffer.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\ShaderResource.cpp">
@@ -162,9 +84,6 @@
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\ShaderVariable.cpp">
-      <Filter>D3D12RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D12RHI\RenderPass.cpp">
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="D3D12RHI\ShaderResourceBindingUtility.cpp">
@@ -206,6 +125,66 @@
     <ClCompile Include="Core\Color.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Camera.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Component.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\FrameResource.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\GameObject.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\GeometryFactory.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\GeometryGenerator.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\GraphicContext.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Light.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Material.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Mesh.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\MeshRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Renderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RendererStateDesc.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderQueue.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\SceneManager.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Shader.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ShaderManager.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\StandardShader.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Transform.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\RingBuffer.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -221,79 +200,19 @@
     <ClInclude Include="Utility\d3dUtil.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\Camera.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\Mesh.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Utility\MathHelper.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\Material.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="GameTimer.h" />
-    <ClInclude Include="RenderCore\FrameResource.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\UploadBuffer.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="Resource\ResourceManager.h">
       <Filter>Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\Light.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\MeshRenderer.h">
-      <Filter>RenderCore</Filter>
     </ClInclude>
     <ClInclude Include="Utility\Singleton.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCore\Renderer.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\SceneManager.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\RenderQueue.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\GraphicContext.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\ShaderManager.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\Shader.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\StandardShader.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\RendererStateDesc.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\GeometryGenerator.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\GeometryFactory.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\GameObject.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderCore\Component.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="Input.h" />
-    <ClInclude Include="RenderCore\Transform.h">
-      <Filter>RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="Math\BoundingPlane.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -339,15 +258,6 @@
     <ClInclude Include="D3D12RHI\SwapChain.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
-    <ClInclude Include="RenderPipeline\RenderPipeline.h">
-      <Filter>RenderPipeline</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D12RHI\Buffer.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D12RHI\BufferView.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
     <ClInclude Include="D3D12RHI\GraphicsEnums.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
@@ -360,22 +270,10 @@
     <ClInclude Include="D3D12RHI\VariableSizeAllocationsManager.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
-    <ClInclude Include="D3D12RHI\Align.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D12RHI\Texture.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D12RHI\TextureView.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
     <ClInclude Include="D3D12RHI\CommandQueue.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\StaleResourceWrapper.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D12RHI\RingBuffer.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\ShaderResource.h">
@@ -399,13 +297,7 @@
     <ClInclude Include="D3D12RHI\ShaderVariable.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
-    <ClInclude Include="D3D12RHI\RenderPass.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
     <ClInclude Include="D3D12RHI\ShaderResourceBindingUtility.h">
-      <Filter>D3D12RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D12RHI\Constant.h">
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="D3D12RHI\CommandContext.h">
@@ -442,6 +334,72 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="Core\Color.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Align.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Camera.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Component.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\FrameResource.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\GameObject.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\GeometryFactory.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\GeometryGenerator.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\GraphicContext.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Light.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Material.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Mesh.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\MeshRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RendererStateDesc.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderQueue.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\SceneManager.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Shader.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ShaderManager.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\StandardShader.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Transform.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UploadBuffer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\RingBuffer.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>

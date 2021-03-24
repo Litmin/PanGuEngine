@@ -18,7 +18,7 @@ namespace RHI
         return AllowedTypeBits;
     }
 
-    // ÅĞ¶ÏShader TypeºÍPipeline TypeÊÇ·ñ¼æÈİ£¬±ÈÈçCompute Pipeline¾Í²»ÄÜÓĞVS¡¢PS
+    // åˆ¤æ–­Shader Typeå’ŒPipeline Typeæ˜¯å¦å…¼å®¹ï¼Œæ¯”å¦‚Compute Pipelineå°±ä¸èƒ½æœ‰VSã€PS
     bool IsConsistentShaderType(SHADER_TYPE ShaderType, PIPELINE_TYPE PipelineType)
     {
         static_assert(SHADER_TYPE_LAST == 0x080, "Please update the switch below to handle the new shader type");
@@ -45,11 +45,11 @@ namespace RHI
         }
     }
 
-    // °ÑShader Type×÷ÎªË÷Òı£¬¹¹ÔìRoot TableÊ±»áÊ¹ÓÃ
+    // æŠŠShader Typeä½œä¸ºç´¢å¼•ï¼Œæ„é€ Root Tableæ—¶ä¼šä½¿ç”¨
     INT32 GetShaderTypePipelineIndex(SHADER_TYPE ShaderType, PIPELINE_TYPE PipelineType)
     {
-        assert(IsConsistentShaderType(ShaderType, PipelineType) && "Shader TypeºÍPipeline Type²»¼æÈİ£¡");
-        assert(IsPowerOfTwo(UINT32{ ShaderType }), "Only single shader stage should be provided");
+        assert(IsConsistentShaderType(ShaderType, PipelineType) && "Shader Typeå’ŒPipeline Typeä¸å…¼å®¹ï¼");
+        assert(IsPowerOfTwo(UINT32(ShaderType)), "Only single shader stage should be provided");
 
         static_assert(SHADER_TYPE_LAST == 0x080, "Please update the switch below to handle the new shader type");
         switch (ShaderType)
@@ -81,7 +81,7 @@ namespace RHI
         }
     }
 
-    // ´ÓShaderVariableConfigÖĞÕÒ³öÄ³¸öShaderResourceµÄVariable Type£¨Static¡¢Mutable¡¢Dynamic£©
+    // ä»ShaderVariableConfigä¸­æ‰¾å‡ºæŸä¸ªShaderResourceçš„Variable Typeï¼ˆStaticã€Mutableã€Dynamicï¼‰
     SHADER_RESOURCE_VARIABLE_TYPE GetShaderVariableType(SHADER_TYPE shaderType, 
                                                         const std::string& name, 
                                                         const struct ShaderVariableConfig& shaderVariableConfig);

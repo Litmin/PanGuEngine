@@ -1,14 +1,14 @@
 #pragma once
 #include "GameTimer.h"
-#include "RenderCore/FrameResource.h"
-#include "RenderCore/MeshRenderer.h"
-#include "RenderCore/Light.h"
-#include "RenderCore/Material.h"
-#include "RenderCore/UploadBuffer.h"
-#include "RenderCore/SceneManager.h"
-#include "RenderCore/ShaderManager.h"
+#include "Renderer/FrameResource.h"
+#include "Renderer/MeshRenderer.h"
+#include "Renderer/Light.h"
+#include "Renderer/Material.h"
+#include "Renderer/UploadBuffer.h"
+#include "Renderer/SceneManager.h"
+#include "Renderer/ShaderManager.h"
 #include "Resource/ResourceManager.h"
-#include "RenderCore/GraphicContext.h"
+#include "Renderer/GraphicContext.h"
 
 class Engine
 {
@@ -103,7 +103,7 @@ private:
 	UINT64 m_FenceValue;
 	//<-------------------------------Sync---------------------------------------------->
 
-	// TODO:ÊµÏÖFrameResource
+	// TODO:å®žçŽ°FrameResource
 	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
 
 	//<--------------------------------Constant Buffer--------------------------------------->

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DescriptorHeap.h"
-#include "IShaderResource.h"
 #include "GpuBuffer.h"
 #include "GpuResourceDescriptor.h"
 
@@ -11,10 +10,10 @@ namespace RHI
     class RenderDevice;
 	
     /**
-    * Ö»Ìá¹©¸ö´æ´¢¿Õ¼ä£¨GPUDescriptorHeap£©£¬ÆäËûµÄÉ¶¶¼²»ÖªµÀ
-    * ´æ´¢°ó¶¨µ½ShaderµÄ×ÊÔ´,ShaderResourceCache»á·ÖÅäGPU-visible Descriptor HeapÉÏµÄ¿Õ¼ä£¬À´´æ´¢×ÊÔ´µÄDescriptor
-    * Root View²»ÔÚGPUDescriptorHeapÖĞ·ÖÅä¿Õ¼ä£¬ËüÖ±½Ó°ó¶¨µ½RootSignature
-    * StaticºÍMutableµÄRoot Table»áÔÚGPUDescriptorHeapÖĞ·ÖÅä¿Õ¼ä£¬DynamicÔÚÃ¿´ÎDraw CallÖĞ¶¯Ì¬µÄ·ÖÅä¿Õ¼ä
+    * åªæä¾›ä¸ªå­˜å‚¨ç©ºé—´ï¼ˆGPUDescriptorHeapï¼‰ï¼Œå…¶ä»–çš„å•¥éƒ½ä¸çŸ¥é“
+    * å­˜å‚¨ç»‘å®šåˆ°Shaderçš„èµ„æº,ShaderResourceCacheä¼šåˆ†é…GPU-visible Descriptor Heapä¸Šçš„ç©ºé—´ï¼Œæ¥å­˜å‚¨èµ„æºçš„Descriptor
+    * Root Viewä¸åœ¨GPUDescriptorHeapä¸­åˆ†é…ç©ºé—´ï¼Œå®ƒç›´æ¥ç»‘å®šåˆ°RootSignature
+    * Staticå’ŒMutableçš„Root Tableä¼šåœ¨GPUDescriptorHeapä¸­åˆ†é…ç©ºé—´ï¼ŒDynamicåœ¨æ¯æ¬¡Draw Callä¸­åŠ¨æ€çš„åˆ†é…ç©ºé—´
     */
     class ShaderResourceCache
     {
@@ -35,7 +34,7 @@ namespace RHI
 
         static constexpr UINT32 InvalidDescriptorOffset = static_cast<UINT32>(-1);
 
-		// Ä¿Ç°Ö»ÓĞConstant Buffer×÷ÎªRoot Descriptor°ó¶¨
+		// ç›®å‰åªæœ‰Constant Bufferä½œä¸ºRoot Descriptorç»‘å®š
 		struct RootDescriptor
 		{
 			std::shared_ptr<GpuBuffer> ConstantBuffer;
@@ -45,16 +44,16 @@ namespace RHI
         {
             RootTable(UINT32 tableSize) : Descriptors(tableSize){}
 
-            // Ã¿¸öRoot TableÔÚGPUDescriptorHeapÖĞµÄÆğÊ¼Î»ÖÃ
+            // æ¯ä¸ªRoot Tableåœ¨GPUDescriptorHeapä¸­çš„èµ·å§‹ä½ç½®
             UINT32 TableStartOffset = InvalidDescriptorOffset;
 
-            // ¸ÃTableÖĞ×ÊÔ´µÄÊıÁ¿
+            // è¯¥Tableä¸­èµ„æºçš„æ•°é‡
             std::vector<std::shared_ptr<GpuResourceDescriptor>> Descriptors;
         };
 
 
-        // ShaderResourceLayoutÍ¨¹ı¸Ãº¯ÊıÀ´»ñÈ¡Descriptor Handle£¬²¢°ÑÒª°ó¶¨µÄ×ÊÔ´µÄDescriptor¿½±´¹ıÀ´!!!
-        // OffsetFromTableStartÊÇÔÚTableÖĞµÄÆ«ÒÆ£¬¸úRootParam.m_TableStartOffset²»Í¬
+        // ShaderResourceLayouté€šè¿‡è¯¥å‡½æ•°æ¥è·å–Descriptor Handleï¼Œå¹¶æŠŠè¦ç»‘å®šçš„èµ„æºçš„Descriptoræ‹·è´è¿‡æ¥!!!
+        // OffsetFromTableStartæ˜¯åœ¨Tableä¸­çš„åç§»ï¼Œè·ŸRootParam.m_TableStartOffsetä¸åŒ
         template <D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
         D3D12_CPU_DESCRIPTOR_HANDLE GetShaderVisibleTableCPUDescriptorHandle(UINT32 RootIndex, UINT32 OffsetFromTableStart = 0) const
         {
@@ -70,14 +69,14 @@ namespace RHI
             return CPUDescriptorHandle;
         }
 
-        // RootSignatureÍ¨¹ı¸Ãº¯ÊıÀ´·ÃÎÊGPU Descriptor Handle£¬È»ºóÌá½»µ½äÖÈ¾¹ÜÏß!!!
-    	// OffsetFromTableStartÊÇÔÚTableÖĞµÄÆ«ÒÆ£¬¸úRootParam.m_TableStartOffset²»Í¬
+        // RootSignatureé€šè¿‡è¯¥å‡½æ•°æ¥è®¿é—®GPU Descriptor Handleï¼Œç„¶åæäº¤åˆ°æ¸²æŸ“ç®¡çº¿!!!
+    	// OffsetFromTableStartæ˜¯åœ¨Tableä¸­çš„åç§»ï¼Œè·ŸRootParam.m_TableStartOffsetä¸åŒ
         template <D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
         D3D12_GPU_DESCRIPTOR_HANDLE GetShaderVisibleTableGPUDescriptorHandle(UINT32 RootIndex, UINT32 OffsetFromTableStart = 0) const
         {
             const auto& RootParam = GetRootTable(RootIndex);
 
-            // Dynamic×ÊÔ´Ã»ÓĞÔÚShaderResourceCacheµÄHeapÖĞ·ÖÅä¿Õ¼ä£¬ËùÒÔm_TableStartOffsetÓ¦¸ÃÊ±Invalid
+            // Dynamicèµ„æºæ²¡æœ‰åœ¨ShaderResourceCacheçš„Heapä¸­åˆ†é…ç©ºé—´ï¼Œæ‰€ä»¥m_TableStartOffsetåº”è¯¥æ—¶Invalid
             assert(RootParam.TableStartOffset != InvalidDescriptorOffset && "GPU descriptor handle must never be requested for dynamic resources");
 
             D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle = m_CbvSrvUavGPUHeapSpace.GetGpuHandle(RootParam.TableStartOffset + OffsetFromTableStart);
@@ -106,7 +105,7 @@ namespace RHI
         const RootTable& GetRootTable(UINT32 RootIndex) const
         {
             return m_RootTables.at(RootIndex);
-        	// ÕâÑùĞ´»á±¨´í£¬ÒòÎª[]ÔËËã·ûÈç¹ûÃ»ÓĞ·¢ÏÖÕâ¸öKey£¬Ëü¾Í»á²åÈëÒ»¸öĞÂµÄÔªËØ£¬ËùÒÔ[]ÊÇ·ÇconstµÄ
+        	// è¿™æ ·å†™ä¼šæŠ¥é”™ï¼Œå› ä¸º[]è¿ç®—ç¬¦å¦‚æœæ²¡æœ‰å‘ç°è¿™ä¸ªKeyï¼Œå®ƒå°±ä¼šæ’å…¥ä¸€ä¸ªæ–°çš„å…ƒç´ ï¼Œæ‰€ä»¥[]æ˜¯éconstçš„
             //return m_RootTables[RootIndex];
         }
         

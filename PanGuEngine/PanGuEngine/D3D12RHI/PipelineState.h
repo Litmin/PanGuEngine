@@ -4,7 +4,6 @@
 #include "ShaderResourceCache.h"
 #include "ShaderVariable.h"
 #include "Shader.h"
-#include "RenderPass.h"
 #include "ShaderResourceBinding.h"
 #include "ShaderResourceBindingUtility.h"
 
@@ -28,7 +27,6 @@ namespace RHI
 
 		// RenderPass
 		UINT8 SubpassIndex = 0;
-		std::shared_ptr<RenderPass> pRenderPass;
 	};
 
 	// Compute管线
@@ -123,9 +121,6 @@ namespace RHI
 		std::vector<ShaderResourceBinding> m_MutableDynamicSRBs;
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
-
-		
-		std::shared_ptr<RenderPass> m_RenderPass;
 	};
 }
 

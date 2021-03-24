@@ -151,8 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core\Color.cpp" />
-    <ClCompile Include="D3D12RHI\Buffer.cpp" />
-    <ClCompile Include="D3D12RHI\BufferView.cpp" />
+    <ClCompile Include="Core\RingBuffer.cpp" />
     <ClCompile Include="D3D12RHI\CommandAllocatorPool.cpp" />
     <ClCompile Include="D3D12RHI\CommandContext.cpp" />
     <ClCompile Include="D3D12RHI\CommandListManager.cpp" />
@@ -168,8 +167,6 @@
     <ClCompile Include="D3D12RHI\GpuTexture2D.cpp" />
     <ClCompile Include="D3D12RHI\PipelineState.cpp" />
     <ClCompile Include="D3D12RHI\RenderDevice.cpp" />
-    <ClCompile Include="D3D12RHI\RenderPass.cpp" />
-    <ClCompile Include="D3D12RHI\RingBuffer.cpp" />
     <ClCompile Include="D3D12RHI\RootSignature.cpp" />
     <ClCompile Include="D3D12RHI\Shader.cpp" />
     <ClCompile Include="D3D12RHI\ShaderResource.cpp" />
@@ -180,8 +177,6 @@
     <ClCompile Include="D3D12RHI\ShaderVariable.cpp" />
     <ClCompile Include="D3D12RHI\StaleResourceWrapper.cpp" />
     <ClCompile Include="D3D12RHI\SwapChain.cpp" />
-    <ClCompile Include="D3D12RHI\Texture.cpp" />
-    <ClCompile Include="D3D12RHI\TextureView.cpp" />
     <ClCompile Include="D3D12RHI\VariableSizeAllocationsManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameTimer.cpp" />
@@ -194,26 +189,25 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RenderCore\Camera.cpp" />
-    <ClCompile Include="RenderCore\FrameResource.cpp" />
-    <ClCompile Include="RenderCore\GeometryFactory.cpp" />
-    <ClCompile Include="RenderCore\GeometryGenerator.cpp" />
-    <ClCompile Include="RenderCore\GraphicContext.cpp" />
-    <ClCompile Include="RenderCore\Light.cpp" />
-    <ClCompile Include="RenderCore\Material.cpp" />
-    <ClCompile Include="RenderCore\Mesh.cpp" />
-    <ClCompile Include="RenderCore\MeshRenderer.cpp" />
-    <ClCompile Include="RenderCore\Component.cpp" />
-    <ClCompile Include="RenderCore\RendererStateDesc.cpp" />
-    <ClCompile Include="RenderCore\Renderer.cpp" />
-    <ClCompile Include="RenderCore\RenderQueue.cpp" />
-    <ClCompile Include="RenderCore\SceneManager.cpp" />
-    <ClCompile Include="RenderCore\GameObject.cpp" />
-    <ClCompile Include="RenderCore\Shader.cpp" />
-    <ClCompile Include="RenderCore\ShaderManager.cpp" />
-    <ClCompile Include="RenderCore\StandardShader.cpp" />
-    <ClCompile Include="RenderCore\Transform.cpp" />
-    <ClCompile Include="RenderPipeline\RenderPipeline.cpp" />
+    <ClCompile Include="Renderer\Camera.cpp" />
+    <ClCompile Include="Renderer\Component.cpp" />
+    <ClCompile Include="Renderer\FrameResource.cpp" />
+    <ClCompile Include="Renderer\GameObject.cpp" />
+    <ClCompile Include="Renderer\GeometryFactory.cpp" />
+    <ClCompile Include="Renderer\GeometryGenerator.cpp" />
+    <ClCompile Include="Renderer\GraphicContext.cpp" />
+    <ClCompile Include="Renderer\Light.cpp" />
+    <ClCompile Include="Renderer\Material.cpp" />
+    <ClCompile Include="Renderer\Mesh.cpp" />
+    <ClCompile Include="Renderer\MeshRenderer.cpp" />
+    <ClCompile Include="Renderer\Renderer.cpp" />
+    <ClCompile Include="Renderer\RendererStateDesc.cpp" />
+    <ClCompile Include="Renderer\RenderQueue.cpp" />
+    <ClCompile Include="Renderer\SceneManager.cpp" />
+    <ClCompile Include="Renderer\Shader.cpp" />
+    <ClCompile Include="Renderer\ShaderManager.cpp" />
+    <ClCompile Include="Renderer\StandardShader.cpp" />
+    <ClCompile Include="Renderer\Transform.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\Debug.cpp" />
@@ -221,15 +215,13 @@
     <ClCompile Include="Utility\MathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Align.h" />
     <ClInclude Include="Core\Color.h" />
-    <ClInclude Include="D3D12RHI\Align.h" />
-    <ClInclude Include="D3D12RHI\Buffer.h" />
-    <ClInclude Include="D3D12RHI\BufferView.h" />
+    <ClInclude Include="Core\RingBuffer.h" />
     <ClInclude Include="D3D12RHI\CommandAllocatorPool.h" />
     <ClInclude Include="D3D12RHI\CommandContext.h" />
     <ClInclude Include="D3D12RHI\CommandListManager.h" />
     <ClInclude Include="D3D12RHI\CommandQueue.h" />
-    <ClInclude Include="D3D12RHI\Constant.h" />
     <ClInclude Include="D3D12RHI\DescriptorHeap.h" />
     <ClInclude Include="D3D12RHI\GpuBuffer.h" />
     <ClInclude Include="D3D12RHI\GpuRenderTexture.h" />
@@ -242,8 +234,6 @@
     <ClInclude Include="D3D12RHI\GraphicsEnums.h" />
     <ClInclude Include="D3D12RHI\PipelineState.h" />
     <ClInclude Include="D3D12RHI\RenderDevice.h" />
-    <ClInclude Include="D3D12RHI\RenderPass.h" />
-    <ClInclude Include="D3D12RHI\RingBuffer.h" />
     <ClInclude Include="D3D12RHI\RootSignature.h" />
     <ClInclude Include="D3D12RHI\Shader.h" />
     <ClInclude Include="D3D12RHI\ShaderResource.h" />
@@ -254,8 +244,6 @@
     <ClInclude Include="D3D12RHI\ShaderVariable.h" />
     <ClInclude Include="D3D12RHI\StaleResourceWrapper.h" />
     <ClInclude Include="D3D12RHI\SwapChain.h" />
-    <ClInclude Include="D3D12RHI\Texture.h" />
-    <ClInclude Include="D3D12RHI\TextureView.h" />
     <ClInclude Include="D3D12RHI\VariableSizeAllocationsManager.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameTimer.h" />
@@ -272,27 +260,26 @@
     <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="Math\VectorMath.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RenderCore\Camera.h" />
-    <ClInclude Include="RenderCore\FrameResource.h" />
-    <ClInclude Include="RenderCore\GeometryFactory.h" />
-    <ClInclude Include="RenderCore\GeometryGenerator.h" />
-    <ClInclude Include="RenderCore\GraphicContext.h" />
-    <ClInclude Include="RenderCore\Light.h" />
-    <ClInclude Include="RenderCore\Material.h" />
-    <ClInclude Include="RenderCore\Mesh.h" />
-    <ClInclude Include="RenderCore\MeshRenderer.h" />
-    <ClInclude Include="RenderCore\Component.h" />
-    <ClInclude Include="RenderCore\RendererStateDesc.h" />
-    <ClInclude Include="RenderCore\Renderer.h" />
-    <ClInclude Include="RenderCore\RenderQueue.h" />
-    <ClInclude Include="RenderCore\SceneManager.h" />
-    <ClInclude Include="RenderCore\GameObject.h" />
-    <ClInclude Include="RenderCore\Shader.h" />
-    <ClInclude Include="RenderCore\ShaderManager.h" />
-    <ClInclude Include="RenderCore\StandardShader.h" />
-    <ClInclude Include="RenderCore\Transform.h" />
-    <ClInclude Include="RenderCore\UploadBuffer.h" />
-    <ClInclude Include="RenderPipeline\RenderPipeline.h" />
+    <ClInclude Include="Renderer\Camera.h" />
+    <ClInclude Include="Renderer\Component.h" />
+    <ClInclude Include="Renderer\FrameResource.h" />
+    <ClInclude Include="Renderer\GameObject.h" />
+    <ClInclude Include="Renderer\GeometryFactory.h" />
+    <ClInclude Include="Renderer\GeometryGenerator.h" />
+    <ClInclude Include="Renderer\GraphicContext.h" />
+    <ClInclude Include="Renderer\Light.h" />
+    <ClInclude Include="Renderer\Material.h" />
+    <ClInclude Include="Renderer\Mesh.h" />
+    <ClInclude Include="Renderer\MeshRenderer.h" />
+    <ClInclude Include="Renderer\Renderer.h" />
+    <ClInclude Include="Renderer\RendererStateDesc.h" />
+    <ClInclude Include="Renderer\RenderQueue.h" />
+    <ClInclude Include="Renderer\SceneManager.h" />
+    <ClInclude Include="Renderer\Shader.h" />
+    <ClInclude Include="Renderer\ShaderManager.h" />
+    <ClInclude Include="Renderer\StandardShader.h" />
+    <ClInclude Include="Renderer\Transform.h" />
+    <ClInclude Include="Renderer\UploadBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resource\ResourceManager.h" />
     <ClInclude Include="Utility\d3dUtil.h" />

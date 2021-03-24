@@ -40,16 +40,16 @@ namespace RHI
 
 	void RenderDevice::PurgeReleaseQueue(bool forceRelease)
 	{
-		UINT64 completedFenceValue = forceRelease ? std::numeric_limits<UINT64>::max() : m_CommandQueue.GetCompletedFenceValue();
-
-		while (!m_ReleaseQueue.empty())
-		{
-			auto& FirstObj = m_ReleaseQueue.front();
-			if (FirstObj.first <= completedFenceValue)
-				m_ReleaseQueue.pop_front();
-			else
-				break;
-		}
+// 		UINT64 completedFenceValue = forceRelease ? std::numeric_limits<UINT64>::max() : m_CommandQueue.GetCompletedFenceValue();
+// 
+// 		while (!m_ReleaseQueue.empty())
+// 		{
+// 			auto& FirstObj = m_ReleaseQueue.front();
+// 			if (FirstObj.first <= completedFenceValue)
+// 				m_ReleaseQueue.pop_front();
+// 			else
+// 				break;
+// 		}
 	}
 
 	GPUDescriptorHeap& RenderDevice::GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type)

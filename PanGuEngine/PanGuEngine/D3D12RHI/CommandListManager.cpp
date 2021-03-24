@@ -29,30 +29,4 @@ namespace RHI
 		(*List)->SetName(L"CommandList");
 	}
 
-	DynamicSuballocationsManager* CommandListManager::AllocateDynamicDescriptorMgr()
-	{
-		DynamicSuballocationsManager* descriptorManager = nullptr;
-		if (m_AvailableDynamicDescriptorMgrs.empty())
-		{
-			GPUDescriptorHeap& heap = RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			m_DynamicDescriptorMgrs.emplace_back(heap, 128, "DynamicDescriptorMgr");
-			descriptorManager = &m_DynamicDescriptorMgrs.back();
-		}
-		else
-		{
-			descriptorManager = m_AvailableDynamicDescriptorMgrs.front();
-			m_AvailableDynamicDescriptorMgrs.pop();
-		}
-
-		assert(descriptorManager != nullptr);
-
-		return descriptorManager;
-	}
-
-	void CommandListManager::FreeDynamicDescriptorMgr(DynamicSuballocationsManager* usedDescriptorMgr)
-	{
-		assert(usedDescriptorMgr != nullptr);
-		m_AvailableDynamicDescriptorMgrs.push(usedDescriptorMgr);
-	}
-
 }

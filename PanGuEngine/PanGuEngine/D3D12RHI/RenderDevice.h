@@ -1,7 +1,5 @@
 #pragma once
 #include "DescriptorHeap.h"
-#include "Buffer.h"
-#include "Texture.h"
 #include "CommandQueue.h"
 #include "StaleResourceWrapper.h"
 
@@ -12,9 +10,6 @@ namespace RHI
 	public:
 		RenderDevice(Microsoft::WRL::ComPtr<ID3D12Device> d3d12Device);
 		~RenderDevice();
-
-		// 创建资源
-
 
 		// 在CPU Descriptor Heap中分配资源的Descriptor
 		DescriptorHeapAllocation AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1);

@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Engine.h"
-#include "RenderCore/GameObject.h"
-#include "RenderCore/GeometryFactory.h"
-#include "RenderCore/Mesh.h"
-#include "RenderCore/StandardShader.h"
+#include "Renderer/GameObject.h"
+#include "Renderer/GeometryFactory.h"
+#include "Renderer/Mesh.h"
+#include "Renderer/StandardShader.h"
 
 using namespace std;
 using namespace DirectX;

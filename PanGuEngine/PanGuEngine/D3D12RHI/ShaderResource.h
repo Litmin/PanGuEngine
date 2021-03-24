@@ -7,14 +7,16 @@ namespace RHI
     struct ShaderDesc;
     struct ShaderVariableConfig;
 
-    // ±íÊ¾ShaderÖĞÊ¹ÓÃµÄÒ»¸ö×ÊÔ´
+    // è¡¨ç¤ºShaderä¸­ä½¿ç”¨çš„ä¸€ä¸ªèµ„æº
     struct ShaderResourceAttribs
     {
-        // ±äÁ¿µÄÃû×Ö
-        const std::string Name; // TODO:¿ÉÒÔÊ¹ÓÃchar*ºÍStringPoolÀ´ÓÅ»¯
-        // ±äÁ¿µÄ¼Ä´æÆ÷±àºÅ,ÀıÈçcbuffer cbBuff0 : register(b5);µÄBindPoint¾ÍÊÇ5
+		friend class ShaderResources;
+		
+        // å˜é‡çš„åå­—
+        const std::string Name; // TODO:å¯ä»¥ä½¿ç”¨char*å’ŒStringPoolæ¥ä¼˜åŒ–
+        // å˜é‡çš„å¯„å­˜å™¨ç¼–å·,ä¾‹å¦‚cbuffer cbBuff0 : register(b5);çš„BindPointå°±æ˜¯5
         const UINT16 BindPoint;
-        // Êı×é±äÁ¿µÄBindCount¾ÍÊÇÊı×éµÄ´óĞ¡£¬·ÇÊı×é±äÁ¿µÄBindCountÊÇ1
+        // æ•°ç»„å˜é‡çš„BindCountå°±æ˜¯æ•°ç»„çš„å¤§å°ï¼Œéæ•°ç»„å˜é‡çš„BindCountæ˜¯1
         const UINT16 BindCount;
         
     private:
@@ -22,20 +24,20 @@ namespace RHI
         // bit | 0  1  2  3   |  4  5  6  7  |  8   9  10   ...   31  |   
         //     |              |              |                        |
         //     |  InputType   |   SRV Dim    | SamplerOrTexSRVIdBits  |
-        // ÓÃconstexprĞŞÊÎµÄconst±äÁ¿ÊÇ³£Á¿±í´ïÊ½£¬ÔÚÒ»¸ö¸´ÔÓÏµÍ³ÖĞ£¬ºÜÄÑ·Ö±æÒ»¸ö³õÊ¼ÖµÊÇ·ñÊÇ³£Á¿±í´ïÊ½¡£
-        // C++11¹æ¶¨£¬ÔÊĞí½«±äÁ¿ÉùÃ÷ÎªconstexprÀàĞÍ£¬ÕâÑù±àÒëÆ÷¾Í»áÑéÖ¤±äÁ¿µÄÖµÊÇ·ñÊÇÒ»¸ö³£Á¿±í´ïÊ½¡£
-        // ÉùÃ÷ÎªconstexprµÄ±äÁ¿±ØĞëÓÃ³£Á¿±í´ïÊ½³õÊ¼»¯¡£
+        // ç”¨constexprä¿®é¥°çš„constå˜é‡æ˜¯å¸¸é‡è¡¨è¾¾å¼ï¼Œåœ¨ä¸€ä¸ªå¤æ‚ç³»ç»Ÿä¸­ï¼Œå¾ˆéš¾åˆ†è¾¨ä¸€ä¸ªåˆå§‹å€¼æ˜¯å¦æ˜¯å¸¸é‡è¡¨è¾¾å¼ã€‚
+        // C++11è§„å®šï¼Œå…è®¸å°†å˜é‡å£°æ˜ä¸ºconstexprç±»å‹ï¼Œè¿™æ ·ç¼–è¯‘å™¨å°±ä¼šéªŒè¯å˜é‡çš„å€¼æ˜¯å¦æ˜¯ä¸€ä¸ªå¸¸é‡è¡¨è¾¾å¼ã€‚
+        // å£°æ˜ä¸ºconstexprçš„å˜é‡å¿…é¡»ç”¨å¸¸é‡è¡¨è¾¾å¼åˆå§‹åŒ–ã€‚
         static constexpr const UINT32 ShaderInputTypeBits = 4;
         static constexpr const UINT32 SRVDimBits = 4;
         static constexpr const UINT32 SamplerOrTexSRVIdBits = 24;
 
-        // ÑéÖ¤Ã¿¸öÊôĞÔÕ¼ÓÃµÄBitsÊÇ·ñ×ã¹»
-        static_assert(ShaderInputTypeBits + SRVDimBits + SamplerOrTexSRVIdBits == 32, "ÊôĞÔ×îºÃPackÎª32Î»¡£");
+        // éªŒè¯æ¯ä¸ªå±æ€§å ç”¨çš„Bitsæ˜¯å¦è¶³å¤Ÿ
+         static_assert(ShaderInputTypeBits + SRVDimBits + SamplerOrTexSRVIdBits == 32 , "Attributes are better be packed into 32 bits");
+ 
+         static_assert(D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER < (1 << ShaderInputTypeBits), "Not enough bits to represent D3D_SHADER_INPUT_TYPE");;
+         static_assert(D3D_SRV_DIMENSION_BUFFEREX < (1 << SRVDimBits), "Not enough bits to represent D3D_SRV_DIMENSION");
 
-        static_assert(D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER < (1 << ShaderInputTypeBits), "Not enough bits to represent D3D_SHADER_INPUT_TYPE");;
-        static_assert(D3D_SRV_DIMENSION_BUFFEREX < (1 << SRVDimBits), "Not enough bits to represent D3D_SRV_DIMENSION");
-
-        // bitfileds,Î»Óò
+        // bitfileds,ä½åŸŸ
         // D3D_SHADER_INPUT_TYPE:https://docs.microsoft.com/zh-cn/windows/win32/api/d3dcommon/ne-d3dcommon-d3d_shader_input_type?redirectedfrom=MSDN
         const UINT32 InputType : ShaderInputTypeBits;
         // D3D_SRV_DIMENSION:https://docs.microsoft.com/zh-cn/windows/win32/api/d3dcommon/ne-d3dcommon-d3d_srv_dimension?redirectedfrom=MSDN
@@ -61,7 +63,7 @@ namespace RHI
 
         }
 
-        // É¾³ı¿½±´²Ù×÷
+        // åˆ é™¤æ‹·è´æ“ä½œ
         ShaderResourceAttribs(const ShaderResourceAttribs& rhs) = delete;
         ShaderResourceAttribs& operator = (const ShaderResourceAttribs& rhs) = delete;
 
@@ -93,21 +95,18 @@ namespace RHI
         {
             return ComputeHash(BindPoint, BindCount, InputType, SRVDimension);
         }
-
-    private:
-        friend class ShaderResources;
     };
     // static_assert(sizeof(ShaderResourceAttribs) == sizeof(void*) + sizeof(UINT32) * 2, "Unexpected sizeof(ShaderResourceAttribs)");
 
 
-    /* ÃèÊöÒ»¸öShaderÊ¹ÓÃµÄËùÓĞ×ÊÔ´,Ê¹ÓÃDXµÄShader·´ÉäÏµÍ³ÊµÏÖ
-    *   ¹ØÓÚÊı×éµÄ´¦Àí£ºÒ»¸öÊı×é»áÓÃÒ»¸öShaderResourceAttribs±íÊ¾£¬µ«ÊÇÔÚRootSignature»á¸ù¾İÊı×éµÄ´óĞ¡ÔÚRoot Table·ÖÅäÏàÓ¦µÄDescriptor,
-    *                Í¬ÀíÒ»¸öÊı×éÒ²ÓÃÒ»¸öShaderVariable±íÊ¾£¬ÏòÊı×éÖĞ°ó¶¨×ÊÔ´Ê±ĞèÒª´«ÔÚÊı×éÖĞµÄË÷Òı
+    /* æè¿°ä¸€ä¸ªShaderä½¿ç”¨çš„æ‰€æœ‰èµ„æº,ä½¿ç”¨DXçš„Shaderåå°„ç³»ç»Ÿå®ç°
+    *   å…³äºæ•°ç»„çš„å¤„ç†ï¼šä¸€ä¸ªæ•°ç»„ä¼šç”¨ä¸€ä¸ªShaderResourceAttribsè¡¨ç¤ºï¼Œä½†æ˜¯åœ¨RootSignatureä¼šæ ¹æ®æ•°ç»„çš„å¤§å°åœ¨Root Tableåˆ†é…ç›¸åº”çš„Descriptor,
+    *                åŒç†ä¸€ä¸ªæ•°ç»„ä¹Ÿç”¨ä¸€ä¸ªShaderVariableè¡¨ç¤ºï¼Œå‘æ•°ç»„ä¸­ç»‘å®šèµ„æºæ—¶éœ€è¦ä¼ åœ¨æ•°ç»„ä¸­çš„ç´¢å¼•
     */
     class ShaderResource
     {
     public:
-        // ´Ó±àÒëºóµÄ×Ö½ÚÂëÀ´³õÊ¼»¯Shader Resource
+        // ä»ç¼–è¯‘åçš„å­—èŠ‚ç æ¥åˆå§‹åŒ–Shader Resource
         ShaderResource(ID3DBlob* pShaderBytecode,
                        const ShaderDesc& shaderDesc);
 
@@ -122,11 +121,11 @@ namespace RHI
         UINT32 GetBufSRVNum() const noexcept { return m_BufferSRVs.size(); }
         UINT32 GetBufUAVNum() const noexcept { return m_BufferUAVs.size(); }
 
-        const ShaderResourceAttribs& GetCB(UINT32 n) const noexcept { assert(n > 0 && n < m_CBs.size()); return m_CBs[n]; }
-        const ShaderResourceAttribs& GetTexSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureSRVs.size()); return m_TextureSRVs[n]; }
-        const ShaderResourceAttribs& GetTexUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureUAVs.size()); return m_TextureUAVs[n]; }
-        const ShaderResourceAttribs& GetBufSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferSRVs.size()); return m_BufferSRVs[n]; }
-        const ShaderResourceAttribs& GetBufUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferUAVs.size()); return m_BufferUAVs[n]; }
+        const ShaderResourceAttribs& GetCB(UINT32 n) const noexcept { assert(n > 0 && n < m_CBs.size()); return *m_CBs[n].get(); }
+        const ShaderResourceAttribs& GetTexSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureSRVs.size()); return *m_TextureSRVs[n].get(); }
+        const ShaderResourceAttribs& GetTexUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureUAVs.size()); return *m_TextureUAVs[n].get(); }
+        const ShaderResourceAttribs& GetBufSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferSRVs.size()); return *m_BufferSRVs[n].get(); }
+        const ShaderResourceAttribs& GetBufUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferUAVs.size()); return *m_BufferUAVs[n].get(); }
 
         SHADER_TYPE GetShaderType() const noexcept { return m_ShaderType; }
 
@@ -162,7 +161,7 @@ namespace RHI
 
         size_t GetHash() const;
 
-        // ´ÓÉÏ²ãÅäÖÃµÄPSOµÄShaderVariableConfigÕÒµ½¶ÔÓ¦ShaderResourceµÄVariable Type£¨Static¡¢Mutable¡¢Dynamic£©
+        // ä»ä¸Šå±‚é…ç½®çš„PSOçš„ShaderVariableConfigæ‰¾åˆ°å¯¹åº”ShaderResourceçš„Variable Typeï¼ˆStaticã€Mutableã€Dynamicï¼‰
         SHADER_RESOURCE_VARIABLE_TYPE FindVariableType(const ShaderResourceAttribs& ResourceAttribs,
             const ShaderVariableConfig& shaderVariableConfig) const;
 
@@ -173,13 +172,13 @@ namespace RHI
         }
 
     private:
-        // TODO:¿ÉÒÔÊ¹ÓÃÒ»¸öVectorÀ´ÓÅ»¯
-    	// ÕâÀï·Ö×éµÄÄ¿µÄÊÇ°ÑD3DÖĞ²»Í¬µÄÀàĞÍ×ª»»ÎªÕâ¼¸ÖÖÀàĞÍ£ºCBV¡¢TexSRV¡¢TexUAV¡¢BufferSRV¡¢BufferUAV
-        std::vector<ShaderResourceAttribs> m_CBs;
-        std::vector<ShaderResourceAttribs> m_TextureSRVs;
-        std::vector<ShaderResourceAttribs> m_TextureUAVs;
-        std::vector<ShaderResourceAttribs> m_BufferSRVs;
-        std::vector<ShaderResourceAttribs> m_BufferUAVs;
+        // TODO:å¯ä»¥ä½¿ç”¨ä¸€ä¸ªVectoræ¥ä¼˜åŒ–
+    	// è¿™é‡Œåˆ†ç»„çš„ç›®çš„æ˜¯æŠŠD3Dä¸­ä¸åŒçš„ç±»å‹è½¬æ¢ä¸ºè¿™å‡ ç§ç±»å‹ï¼šCBVã€TexSRVã€TexUAVã€BufferSRVã€BufferUAV
+        std::vector<std::unique_ptr<ShaderResourceAttribs>> m_CBs;
+        std::vector<std::unique_ptr<ShaderResourceAttribs>> m_TextureSRVs;
+        std::vector<std::unique_ptr<ShaderResourceAttribs>> m_TextureUAVs;
+        std::vector<std::unique_ptr<ShaderResourceAttribs>> m_BufferSRVs;
+        std::vector<std::unique_ptr<ShaderResourceAttribs>> m_BufferUAVs;
 
         const SHADER_TYPE m_ShaderType;
 

@@ -1,8 +1,5 @@
 #include "pch.h"
 #include "ShaderResourceLayout.h"
-#include "TextureView.h"
-#include "BufferView.h"
-#include "Buffer.h"
 #include "ShaderResourceBindingUtility.h"
 #include "RootSignature.h"
 
@@ -17,7 +14,7 @@ namespace RHI
 											   RootSignature* rootSignature) :
 		m_D3D12Device(pd3d12Device)
 	{
-		// °ÑShaderResourceÖĞµÄÃ¿¸ö×ÊÔ´¶¼Í¨¹ıRootSignatureÈ·¶¨RootIndexºÍOffsetFromTableStart£¬È»ºó´æ´¢ÏÂÀ´
+		// æŠŠShaderResourceä¸­çš„æ¯ä¸ªèµ„æºéƒ½é€šè¿‡RootSignatureç¡®å®šRootIndexå’ŒOffsetFromTableStartï¼Œç„¶åå­˜å‚¨ä¸‹æ¥
 		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
 							   BindingResourceType              ResType,
 							   SHADER_RESOURCE_VARIABLE_TYPE   VarType) //
@@ -30,10 +27,11 @@ namespace RHI
 			D3D12_DESCRIPTOR_RANGE_TYPE DescriptorRangeType = GetDescriptorRangeType(ResType);
 			SHADER_TYPE shaderType = shaderResource->GetShaderType();
 			
-			// °´ÕÕShaderResourceÖĞµÄË³ĞòÌí¼Óµ½RootSignatureÖĞ£¬²¢·ÖÅäRootIndexºÍOffset
+			// æŒ‰ç…§ShaderResourceä¸­çš„é¡ºåºæ·»åŠ åˆ°RootSignatureä¸­ï¼Œå¹¶åˆ†é…RootIndexå’ŒOffset
 			rootSignature->AllocateResourceSlot(shaderType, pipelineType, Attribs, VarType, DescriptorRangeType, RootIndex, Offset);
 
-			m_SrvCbvUavs[VarType].emplace_back(*this, Attribs, VarType, ResType, RootIndex, Offset);
+			std::unique_ptr<Resource> resource = std::make_unique<Resource>(*this, Attribs, VarType, ResType, RootIndex, Offset);
+			m_SrvCbvUavs[VarType].push_back(std::move(resource));
 		};
 
 		shaderResource->ProcessResources(
@@ -86,37 +84,37 @@ namespace RHI
 		return false;
 	}
 
-	// °ó¶¨Constant BufferÊ±Ö»ĞèÒª³ÖÓĞGpuBuffer¶ÔÏó£¬Ìá½»×ÊÔ´Ê±Ö»ĞèÒªBufferµÄGPUµØÖ·
+	// ç»‘å®šConstant Bufferæ—¶åªéœ€è¦æŒæœ‰GpuBufferå¯¹è±¡ï¼Œæäº¤èµ„æºæ—¶åªéœ€è¦Bufferçš„GPUåœ°å€
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
-		// Ö»ÓĞConstant Buffer×÷ÎªRoot Descriptor°ó¶¨£¡£¡£¡
+		// åªæœ‰Constant Bufferä½œä¸ºRoot Descriptorç»‘å®šï¼ï¼ï¼
 		assert(ResourceType == BindingResourceType::CBV);
 
 		ShaderResourceCache::RootDescriptor& rootDescriptor = resourceCache.GetRootDescriptor(RootIndex);
 
 		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootDescriptor.ConstantBuffer != nullptr)
 		{
-			// Èç¹ûÒÑ¾­°ó¶¨ÁË×ÊÔ´¾Í²»¸üĞÂ£¬³ı·ÇÊÇDynamic×ÊÔ´
+			// å¦‚æœå·²ç»ç»‘å®šäº†èµ„æºå°±ä¸æ›´æ–°ï¼Œé™¤éæ˜¯Dynamicèµ„æº
 			return;
 		}
 
 		rootDescriptor.ConstantBuffer = buffer;
 	}
 
-	// °ó¶¨Root TableÖĞµÄDescriptorÊ±£¬ĞèÒª°Ñ×ÊÔ´ÔÚCPUDescriptorHeapÖĞµÄDescriptor¿½±´µ½ShaderResourceCacheÖĞµÄGPUDescriptorHeapÖĞ
+	// ç»‘å®šRoot Tableä¸­çš„Descriptoræ—¶ï¼Œéœ€è¦æŠŠèµ„æºåœ¨CPUDescriptorHeapä¸­çš„Descriptoræ‹·è´åˆ°ShaderResourceCacheä¸­çš„GPUDescriptorHeapä¸­
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceDescriptor> descriptor, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
 		ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
 
-		// Èç¹ûÒÑ¾­°ó¶¨ÁË×ÊÔ´¾Í²»¸üĞÂ£¬³ı·ÇÊÇDynamic×ÊÔ´
+		// å¦‚æœå·²ç»ç»‘å®šäº†èµ„æºå°±ä¸æ›´æ–°ï¼Œé™¤éæ˜¯Dynamicèµ„æº
 		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootTable.Descriptors[OffsetFromTableStart + arrayIndex] != nullptr)
 		{
 			return;
 		}
-		// ±£´ædescriptor¶ÔÏóµÄÒıÓÃ
+		// ä¿å­˜descriptorå¯¹è±¡çš„å¼•ç”¨
 		rootTable.Descriptors[OffsetFromTableStart + arrayIndex] = descriptor;
 
-		// Static¡¢MutableµÄ×ÊÔ´»áCopyµ½ShaderResourceCacheµÄGPUDescriptorHeapÖĞ£¬Dynamic×ÊÔ´Ã¿Ö¡¶¯Ì¬·ÖÅä£¬Ö»ĞèÒª¼ÇÂ¼×ÊÔ´ÔÚCPUDescriptorHeapÖĞµÄDescriptor
+		// Staticã€Mutableçš„èµ„æºä¼šCopyåˆ°ShaderResourceCacheçš„GPUDescriptorHeapä¸­ï¼ŒDynamicèµ„æºæ¯å¸§åŠ¨æ€åˆ†é…ï¼Œåªéœ€è¦è®°å½•èµ„æºåœ¨CPUDescriptorHeapä¸­çš„Descriptor
 		D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle = resourceCache.
 			GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(RootIndex, OffsetFromTableStart + arrayIndex);
 
@@ -125,7 +123,7 @@ namespace RHI
 			ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
 			d3d12Device->CopyDescriptorsSimple(1,
 				shaderVisibleHeapCPUDescriptorHandle,
-				descriptor->CPUDescriptorHandle,
+				descriptor->GetCpuHandle(),
 				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		}
 	}

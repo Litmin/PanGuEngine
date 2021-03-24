@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderCore/Mesh.h"
+#include "Renderer/Mesh.h"
 
 class ResourceManager : public Singleton<ResourceManager>
 {
