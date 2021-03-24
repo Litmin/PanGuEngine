@@ -10,7 +10,6 @@ namespace RHI
     class GpuResourceDescriptor
     {
     public:
-
         GpuResourceDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type);
 
         D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const;

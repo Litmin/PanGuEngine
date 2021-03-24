@@ -103,6 +103,9 @@ namespace RHI
 			std::wstring rootSignatureName(L"RootSignature For PSO ");
 			rootSignatureName.append(m_Desc.Name);
 			m_RootSignature.GetD3D12RootSignature()->SetName(rootSignatureName.c_str());
+
+			const static SHADER_RESOURCE_VARIABLE_TYPE staticVarType[] = { SHADER_RESOURCE_VARIABLE_TYPE_STATIC };
+			m_StaticSRB = std::make_unique<ShaderResourceBinding>(this, staticVarType, 1);
 		}
 
 		// TODO: Compute Pipeline
@@ -132,7 +135,9 @@ namespace RHI
 
 	ShaderResourceBinding* PipelineState::CreateShaderResourceBinding()
 	{
- 		std::unique_ptr<ShaderResourceBinding> SRB = std::make_unique<ShaderResourceBinding>(this);
+		const static SHADER_RESOURCE_VARIABLE_TYPE mutableDynamicVarType[] = { SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC };
+
+ 		std::unique_ptr<ShaderResourceBinding> SRB = std::make_unique<ShaderResourceBinding>(this, mutableDynamicVarType, 2);
  		m_MutableDynamicSRBs.push_back(std::move(SRB));
  
  		return m_MutableDynamicSRBs.back().get();
