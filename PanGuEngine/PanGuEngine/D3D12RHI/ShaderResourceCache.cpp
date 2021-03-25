@@ -2,6 +2,7 @@
 #include "ShaderResourceCache.h"
 #include "RootSignature.h"
 #include "RenderDevice.h"
+#include "ShaderResourceBindingUtility.h"
 
 using namespace std;
 
@@ -40,7 +41,7 @@ namespace RHI
 
 
 			if (IsAllowedType(variableType, allowedTypeBits))
-				m_RootTables.insert(make_pair(rootIndex, RootTable(rootTableSize)));
+				m_RootTables.insert({ rootIndex, RootTable(rootTableSize) });
 
 			if (variableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{

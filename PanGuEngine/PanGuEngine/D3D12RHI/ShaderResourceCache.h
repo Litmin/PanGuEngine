@@ -42,7 +42,10 @@ namespace RHI
 
         struct RootTable
         {
-            RootTable(UINT32 tableSize) : Descriptors(tableSize){}
+            // TODO: RootTable没有默认构造函数会报错：
+            // Error C2512	'RHI::ShaderResourceCache::RootTable::RootTable': no appropriate default constructor available	
+            // PanGuEngine	F:\Tools\VS2019\VC\Tools\MSVC\14.28.29333\include\tuple	980	
+            RootTable(UINT32 tableSize = 0) : Descriptors(tableSize){}
 
             // 每个Root Table在GPUDescriptorHeap中的起始位置
             UINT32 TableStartOffset = InvalidDescriptorOffset;

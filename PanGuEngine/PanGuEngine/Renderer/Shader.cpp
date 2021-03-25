@@ -6,9 +6,9 @@
 using namespace std;
 using Microsoft::WRL::ComPtr;
 
-Shader::Shader()
+ShaderOld::ShaderOld()
 {
-	// °ó¶¨Í¨ÓÃ²ÎÊı
+	// ç»‘å®šé€šç”¨å‚æ•°
 	// Per Object Buffer
 	ShaderParameter perObject("cbPerObject", ShaderParamType::CBVDescriptorHeap, 1, 0, 0);
 	m_ParamMap[ShaderManager::GetSingleton().PropertyToID("cbPerObject")] = m_Params.size();
@@ -19,27 +19,27 @@ Shader::Shader()
 	m_ParamMap[ShaderManager::GetSingleton().PropertyToID("cbPass")] = m_Params.size();
 	m_Params.push_back(perPass);
 
-	// ¹âÕÕ²ÎÊı
+	// å…‰ç…§å‚æ•°
 
 
-	// Ã¿¸öShader¿ÉÒÔoverrideÕâĞ©äÖÈ¾×´Ì¬
+	// æ¯ä¸ªShaderå¯ä»¥overrideè¿™äº›æ¸²æŸ“çŠ¶æ€
 	m_RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	m_BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	m_DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 }
 
-void Shader::Initialize(ID3D12Device* device)
+void ShaderOld::Initialize(ID3D12Device* device)
 {
-	// ±àÒëShader
+	// ç¼–è¯‘Shader
 	m_VS = d3dUtil::CompileShader(m_FilePath, nullptr, m_VSEntry, "vs_5_0");
 	m_PS = d3dUtil::CompileShader(m_FilePath, nullptr, m_PSEntry, "ps_5_0");
 
-	// ¸ù¾İ²ÎÊı´´½¨¸ùÇ©Ãû
+	// æ ¹æ®å‚æ•°åˆ›å»ºæ ¹ç­¾å
 	vector<CD3DX12_ROOT_PARAMETER> rootParameters;
 	vector<CD3DX12_DESCRIPTOR_RANGE> texTables;
 	vector<CD3DX12_DESCRIPTOR_RANGE> constantTables;
 
-	// TODO:ÓÃ¸üºÃµÄ·½Ê½³õÊ¼»¯¸ùÇ©Ãû²ÎÊı
+	// TODO:ç”¨æ›´å¥½çš„æ–¹å¼åˆå§‹åŒ–æ ¹ç­¾åå‚æ•°
 	constantTables.reserve(m_Params.size());
 
 	for (auto& shaderParameter : m_Params)
@@ -93,12 +93,12 @@ void Shader::Initialize(ID3D12Device* device)
 		IID_PPV_ARGS(m_RootSignature.GetAddressOf())));
 }
 
-void Shader::BindRootSignature(ID3D12GraphicsCommandList* commandList)
+void ShaderOld::BindRootSignature(ID3D12GraphicsCommandList* commandList)
 {
 	commandList->SetGraphicsRootSignature(m_RootSignature.Get());
 }
 
-void Shader::SetDescriptorTable(ID3D12GraphicsCommandList* commandList, UINT paramID, CD3DX12_GPU_DESCRIPTOR_HANDLE handle)
+void ShaderOld::SetDescriptorTable(ID3D12GraphicsCommandList* commandList, UINT paramID, CD3DX12_GPU_DESCRIPTOR_HANDLE handle)
 {
 	auto&& ite = m_ParamMap.find(paramID);
 	if (ite == m_ParamMap.end())
@@ -110,7 +110,7 @@ void Shader::SetDescriptorTable(ID3D12GraphicsCommandList* commandList, UINT par
 	commandList->SetGraphicsRootDescriptorTable(rootParamIndex, handle);
 }
 
-void Shader::SetRootConstantBufferView(ID3D12GraphicsCommandList* commandList, UINT paramID, D3D12_GPU_VIRTUAL_ADDRESS address)
+void ShaderOld::SetRootConstantBufferView(ID3D12GraphicsCommandList* commandList, UINT paramID, D3D12_GPU_VIRTUAL_ADDRESS address)
 {
 	auto&& ite = m_ParamMap.find(paramID);
 	if (ite == m_ParamMap.end())
@@ -122,7 +122,7 @@ void Shader::SetRootConstantBufferView(ID3D12GraphicsCommandList* commandList, U
 	commandList->SetGraphicsRootConstantBufferView(rootParamIndex, address);
 }
 
-void Shader::SetPSODesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc)
+void ShaderOld::SetPSODesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc)
 {
 	psoDesc->VS =
 	{
@@ -140,7 +140,7 @@ void Shader::SetPSODesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc)
 	psoDesc->BlendState = m_BlendState;
 }
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Shader::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> ShaderOld::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature.  

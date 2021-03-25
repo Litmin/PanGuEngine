@@ -3,6 +3,7 @@
 #include "ShaderResourceCache.h"
 #include "GpuBuffer.h"
 #include "GpuResourceDescriptor.h"
+#include "ShaderResourceBindingUtility.h"
 
 namespace RHI 
 {
@@ -53,29 +54,9 @@ namespace RHI
     public:
         // 为ShaderResourceLayout中的每个Shader资源创建一个ShaderVariable
         ShaderVariableCollection(ShaderResourceCache& resourceCache,
-                              const ShaderResourceLayout& srcLayout,
-                              const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
-                              UINT32 allowedTypeNum) :
-            m_ResourceCache{resourceCache}
-        {
-            const UINT32 allowedTypeBits = GetAllowedTypeBits(allowedVarTypes, allowedTypeNum);
-
-            for (SHADER_RESOURCE_VARIABLE_TYPE varType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-                varType < SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES;
-                varType = static_cast<SHADER_RESOURCE_VARIABLE_TYPE>(varType + 1))
-            {
-                if (!IsAllowedType(varType, allowedTypeBits))
-                    continue;
-
-                UINT32 resourceNum = srcLayout.GetCbvSrvUavCount(varType);
-                for (UINT32 i = 0; i < resourceNum; ++i)
-                {
-                    const auto& srcResource = srcLayout.GetSrvCbvUav(varType, i);
-                    std::unique_ptr<ShaderVariable> shaderVariable = std::make_unique<ShaderVariable>(*this, srcResource);
-                    m_Variables.push_back(std::move(shaderVariable));
-                }
-            }
-        }
+            const ShaderResourceLayout& srcLayout,
+            const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
+            UINT32 allowedTypeNum);
         
 
         ShaderVariable* GetVariable(const std::string& name);

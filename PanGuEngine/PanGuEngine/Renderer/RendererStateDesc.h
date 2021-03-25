@@ -3,10 +3,10 @@
 
 struct RendererStateDesc
 {
-	Shader* shaderPtr;
+	ShaderOld* shaderPtr;
 	UINT inputLayoutIndex;
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE topology;
-	RendererStateDesc(Shader* shaderPtr, UINT inputLayoutIndex, D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) :
+	RendererStateDesc(ShaderOld* shaderPtr, UINT inputLayoutIndex, D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) :
 		shaderPtr(shaderPtr),
 		inputLayoutIndex(inputLayoutIndex),
 		topology(topology)

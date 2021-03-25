@@ -27,24 +27,6 @@ void GameObject::DestroyChildren()
 {
 }
 
-void GameObject::AttachObject(Component* movableObject)
-{
-	m_Components.push_back(unique_ptr<Component>(movableObject));
-	
-	// TODO:Remove dynamic_cast
-	MeshRenderer* meshRenderer = dynamic_cast<MeshRenderer*>(movableObject);
-	if (nullptr != meshRenderer)
-	{
-		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
-	}
-
-	Camera* camera = dynamic_cast<Camera*>(movableObject);
-	if (nullptr != camera)
-	{
-		SceneManager::GetSingleton().AddCamera(camera);
-	}
-}
-
 void GameObject::Translate(float x, float y, float z, Space relativeTo)
 {
 	m_TransformDirty = true;
@@ -111,11 +93,11 @@ void GameObject::_UpdateFromParent()
 
 		m_DerivedScale = parentScale * m_Scale;
 		m_DerivedRotation = parentRotation * m_Rotation;
-		// ×Ó½ÚµãµÄPosition¸ú¸¸½ÚµãµÄScale¡¢RotationÓĞ¹Ø
+		// å­èŠ‚ç‚¹çš„Positionè·Ÿçˆ¶èŠ‚ç‚¹çš„Scaleã€Rotationæœ‰å…³
 		m_DerivedPosition = parentRotation * (parentScale * m_Position);
 		m_DerivedPosition += parentPosition;
 
-		// TODO:ÓÅ»¯£¬È¥µôÈı¸ö¾ØÕóµÄ³Ë·¨£¬Ö»ĞèÒª´ÓËÄÔªÊı¹¹ÔìÒ»¸ö¾ØÕó
+		// TODO:ä¼˜åŒ–ï¼Œå»æ‰ä¸‰ä¸ªçŸ©é˜µçš„ä¹˜æ³•ï¼Œåªéœ€è¦ä»å››å…ƒæ•°æ„é€ ä¸€ä¸ªçŸ©é˜µ
 		XMMATRIX scale = XMMatrixScalingFromVector(m_DerivedScale);
 		XMMATRIX rotate = XMMatrixRotationQuaternion(m_DerivedRotation);
 		XMMATRIX translation = XMMatrixTranslationFromVector(m_DerivedPosition);

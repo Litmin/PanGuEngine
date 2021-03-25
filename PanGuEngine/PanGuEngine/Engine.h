@@ -10,6 +10,11 @@
 #include "Resource/ResourceManager.h"
 #include "Renderer/GraphicContext.h"
 
+struct EngineCreateInfo
+{
+
+};
+
 class Engine
 {
 public:

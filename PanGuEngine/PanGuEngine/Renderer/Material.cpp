@@ -2,7 +2,7 @@
 #include "Material.h"
 #include "ShaderManager.h"
 
-Material::Material(Shader* shader) :
+Material::Material(ShaderOld* shader) :
 	m_Shader(shader)
 {
 }

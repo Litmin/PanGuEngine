@@ -6,7 +6,33 @@ using namespace std;
 
 namespace RHI
 {
-    ShaderVariable* ShaderVariableCollection::GetVariable(const string& name)
+
+	ShaderVariableCollection::ShaderVariableCollection(ShaderResourceCache& resourceCache, 
+													   const ShaderResourceLayout& srcLayout, 
+													   const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes, 
+													   UINT32 allowedTypeNum) :
+		m_ResourceCache{ resourceCache }
+	{
+		const UINT32 allowedTypeBits = GetAllowedTypeBits(allowedVarTypes, allowedTypeNum);
+
+		for (SHADER_RESOURCE_VARIABLE_TYPE varType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+			varType < SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES;
+			varType = static_cast<SHADER_RESOURCE_VARIABLE_TYPE>(varType + 1))
+		{
+			if (!IsAllowedType(varType, allowedTypeBits))
+				continue;
+
+			UINT32 resourceNum = srcLayout.GetCbvSrvUavCount(varType);
+			for (UINT32 i = 0; i < resourceNum; ++i)
+			{
+				const auto& srcResource = srcLayout.GetSrvCbvUav(varType, i);
+				std::unique_ptr<ShaderVariable> shaderVariable = std::make_unique<ShaderVariable>(*this, srcResource);
+				m_Variables.push_back(std::move(shaderVariable));
+			}
+		}
+	}
+
+	ShaderVariable* ShaderVariableCollection::GetVariable(const string& name)
     {
         for (UINT32 i = 0; i < m_Variables.size(); ++i)
         {

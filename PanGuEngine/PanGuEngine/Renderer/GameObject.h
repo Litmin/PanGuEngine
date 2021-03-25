@@ -3,11 +3,7 @@
 #include "Component.h"
 #include "Math/Vector.h"
 #include "Math/Quaternion.h"
-/*
-------------------------------------------------------------
-	GameObjectÊÇ³¡¾°µÄ×éÖ¯·½Ê½£¬¹¹³É³¡¾°Í¼
-------------------------------------------------------------
-*/
+
 
 enum class Space
 {
@@ -21,12 +17,11 @@ public:
 	GameObject(GameObject* parent);
 	~GameObject();
 
-	// ´´½¨×Ó½Úµã
+	// åˆ›å»ºå­èŠ‚ç‚¹
 	GameObject* CreateChild();
-	// É¾³ıËùÓĞ×Ó½Úµã
+	// åˆ é™¤æ‰€æœ‰å­èŠ‚ç‚¹
 	void DestroyChildren();
 
-	void AttachObject(Component* movableObject);
 	template<typename T> T* AddComponent();
 	template<typename T> T* GetComponent();
 
@@ -48,12 +43,9 @@ public:
 private:
 	void _UpdateFromParent();
 
-private:
-	// ³¡¾°¹ÜÀíÆ÷
-	SceneManager* m_SceneManager;
-	// ¸¸½Úµã
+	// çˆ¶èŠ‚ç‚¹
 	GameObject* m_Parent;
-	// ×Ó½Úµã
+	// å­èŠ‚ç‚¹
 	std::vector<std::unique_ptr<GameObject>> m_Children;
 
 	// Transform
@@ -68,7 +60,7 @@ private:
 	DirectX::XMFLOAT4X4 m_WorldToLocalMatrix;
 
 	bool m_TransformDirty = true;
-	// Ã¿¸öÎïÌåµÄConstant BufferË÷Òı
+	// æ¯ä¸ªç‰©ä½“çš„Constant Bufferç´¢å¼•
 	UINT m_ObjCBIndex = -1;
 
 	// Components
@@ -85,7 +77,7 @@ inline T* GameObject::AddComponent()
 
 	if (component != nullptr)
 	{
-		std::cout << "Warning: Already have Component" << std::endl;
+		LOG_WARNING("Warning: Already have Component");
 		return component;
 	}
 

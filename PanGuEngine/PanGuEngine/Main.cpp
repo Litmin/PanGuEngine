@@ -56,6 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		meshRenderer2->SetMaterial(material.get());
 
 
+		// TODO: 在Component的Add回调中处理
 		SceneManager::GetSingleton().AddCamera(camera);
 		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
 		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer2);

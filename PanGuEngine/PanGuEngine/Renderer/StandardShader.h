@@ -1,7 +1,7 @@
 #pragma once
 #include "Shader.h"
 
-class StandardShader : public Shader
+class StandardShader : public ShaderOld
 {
 public:
 	StandardShader();

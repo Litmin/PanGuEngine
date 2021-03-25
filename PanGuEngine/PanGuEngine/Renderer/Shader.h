@@ -3,21 +3,21 @@
 #include "ShaderManager.h"
 
 /*----------------------------------------------------
-	ShaderµÄ²ÎÊıÀàĞÍ
-		ÎÆÀíµÄÃèÊö·û²»ÄÜÖ±½Ó×÷Îª¸ùÃèÊö·û
+	Shaderçš„å‚æ•°ç±»å‹
+		çº¹ç†çš„æè¿°ç¬¦ä¸èƒ½ç›´æ¥ä½œä¸ºæ ¹æè¿°ç¬¦
 ----------------------------------------------------*/
 enum class ShaderParamType
 {
-	ConstantBuffer,		// ¸ùÃèÊö·û£¬CBV
-	CBVDescriptorHeap,	// ¸ùÃèÊö·û±í£¬CBV
-	SRVDescriptorHeap,	// ¸ùÃèÊö·û±í£¬SRV
-	UAVDescriptorHeap,	// ¸ùÃèÊö·û±í£¬UAV
+	ConstantBuffer,		// æ ¹æè¿°ç¬¦ï¼ŒCBV
+	CBVDescriptorHeap,	// æ ¹æè¿°ç¬¦è¡¨ï¼ŒCBV
+	SRVDescriptorHeap,	// æ ¹æè¿°ç¬¦è¡¨ï¼ŒSRV
+	UAVDescriptorHeap,	// æ ¹æè¿°ç¬¦è¡¨ï¼ŒUAV
 	StructuredBuffer	// TODO:
 };
 
 /*----------------------------------------------------
-	Shader²ÎÊı
-		Ãû×Ö¡¢ÀàĞÍ¡¢ÃèÊö·ûÊıÁ¿¡¢Register¡¢RegisterSpace
+	Shaderå‚æ•°
+		åå­—ã€ç±»å‹ã€æè¿°ç¬¦æ•°é‡ã€Registerã€RegisterSpace
 ----------------------------------------------------*/
 struct ShaderParameter
 {
@@ -41,23 +41,23 @@ struct ShaderParameter
 };
 
 /*----------------------------------------------------
-	Shader»ùÀà£º
-		ÕæÕıÔËĞĞÔÚGPUµÄShader(VS¡¢FS)
-		äÖÈ¾×´Ì¬(¹âÕ¤»¯¡¢Éî¶ÈÄ£°å²âÊÔ¡¢»ìºÏ)
-		²ÎÊı²¼¾Ö
+	ShaderåŸºç±»ï¼š
+		çœŸæ­£è¿è¡Œåœ¨GPUçš„Shader(VSã€FS)
+		æ¸²æŸ“çŠ¶æ€(å…‰æ …åŒ–ã€æ·±åº¦æ¨¡æ¿æµ‹è¯•ã€æ··åˆ)
+		å‚æ•°å¸ƒå±€
 
-	¾ßÌåµÄShaderĞèÒª¼Ì³ĞShader»ùÀà£¬ÔÚ¹¹Ôìº¯ÊıÍê³ÉShader²ÎÊıµÄ°ó¶¨
+	å…·ä½“çš„Shaderéœ€è¦ç»§æ‰¿ShaderåŸºç±»ï¼Œåœ¨æ„é€ å‡½æ•°å®ŒæˆShaderå‚æ•°çš„ç»‘å®š
 ----------------------------------------------------*/
-class Shader
+class ShaderOld
 {
 public:
-	Shader();
-	virtual ~Shader();
-	void Initialize(ID3D12Device* device);
+	ShaderOld();
+	virtual ~ShaderOld() {}
+	virtual void Initialize(ID3D12Device* device);
 
 	void BindRootSignature(ID3D12GraphicsCommandList* commandList);
-	// °ó¶¨²ÎÊı£¬²ÄÖÊÍ¨¹ı¸Ã½Ó¿Ú½«±£´æµÄ²ÎÊı°ó¶¨µ½¹ÜÏßÖĞ
-	// TODO:³éÏóGPU×ÊÔ´£¬°ó¶¨²ÎÊıÕûºÏÎªÒ»¸ö½Ó¿Ú
+	// ç»‘å®šå‚æ•°ï¼Œæè´¨é€šè¿‡è¯¥æ¥å£å°†ä¿å­˜çš„å‚æ•°ç»‘å®šåˆ°ç®¡çº¿ä¸­
+	// TODO:æŠ½è±¡GPUèµ„æºï¼Œç»‘å®šå‚æ•°æ•´åˆä¸ºä¸€ä¸ªæ¥å£
 	void SetDescriptorTable(ID3D12GraphicsCommandList* commandList, UINT paramID, CD3DX12_GPU_DESCRIPTOR_HANDLE handle);
 	void SetRootConstantBufferView(ID3D12GraphicsCommandList* commandList, UINT paramID, D3D12_GPU_VIRTUAL_ADDRESS address);
 
@@ -72,8 +72,8 @@ private:
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 protected:
-	// Shader²ÎÊı
-	// <ShaderµÄ²ÎÊıID£¬Õâ¸ö²ÎÊıÔÚ¸ùÇ©ÃûµÄ¸ù²ÎÊıË÷Òı>
+	// Shaderå‚æ•°
+	// <Shaderçš„å‚æ•°IDï¼Œè¿™ä¸ªå‚æ•°åœ¨æ ¹ç­¾åçš„æ ¹å‚æ•°ç´¢å¼•>
 	std::unordered_map<UINT, UINT> m_ParamMap;
 	std::vector<ShaderParameter> m_Params;
 
