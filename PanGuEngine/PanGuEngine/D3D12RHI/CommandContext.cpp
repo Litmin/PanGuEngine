@@ -120,7 +120,7 @@ namespace RHI
 		CommandContext& InitContext = CommandContext::Begin();
 
 		// Copy到UploadBuffer,这里的UploadBuffer会自动释放，在析构函数中会调用SafeRelease
-		UploadBuffer uploadBuffer(1, NumBytes);
+		GpuUploadBuffer uploadBuffer(1, NumBytes);
 		void* dataPtr = uploadBuffer.Map();
 		memcpy(dataPtr, Data, NumBytes);
 		
@@ -132,7 +132,7 @@ namespace RHI
 		InitContext.Finish(true);
 	}
 
-	void CommandContext::InitializeBuffer(GpuBuffer& Dest, const UploadBuffer& Src, size_t SrcOffset, size_t NumBytes /*= -1*/, size_t DestOffset /*= 0*/)
+	void CommandContext::InitializeBuffer(GpuBuffer& Dest, const GpuUploadBuffer& Src, size_t SrcOffset, size_t NumBytes /*= -1*/, size_t DestOffset /*= 0*/)
 	{
 		CommandContext& InitContext = CommandContext::Begin();
 
@@ -152,7 +152,7 @@ namespace RHI
 		CommandContext& InitContext = CommandContext::Begin();
 
 		UINT64 uploadBufferSize = GetRequiredIntermediateSize(Dest.GetResource(), 0, NumSubresources);
-		UploadBuffer uploadBuffer(1, uploadBufferSize);
+		GpuUploadBuffer uploadBuffer(1, uploadBufferSize);
 
 		UpdateSubresources(InitContext.m_CommandList.Get(), Dest.GetResource(), uploadBuffer.GetResource(), 0, 0, NumSubresources, SubData);
 		InitContext.TransitionResource(Dest, D3D12_RESOURCE_STATE_GENERIC_READ);

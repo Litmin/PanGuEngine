@@ -5,28 +5,26 @@
 
 namespace RHI
 {
-
-	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData, 
-						 D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState)
+	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, D3D12_RESOURCE_STATES initialState, D3D12_HEAP_TYPE heapType)
 	{
 		m_ElementCount = NumElements;
 		m_ElementSize = ElementSize;
 		m_BufferSize = NumElements * ElementSize;
+		m_UsageState = initialState;
+		m_HeapType = heapType;
+	}
 
-		m_UsageState = D3D12_RESOURCE_STATE_COMMON;
-
-
+	void GpuBuffer::CreateBufferResource(const void* initialData)
+	{
 		D3D12_RESOURCE_DESC ResourceDesc = DescribeBuffer();
-
 		D3D12_HEAP_PROPERTIES HeapProps;
-		HeapProps.Type = heapType;
+		HeapProps.Type = m_HeapType;
 		HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 		HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 		HeapProps.CreationNodeMask = 1;
 		HeapProps.VisibleNodeMask = 1;
 
 		ID3D12Device* d3dDevice = RenderDevice::GetSingleton().GetD3D12Device();
-
 		ThrowIfFailed(d3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE,
 			&ResourceDesc, m_UsageState, nullptr, IID_PPV_ARGS(&m_pResource)));
 
@@ -37,27 +35,17 @@ namespace RHI
 			CommandContext::InitializeBuffer(*this, initialData, m_BufferSize);
 	}
 
-	GpuBuffer::GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset, 
-						 D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState)
+	void GpuBuffer::CreateBufferResource(const GpuUploadBuffer& srcData, UINT32 srcOffset)
 	{
-		m_ElementCount = NumElements;
-		m_ElementSize = ElementSize;
-		m_BufferSize = NumElements * ElementSize;
-
-		m_UsageState = D3D12_RESOURCE_STATE_COMMON;
-
-
 		D3D12_RESOURCE_DESC ResourceDesc = DescribeBuffer();
-
 		D3D12_HEAP_PROPERTIES HeapProps;
-		HeapProps.Type = heapType;
+		HeapProps.Type = m_HeapType;
 		HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 		HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 		HeapProps.CreationNodeMask = 1;
 		HeapProps.VisibleNodeMask = 1;
 
 		ID3D12Device* d3dDevice = RenderDevice::GetSingleton().GetD3D12Device();
-
 		ThrowIfFailed(d3dDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE,
 			&ResourceDesc, m_UsageState, nullptr, IID_PPV_ARGS(&m_pResource)));
 
@@ -65,7 +53,6 @@ namespace RHI
 
 		CommandContext::InitializeBuffer(*this, srcData, srcOffset);
 	}
-
 
 	// Offset:起始地址偏移，Size：Buffer的大小，Stride：每个Element的大小
 	D3D12_VERTEX_BUFFER_VIEW GpuBuffer::CreateVBV(size_t Offset, uint32_t Size, uint32_t Stride) const
@@ -133,6 +120,8 @@ namespace RHI
 
 		return descriptor;
 	}
+
+
 
 	D3D12_RESOURCE_DESC GpuBuffer::DescribeBuffer()
 	{

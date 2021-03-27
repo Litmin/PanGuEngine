@@ -5,25 +5,23 @@
 
 namespace RHI 
 {
-    class UploadBuffer;
+    class GpuUploadBuffer;
     class GpuResourceDescriptor;
 
     /**
-    * Default: GPU读写  Upload: CPU写 GPU读
+    * Default: GPU读写  
+    * Upload: CPU写 GPU读 
+    * Dynamic: 动态Buffer，CPU写，GPU读
     */
     class GpuBuffer : public GpuResource
     {
     public:
 
-        // 创建一个Buffer，如果提供了初始数据就会把数据上传到Upload堆中，然后Copy到Buffer
-        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData, 
-                  D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState);
-
-        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset, 
-                  D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState);
+        // 动态资源使用，构造函数中不会创建资源
+        GpuBuffer(UINT32 NumElements, UINT32 ElementSize, D3D12_RESOURCE_STATES initialState, D3D12_HEAP_TYPE heapType);
 
         // Descriptor
-		D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return m_GpuVirtualAddress; }
+		virtual D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return m_GpuVirtualAddress; }
 
         D3D12_VERTEX_BUFFER_VIEW CreateVBV(size_t Offset, uint32_t Size, uint32_t Stride) const;
         D3D12_VERTEX_BUFFER_VIEW CreateVBV(size_t BaseVertexIndex = 0) const;
@@ -40,12 +38,15 @@ namespace RHI
         UINT32 GetElementSize() const { return m_ElementSize; }
 
     protected:
+        void CreateBufferResource(const void* initialData);
+        void CreateBufferResource(const GpuUploadBuffer& srcData, UINT32 srcOffset);
         
 		D3D12_RESOURCE_DESC DescribeBuffer();
 
 
         // Buffer的GPU地址
-		D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress;
+		D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
+        D3D12_HEAP_TYPE m_HeapType;
 
 		UINT64 m_BufferSize;
 		UINT32 m_ElementCount;
@@ -57,24 +58,25 @@ namespace RHI
     public:
 
         GpuDefaultBuffer(UINT32 NumElements, UINT32 ElementSize, const void* initialData) :
-            GpuBuffer(NumElements, ElementSize, initialData, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON)
+            GpuBuffer(NumElements, ElementSize, D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_DEFAULT)
         {
-
+            CreateBufferResource(initialData);
         }
 
-        GpuDefaultBuffer(UINT32 NumElements, UINT32 ElementSize, const UploadBuffer& srcData, UINT32 srcOffset) :
-            GpuBuffer(NumElements, ElementSize, srcData, srcOffset, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON)
+        GpuDefaultBuffer(UINT32 NumElements, UINT32 ElementSize, const GpuUploadBuffer& srcData, UINT32 srcOffset) :
+            GpuBuffer(NumElements, ElementSize, D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_DEFAULT)
         {
-
+            CreateBufferResource(srcData, srcOffset);
         }
     };
 
-	class UploadBuffer : public GpuBuffer
+	class GpuUploadBuffer : public GpuBuffer
 	{
 	public:
-        UploadBuffer(UINT32 NumElements, UINT32 ElementSize) :
-            GpuBuffer(NumElements, ElementSize, nullptr, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ)
+        GpuUploadBuffer(UINT32 NumElements, UINT32 ElementSize) :
+            GpuBuffer(NumElements, ElementSize, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD)
         {
+            CreateBufferResource(nullptr);
         }
 
         void* Map(void)
@@ -89,5 +91,23 @@ namespace RHI
 			m_pResource->Unmap(0, &CD3DX12_RANGE(begin, std::min(end, m_BufferSize)));
         }
 	};
+
+    class GpuDynamicBuffer : public GpuBuffer
+    {
+    public:
+        GpuDynamicBuffer(UINT32 NumElements, UINT32 ElementSize) :
+            GpuBuffer(NumElements, ElementSize, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD)
+        {
+
+        }
+
+        virtual D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const override;
+
+        void Map();
+        void Unmap();
+        
+    protected:
+
+    };
 
 }
