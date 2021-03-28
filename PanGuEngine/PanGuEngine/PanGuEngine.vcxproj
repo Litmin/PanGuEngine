@@ -157,6 +157,7 @@
     <ClCompile Include="D3D12RHI\CommandListManager.cpp" />
     <ClCompile Include="D3D12RHI\CommandQueue.cpp" />
     <ClCompile Include="D3D12RHI\DescriptorHeap.cpp" />
+    <ClCompile Include="D3D12RHI\DynamicResource.cpp" />
     <ClCompile Include="D3D12RHI\GpuBuffer.cpp" />
     <ClCompile Include="D3D12RHI\GpuRenderTexture.cpp" />
     <ClCompile Include="D3D12RHI\GpuRenderTextureColor.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="D3D12RHI\CommandListManager.h" />
     <ClInclude Include="D3D12RHI\CommandQueue.h" />
     <ClInclude Include="D3D12RHI\DescriptorHeap.h" />
+    <ClInclude Include="D3D12RHI\DynamicResource.h" />
     <ClInclude Include="D3D12RHI\GpuBuffer.h" />
     <ClInclude Include="D3D12RHI\GpuRenderTexture.h" />
     <ClInclude Include="D3D12RHI\GpuRenderTextureColor.h" />

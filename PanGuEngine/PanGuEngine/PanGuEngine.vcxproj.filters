@@ -185,6 +185,9 @@
     <ClCompile Include="Core\RingBuffer.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\DynamicResource.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -401,6 +404,9 @@
     </ClInclude>
     <ClInclude Include="Core\RingBuffer.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\DynamicResource.h">
+      <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
