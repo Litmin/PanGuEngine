@@ -160,7 +160,7 @@ namespace RHI
 		void SetConstantBuffer(UINT RootIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferAddress);
 
 		// Descriptor
-		void SetDescriptorHeap(UINT RootIndex);
+		void SetDescriptorTable(UINT RootIndex, D3D12_GPU_DESCRIPTOR_HANDLE DescriptorTable);
 
 		void Draw(UINT VertexCount, UINT VertexStartOffset = 0);
 		void DrawIndexed(UINT IndexCount, UINT StartIndexLocation = 0, INT BaseVertexLocation = 0);

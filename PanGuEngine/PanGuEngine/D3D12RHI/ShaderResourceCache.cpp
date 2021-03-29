@@ -49,6 +49,7 @@ namespace RHI
 				// 设置每个Root Table在Heap中的起始位置，因为Root Table是紧密排列的，所以起始位置就是当前的总数
 				m_RootTables[rootIndex].TableStartOffset = descriptorNum;
 				descriptorNum += rootTableSize;
+				m_NumDynamicDescriptor += rootTableSize;
 			}
 		});
 
@@ -62,16 +63,26 @@ namespace RHI
 
 	void ShaderResourceCache::CommitResource(CommandContext& cmdContext)
 	{
-		// 提交Root View（CBV），只需要绑定Buffer的地址
-		for(const auto& [rootIndex, rootView] : m_RootViews)
+		// Dynamic的资源需要Copy到动态分配的Descriptor Allocation中
+		if (m_NumDynamicDescriptor > 0)
 		{
-			cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, rootView.ConstantBuffer->GetGpuVirtualAddress());
+
 		}
-
-		// 提交Root Table，Dynamic类型的需要分配空间
-		for(const auto& [rootIndex, rootTable] : m_RootTables)
+		// Static、Mutable的资源的Descriptor已经Copy到了ShaderResourceCache的Heap中，直接提交
+		else
 		{
+			// 提交Root View（CBV），只需要绑定Buffer的地址
+			for (const auto& [rootIndex, rootView] : m_RootViews)
+			{
+				cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, rootView.ConstantBuffer->GetGpuVirtualAddress());
+			}
 
+			// 提交Root Table，Dynamic类型的需要分配空间
+			for (const auto& [rootIndex, rootTable] : m_RootTables)
+			{
+				cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, GetShaderVisibleTableGPUDescriptorHandle
+					<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(rootIndex, 0));
+			}
 		}
 		
 	}

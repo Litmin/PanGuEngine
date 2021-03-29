@@ -117,6 +117,8 @@ namespace RHI
         // GPU Descriptor Heap
         DescriptorHeapAllocation m_CbvSrvUavGPUHeapSpace;
 
+        UINT32 m_NumDynamicDescriptor = 0;
+
         std::unordered_map<UINT32/*RootIndex*/, RootDescriptor> m_RootViews;
         std::unordered_map<UINT32/*RootIndex*/, RootTable> m_RootTables;
     };

@@ -333,6 +333,11 @@ namespace RHI
 		m_CommandList->SetGraphicsRootConstantBufferView(RootIndex, BufferAddress);
 	}
 
+	void GraphicsContext::SetDescriptorTable(UINT RootIndex, D3D12_GPU_DESCRIPTOR_HANDLE DescriptorTable)
+	{
+		m_CommandList->SetGraphicsRootDescriptorTable(RootIndex, DescriptorTable);
+	}
+
 	void GraphicsContext::Draw(UINT VertexCount, UINT VertexStartOffset /*= 0*/)
 	{
 		DrawInstanced(VertexCount, 1, VertexStartOffset, 0);
