@@ -11,6 +11,7 @@
 namespace RHI
 {
 	class RenderDevice;
+	class CommandContext;
 
 	// Graphic管线
 	struct GraphicsPipelineDesc
@@ -84,7 +85,7 @@ namespace RHI
 		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由PSO所有
 		ShaderResourceBinding* CreateShaderResourceBinding();
 
-		void CommitShaderResource(ShaderResourceBinding* SRB);
+		void CommitShaderResource(CommandContext& cmdContext, ShaderResourceBinding* SRB);
 
 		/*
 		 * 遍历Shader，执行操作

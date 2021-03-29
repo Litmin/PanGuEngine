@@ -142,5 +142,23 @@ namespace RHI
 		Desc.Width = (UINT64)m_BufferSize;
 		return Desc;
 	}
+
+	D3D12_GPU_VIRTUAL_ADDRESS GpuDynamicBuffer::GetGpuVirtualAddress() const
+	{
+		return m_DynamicData.GPUAddress;
+	}
+
+	/// <summary>
+	/// Map时会在Dynamic Resource Heap上分配一块内存，不需要Unmap
+	/// </summary>
+	/// <param name="cmdContext"></param>
+	/// <param name="alignment">Constant Buffer是256字节对齐，其他的16字节对齐</param>
+	/// <returns></returns>
+	void* GpuDynamicBuffer::Map(CommandContext& cmdContext, size_t alignment)
+	{
+		m_DynamicData = cmdContext.AllocateDynamicSpace(m_BufferSize, alignment);
+		return m_DynamicData.CPUAddress;
+	}
+
 }
 

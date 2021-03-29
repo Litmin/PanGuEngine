@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace RHI
 {
 
@@ -75,8 +74,8 @@ namespace RHI
     };
 
 
-    // 管理所有的动态资源使用的内存
-    class D3D12DynamicMemoryManager
+    // 管理所有的动态资源使用的内存，全局只有一份
+    class DynamicResourceAllocator
     {
     public:
         /// <summary>
@@ -84,14 +83,14 @@ namespace RHI
         /// </summary>
         /// <param name="NumPagesToReserve">预先创建多少Page</param>
         /// <param name="PageSize"></param>
-        D3D12DynamicMemoryManager(UINT32 NumPagesToReserve,
+        DynamicResourceAllocator(UINT32 NumPagesToReserve,
                                   UINT64 PageSize);
-        ~D3D12DynamicMemoryManager();
+        ~DynamicResourceAllocator();
 
-        D3D12DynamicMemoryManager(const D3D12DynamicMemoryManager&) = delete;
-        D3D12DynamicMemoryManager(D3D12DynamicMemoryManager&&) = delete;
-        D3D12DynamicMemoryManager& operator= (const D3D12DynamicMemoryManager&) = delete;
-        D3D12DynamicMemoryManager& operator= (D3D12DynamicMemoryManager&&) = delete;
+        DynamicResourceAllocator(const DynamicResourceAllocator&) = delete;
+        DynamicResourceAllocator(DynamicResourceAllocator&&) = delete;
+        DynamicResourceAllocator& operator= (const DynamicResourceAllocator&) = delete;
+        DynamicResourceAllocator& operator= (DynamicResourceAllocator&&) = delete;
 
         void ReleasePages(std::vector<D3D12DynamicPage>& Pages);
 
@@ -100,50 +99,54 @@ namespace RHI
         D3D12DynamicPage AllocatePage(UINT64 SizeInBytes);
 
     private:
-        std::multimap<UINT64, D3D12DynamicPage, std::less<UINT64>> m_AvailablePages;
+        std::multimap<UINT64/*Page的大小*/, D3D12DynamicPage, std::less<UINT64>> m_AvailablePages;
     };
 
 
-    class D3D12DynamicHeap
+    class DynamicResourceHeap
     {
     public:
-        D3D12DynamicHeap(D3D12DynamicMemoryManager& DynamicMemMgr, std::string HeapName, UINT64 PageSize) :
-            m_GlobalDynamicMemMgr{ DynamicMemMgr },
-            m_HeapName{ std::move(HeapName) },
-            m_PageSize{ PageSize }
+        DynamicResourceHeap(DynamicResourceAllocator& DynamicMemAllocator, UINT64 PageSize) :
+            m_GlobalDynamicAllocator{ DynamicMemAllocator },
+            m_BasePageSize{ PageSize }
         {}
 
-        D3D12DynamicHeap(const D3D12DynamicHeap&) = delete;
-        D3D12DynamicHeap(D3D12DynamicHeap&&) = delete;
-        D3D12DynamicHeap& operator= (const D3D12DynamicHeap&) = delete;
-        D3D12DynamicHeap& operator= (D3D12DynamicHeap&&) = delete;
+        DynamicResourceHeap(const DynamicResourceHeap&) = delete;
+        DynamicResourceHeap(DynamicResourceHeap&&) = delete;
+        DynamicResourceHeap& operator= (const DynamicResourceHeap&) = delete;
+        DynamicResourceHeap& operator= (DynamicResourceHeap&&) = delete;
 
-        ~D3D12DynamicHeap();
+        ~DynamicResourceHeap();
 
-        D3D12DynamicAllocation Allocate(UINT64 SizeInBytes, UINT64 Alignment, UINT64 DvpCtxFrameNumber);
-        void                   ReleaseAllocatedPages(UINT64 QueueMask);
+        D3D12DynamicAllocation Allocate(UINT64 SizeInBytes, UINT64 Alignment);
+        // 在每帧的末尾把分配的Page添加到释放队列
+        void ReleaseAllocatedPages();
 
         static constexpr UINT64 InvalidOffset = static_cast<UINT64>(-1);
 
-        size_t GetAllocatedPagesCount() const { return m_AllocatedPages.size(); }
-
     private:
-        D3D12DynamicMemoryManager& m_GlobalDynamicMemMgr;
-        const std::string          m_HeapName;
+        DynamicResourceAllocator& m_GlobalDynamicAllocator;
 
         std::vector<D3D12DynamicPage> m_AllocatedPages;
 
-        const UINT64 m_PageSize;
+        // 分配最小的Page大小，如果大小不够，以2递增
+        const UINT64 m_BasePageSize;
 
+        // 在当前Page中分配的偏移
         UINT64 m_CurrOffset = InvalidOffset;
+        // 当前Page剩余的容量
         UINT64 m_AvailableSize = 0;
 
+        // 已分配的大小
         UINT64 m_CurrAllocatedSize = 0;
+        // 已经使用的大小
         UINT64 m_CurrUsedSize = 0;
-        UINT64 m_CurrAlignedSize = 0;
+        // 对齐后的大小
+        UINT64 m_CurrUsedAlignedSize = 0;
         UINT64 m_PeakAllocatedSize = 0;
+        // 峰值
         UINT64 m_PeakUsedSize = 0;
         UINT64 m_PeakAlignedSize = 0;
     };
 
-} 
+}

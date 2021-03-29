@@ -143,11 +143,11 @@ namespace RHI
  		return m_MutableDynamicSRBs.back().get();
 	}
 
-	void PipelineState::CommitShaderResource(ShaderResourceBinding* SRB)
+	void PipelineState::CommitShaderResource(CommandContext& cmdContext, ShaderResourceBinding* SRB)
 	{
 		if(SRB != nullptr)
 		{
-			SRB->m_ShaderResourceCache.CommitResource();
+			SRB->m_ShaderResourceCache.CommitResource(cmdContext);
 		}
 	}
 

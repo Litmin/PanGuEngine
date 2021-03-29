@@ -18,12 +18,14 @@ namespace RHI
 		{ 
 			{*this, 16384, 128, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE},
 			{*this, 16384, 128, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE}
-		}
+		},
+		m_DynamicResAllocator(1, DYNAMIC_RESOURCE_PAGE_SIZE)
 	{
 	}
 
 	RenderDevice::~RenderDevice()
 	{
+		m_DynamicResAllocator.Destroy();
 	}
 
 	DescriptorHeapAllocation RenderDevice::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count)

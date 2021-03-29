@@ -8,6 +8,7 @@ namespace RHI
 {
     class RootSignature;
     class RenderDevice;
+    class CommandContext;
 	
     /**
     * 只提供个存储空间（GPUDescriptorHeap），其他的啥都不知道
@@ -87,7 +88,7 @@ namespace RHI
             return GPUDescriptorHandle;
         }
 
-        void CommitResource();
+        void CommitResource(CommandContext& cmdContext);
     	
 
     	RootDescriptor& GetRootDescriptor(UINT32 RootIndex)

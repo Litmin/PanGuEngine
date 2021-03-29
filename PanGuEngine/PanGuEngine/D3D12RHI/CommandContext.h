@@ -6,6 +6,7 @@
 #include "DescriptorHeap.h"
 #include "GpuRenderTextureColor.h"
 #include "GpuRenderTextureDepth.h"
+#include "DynamicResource.h"
 
 namespace RHI 
 {
@@ -90,6 +91,8 @@ namespace RHI
 		// Dynamic Descriptor在GPUDescriptorHeap上分配,在Finish中释放
 		DescriptorHeapAllocation AllocateDynamicGPUVisibleDescriptor(UINT Count = 1);
 
+		// 为Dynamic Resource分配内存
+		D3D12DynamicAllocation AllocateDynamicSpace(size_t NumBytes, size_t Alignment);
 
 		/* Resource Barrier TODO: UAVBarrier
 		* GpuResource有两个成员：m_UsageState、m_TransitioningState，
@@ -106,7 +109,10 @@ namespace RHI
 
 
 		// 渲染状态和资源绑定
+		// 切换PSO时，会自动提交Static SRB
 		void SetPipelineState(PipelineState* PSO);
+		// 提交Mutable、Dynamic SRB
+		void CommitShaderResourceBinding(ShaderResourceBinding* SRB);
 
 
 	protected:
@@ -124,7 +130,8 @@ namespace RHI
 		// Dynamic Descriptor
 		DynamicSuballocationsManager m_DynamicGPUDescriptorAllocator;
 
-		// Dynamic Constant Buffer
+		// Dynamic Resource
+		DynamicResourceHeap m_DynamicResourceHeap;
 
 		std::wstring m_ID;
     };
@@ -145,11 +152,15 @@ namespace RHI
 		void ClearStencil(GpuResourceDescriptor& DSV);
 		void ClearDepthAndStencil(GpuResourceDescriptor& DSV);
 
-
 		// Vertex Buffer、Index Buffer
 		void SetVertexBuffer(UINT Slot, const D3D12_VERTEX_BUFFER_VIEW& VBView);
 		void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& IBView);
 
+		// Constant Buffer
+		void SetConstantBuffer(UINT RootIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferAddress);
+
+		// Descriptor
+		void SetDescriptorHeap(UINT RootIndex);
 
 		void Draw(UINT VertexCount, UINT VertexStartOffset = 0);
 		void DrawIndexed(UINT IndexCount, UINT StartIndexLocation = 0, INT BaseVertexLocation = 0);
@@ -158,6 +169,9 @@ namespace RHI
 		void DrawIndexedInstanced(UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation,
 			INT BaseVertexLocation, UINT StartInstanceLocation);
 		// TODO: Indirect Draw
+
+	protected:
+
     };
 
 	// TODO: Compute

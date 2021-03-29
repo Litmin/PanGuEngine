@@ -43,7 +43,8 @@ namespace RHI
 		m_CommandList(nullptr),
 		m_CurrentAllocator(nullptr),
 		m_NumBarriersToFlush(0),
-		m_DynamicGPUDescriptorAllocator(RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV), 128, "DynamicDescriptorMgr")
+		m_DynamicGPUDescriptorAllocator(RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV), 128, "DynamicDescriptorMgr"),
+		m_DynamicResourceHeap(RenderDevice::GetSingleton().GetDynamicResourceAllocator(), DYNAMIC_RESOURCE_PAGE_SIZE)
 	{
 
 	}
@@ -166,6 +167,11 @@ namespace RHI
 		return m_DynamicGPUDescriptorAllocator.Allocate(Count);
 	}
 
+	D3D12DynamicAllocation CommandContext::AllocateDynamicSpace(size_t NumBytes, size_t Alignment)
+	{
+		return m_DynamicResourceHeap.Allocate(NumBytes, Alignment);
+	}
+
 	void CommandContext::TransitionResource(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate /*= false*/)
 	{
 		D3D12_RESOURCE_STATES OldState = Resource.m_UsageState;
@@ -256,6 +262,11 @@ namespace RHI
 		PSO->CommitStaticShaderResource();
 	}
 
+	void CommandContext::CommitShaderResourceBinding(ShaderResourceBinding* SRB)
+	{
+
+	}
+
 	// TODO: Remove dynamic_cast
 	void GraphicsContext::ClearColor(GpuResourceDescriptor& RTV, D3D12_RECT* Rect /*= nullptr*/)
 	{
@@ -317,6 +328,11 @@ namespace RHI
 		m_CommandList->IASetIndexBuffer(&IBView);
 	}
 
+	void GraphicsContext::SetConstantBuffer(UINT RootIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferAddress)
+	{
+		m_CommandList->SetGraphicsRootConstantBufferView(RootIndex, BufferAddress);
+	}
+
 	void GraphicsContext::Draw(UINT VertexCount, UINT VertexStartOffset /*= 0*/)
 	{
 		DrawInstanced(VertexCount, 1, VertexStartOffset, 0);
@@ -331,12 +347,16 @@ namespace RHI
 	{
 		FlushResourceBarriers();
 
+		// TODO: 提交动态资源
+
 		m_CommandList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 	}
 
 	void GraphicsContext::DrawIndexedInstanced(UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation)
 	{
 		FlushResourceBarriers();
+
+		// TODO: 提交动态资源
 
 		m_CommandList->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
 	}

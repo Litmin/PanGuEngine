@@ -5,7 +5,7 @@
 namespace RHI
 {
 
-    // ��Upload���Ϸ���һ��Buffer����Map
+    // 在Upload堆上分配一个Buffer，并Map
     D3D12DynamicPage::D3D12DynamicPage(UINT64 Size)
     {
         D3D12_HEAP_PROPERTIES HeapProps;
@@ -39,7 +39,7 @@ namespace RHI
         m_pd3d12Buffer->Map(0, nullptr, &m_CPUVirtualAddress);
     }
 
-    D3D12DynamicMemoryManager::D3D12DynamicMemoryManager(UINT32 NumPagesToReserve, UINT64 PageSize)
+    DynamicResourceAllocator::DynamicResourceAllocator(UINT32 NumPagesToReserve, UINT64 PageSize)
     {
         for (UINT32 i = 0; i < NumPagesToReserve; ++i)
         {
@@ -49,9 +49,11 @@ namespace RHI
         }
     }
 
-    D3D12DynamicPage D3D12DynamicMemoryManager::AllocatePage(UINT64 SizeInBytes)
+    // 返回的Page的大小可能比SizeInBytes大
+    D3D12DynamicPage DynamicResourceAllocator::AllocatePage(UINT64 SizeInBytes)
     {
-        auto PageIt = m_AvailablePages.lower_bound(SizeInBytes); // Returns an iterator pointing to the first element that is not less than key
+        // 返回比SizeInBytes大的第一个Page的迭代器
+        auto PageIt = m_AvailablePages.lower_bound(SizeInBytes);
         if (PageIt != m_AvailablePages.end())
         {
             assert(PageIt->first >= SizeInBytes);
@@ -65,14 +67,14 @@ namespace RHI
         }
     }
 
-    void D3D12DynamicMemoryManager::ReleasePages(std::vector<D3D12DynamicPage>& Pages)
+    void DynamicResourceAllocator::ReleasePages(std::vector<D3D12DynamicPage>& Pages)
     {
         struct StalePage
         {
             D3D12DynamicPage           Page;
-            D3D12DynamicMemoryManager* Mgr;
+            DynamicResourceAllocator* Mgr;
 
-            StalePage(D3D12DynamicPage&& _Page, D3D12DynamicMemoryManager& _Mgr) noexcept :
+            StalePage(D3D12DynamicPage&& _Page, DynamicResourceAllocator& _Mgr) noexcept :
                 Page{ std::move(_Page) },
                 Mgr{ &_Mgr }
             {
@@ -104,48 +106,36 @@ namespace RHI
         }
     }
 
-    void D3D12DynamicMemoryManager::Destroy()
+    void DynamicResourceAllocator::Destroy()
     {
         m_AvailablePages.clear();
     }
 
-    D3D12DynamicMemoryManager::~D3D12DynamicMemoryManager()
+    DynamicResourceAllocator::~DynamicResourceAllocator()
     {
         assert(m_AvailablePages.empty() && "Not all pages are destroyed. Dynamic memory manager must be explicitly destroyed with Destroy() method");
     }
 
 
-    D3D12DynamicHeap::~D3D12DynamicHeap()
+    DynamicResourceHeap::~DynamicResourceHeap()
     {
-        VERIFY(m_AllocatedPages.empty(), "Allocated pages have not been released which indicates FinishFrame() has not been called");
-
-        auto PeakAllocatedPages = m_PeakAllocatedSize / m_PageSize;
-        LOG_INFO_MESSAGE(m_HeapName,
-            " usage stats:\n"
-            "                       Peak used/aligned/allocated size: ",
-            FormatMemorySize(m_PeakUsedSize, 2, m_PeakAlignedSize), " / ",
-            FormatMemorySize(m_PeakAlignedSize, 2, m_PeakAlignedSize), " / ",
-            FormatMemorySize(m_PeakAllocatedSize, 2, m_PeakAllocatedSize),
-            " (", PeakAllocatedPages, (PeakAllocatedPages == 1 ? " page)" : " pages)"),
-            ". Peak efficiency (used/aligned): ", std::fixed, std::setprecision(1), static_cast<double>(m_PeakUsedSize) / static_cast<double>(std::max(m_PeakAlignedSize, Uint64{ 1 })) * 100.0, '%',
-            ". Peak utilization (used/allocated): ", std::fixed, std::setprecision(1), static_cast<double>(m_PeakUsedSize) / static_cast<double>(std::max(m_PeakAllocatedSize, Uint64{ 1 })) * 100.0, '%');
+        assert(m_AllocatedPages.empty() && "Allocated pages have not been released which indicates FinishFrame() has not been called");
     }
 
-    D3D12DynamicAllocation D3D12DynamicHeap::Allocate(Uint64 SizeInBytes, Uint64 Alignment, Uint64 DvpCtxFrameNumber)
+    D3D12DynamicAllocation DynamicResourceHeap::Allocate(UINT64 SizeInBytes, UINT64 Alignment)
     {
-        VERIFY_EXPR(Alignment > 0);
-        VERIFY(IsPowerOfTwo(Alignment), "Alignment (", Alignment, ") must be power of 2");
+        assert(Alignment > 0);
+        assert(IsPowerOfTwo(Alignment) && "Alignment must be power of 2");
 
-        auto align = Align(m_CurrOffset, Alignment);
-        align++;
-
+        // 如果是第一次分配，或者当前Page的大小不够这次分配，就重新创建一个Page
         if (m_CurrOffset == InvalidOffset || SizeInBytes + (Align(m_CurrOffset, Alignment) - m_CurrOffset) > m_AvailableSize)
         {
-            auto NewPageSize = m_PageSize;
+            auto NewPageSize = m_BasePageSize;
+            // 计算能满足这次分配的Page大小
             while (NewPageSize < SizeInBytes)
                 NewPageSize *= 2;
 
-            auto NewPage = m_GlobalDynamicMemMgr.AllocatePage(NewPageSize);
+            auto NewPage = m_GlobalDynamicAllocator.AllocatePage(NewPageSize);
             if (NewPage.IsValid())
             {
                 m_CurrOffset = 0;
@@ -162,18 +152,18 @@ namespace RHI
         {
             auto AlignedOffset = Align(m_CurrOffset, Alignment);
             auto AdjustedSize = SizeInBytes + (AlignedOffset - m_CurrOffset);
-            VERIFY_EXPR(AdjustedSize <= m_AvailableSize);
+            assert(AdjustedSize <= m_AvailableSize);
             m_AvailableSize -= AdjustedSize;
             m_CurrOffset += AdjustedSize;
 
             m_CurrUsedSize += SizeInBytes;
             m_PeakUsedSize = std::max(m_PeakUsedSize, m_CurrUsedSize);
 
-            m_CurrAlignedSize += AdjustedSize;
-            m_PeakAlignedSize = std::max(m_PeakAlignedSize, m_CurrAlignedSize);
+            m_CurrUsedAlignedSize += AdjustedSize;
+            m_PeakAlignedSize = std::max(m_PeakAlignedSize, m_CurrUsedAlignedSize);
 
+            // 总是从最后一个Page中进行分配
             auto& CurrPage = m_AllocatedPages.back();
-            // clang-format off
             return D3D12DynamicAllocation
             {
                 CurrPage.GetD3D12Buffer(),
@@ -181,26 +171,22 @@ namespace RHI
                 SizeInBytes,
                 CurrPage.GetCPUAddress(AlignedOffset),
                 CurrPage.GetGPUAddress(AlignedOffset)
-    #ifdef DILIGENT_DEVELOPMENT
-                , DvpCtxFrameNumber
-    #endif
             };
-            // clang-format on
         }
         else
             return D3D12DynamicAllocation{};
     }
 
-    void D3D12DynamicHeap::ReleaseAllocatedPages(Uint64 QueueMask)
+    void DynamicResourceHeap::ReleaseAllocatedPages()
     {
-        m_GlobalDynamicMemMgr.ReleasePages(m_AllocatedPages, QueueMask);
+        m_GlobalDynamicAllocator.ReleasePages(m_AllocatedPages);
         m_AllocatedPages.clear();
 
         m_CurrOffset = InvalidOffset;
         m_AvailableSize = 0;
         m_CurrAllocatedSize = 0;
         m_CurrUsedSize = 0;
-        m_CurrAlignedSize = 0;
+        m_CurrUsedAlignedSize = 0;
     }
 
 } 

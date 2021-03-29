@@ -2,6 +2,7 @@
 #include "DescriptorHeap.h"
 #include "CommandQueue.h"
 #include "StaleResourceWrapper.h"
+#include "DynamicResource.h"
 
 namespace RHI
 {
@@ -26,6 +27,8 @@ namespace RHI
 
 		GPUDescriptorHeap& GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type);
 
+		DynamicResourceAllocator& GetDynamicResourceAllocator() { return m_DynamicResAllocator; }
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Device> m_D3D12Device;
 
@@ -37,6 +40,8 @@ namespace RHI
 		// 每个GPUDescriptorHeap对象只会创建一个DX12 Descriptor Heap，因为切换Descriptor Heap非常昂贵
 		// 创建资源时，每个资源的Descriptor保存在CPUDescriptorHeap中，在绘制命令执行前，会拷贝到GPUDescriptorHeap
 		GPUDescriptorHeap m_GPUDescriptorHeaps[2];
+
+		DynamicResourceAllocator m_DynamicResAllocator;
 
 
 		// 负责释放资源的队列

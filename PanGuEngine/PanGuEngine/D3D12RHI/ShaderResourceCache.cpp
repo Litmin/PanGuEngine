@@ -3,6 +3,7 @@
 #include "RootSignature.h"
 #include "RenderDevice.h"
 #include "ShaderResourceBindingUtility.h"
+#include "CommandContext.h"
 
 using namespace std;
 
@@ -59,12 +60,12 @@ namespace RHI
 		}
 	}
 
-	void ShaderResourceCache::CommitResource()
+	void ShaderResourceCache::CommitResource(CommandContext& cmdContext)
 	{
 		// 提交Root View（CBV），只需要绑定Buffer的地址
 		for(const auto& [rootIndex, rootView] : m_RootViews)
 		{
-			// TODO:
+			cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, rootView.ConstantBuffer->GetGpuVirtualAddress());
 		}
 
 		// 提交Root Table，Dynamic类型的需要分配空间

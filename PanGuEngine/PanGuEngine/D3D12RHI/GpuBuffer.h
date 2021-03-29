@@ -1,12 +1,14 @@
 #pragma once
 
 #include "GpuResource.h"
+#include "DynamicResource.h"
 
 
 namespace RHI 
 {
     class GpuUploadBuffer;
     class GpuResourceDescriptor;
+    class CommandContext;
 
     /**
     * Default: GPU读写  
@@ -103,11 +105,11 @@ namespace RHI
 
         virtual D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const override;
 
-        void* Map();
-        void Unmap(size_t begin = 0, size_t end = -1);
+        void* Map(CommandContext& cmdContext, size_t alignment);
         
     protected:
-
+        // 不需要释放，在每帧中由DynamicResourceHeap释放
+        D3D12DynamicAllocation m_DynamicData;
     };
 
 }
