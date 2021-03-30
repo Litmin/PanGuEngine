@@ -18,6 +18,8 @@ namespace RHI
     */
     class ShaderResourceCache
     {
+        friend class CommandContext;
+
     public:
         ShaderResourceCache() = default;
 
@@ -38,7 +40,10 @@ namespace RHI
 		// 目前只有Constant Buffer作为Root Descriptor绑定
 		struct RootDescriptor
 		{
-			std::shared_ptr<GpuBuffer> ConstantBuffer;
+            RootDescriptor(SHADER_RESOURCE_VARIABLE_TYPE _VariableType) : VariableType(_VariableType) {}
+
+            SHADER_RESOURCE_VARIABLE_TYPE VariableType;
+			std::shared_ptr<GpuBuffer> ConstantBuffer = nullptr;
 		};
 
         struct RootTable
@@ -46,7 +51,9 @@ namespace RHI
             // TODO: RootTable没有默认构造函数会报错：
             // Error C2512	'RHI::ShaderResourceCache::RootTable::RootTable': no appropriate default constructor available	
             // PanGuEngine	F:\Tools\VS2019\VC\Tools\MSVC\14.28.29333\include\tuple	980	
-            RootTable(UINT32 tableSize = 0) : Descriptors(tableSize){}
+            RootTable(SHADER_RESOURCE_VARIABLE_TYPE _VariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC, UINT32 tableSize = 0) : Descriptors(tableSize){}
+
+			SHADER_RESOURCE_VARIABLE_TYPE VariableType;
 
             // 每个Root Table在GPUDescriptorHeap中的起始位置
             UINT32 TableStartOffset = InvalidDescriptorOffset;
@@ -88,17 +95,22 @@ namespace RHI
             return GPUDescriptorHandle;
         }
 
+        // 提交Static、Mutable的资源绑定
         void CommitResource(CommandContext& cmdContext);
-    	
+        /*提交Dynamic Shader Variable的资源绑定以及Dynamic Resource的资源，每次Draw前自动提交
+        * Dynamic Resource不等于Dynamic Shader Variable，Dynamic Resource表示资源本身被修改的频率，Dynamic Shader Variable表示资源绑定切换的频率
+        * 比如Transform的Constant Buffer的Shader Variable类型就是Static，但是这个Buffer是Dynamic Buffer
+        */
+        void CommitDynamic(CommandContext& cmdContext);
 
     	RootDescriptor& GetRootDescriptor(UINT32 RootIndex)
         {
-            return m_RootViews.at(RootIndex);
+            return m_RootDescriptors.at(RootIndex);
         }
 
     	const RootDescriptor& GetRootDescriptor(UINT32 RootIndex) const
         {
-            return m_RootViews.at(RootIndex);
+            return m_RootDescriptors.at(RootIndex);
         }
 
         RootTable& GetRootTable(UINT32 RootIndex)
@@ -119,7 +131,9 @@ namespace RHI
 
         UINT32 m_NumDynamicDescriptor = 0;
 
-        std::unordered_map<UINT32/*RootIndex*/, RootDescriptor> m_RootViews;
+        std::unordered_map<UINT32/*RootIndex*/, RootDescriptor> m_RootDescriptors;
         std::unordered_map<UINT32/*RootIndex*/, RootTable> m_RootTables;
+
+        ID3D12Device* m_D3D12Device;
     };
 }

@@ -85,8 +85,6 @@ namespace RHI
 		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由PSO所有
 		ShaderResourceBinding* CreateShaderResourceBinding();
 
-		void CommitShaderResource(CommandContext& cmdContext, ShaderResourceBinding* SRB);
-
 		/*
 		 * 遍历Shader，执行操作
 		 */
@@ -105,8 +103,9 @@ namespace RHI
 		RenderDevice* GetRenderDevice() const { return m_RenderDevice; }
 
 	private:
-		// 提交Static资源
-		void CommitStaticShaderResource();
+		void CommitStaticSRB(CommandContext& cmdContext);
+		void CommitSRB(CommandContext& cmdContext, ShaderResourceBinding* SRB);
+		void CommitDynamic(CommandContext& cmdContext, ShaderResourceBinding* SRB);
 
 		RenderDevice* m_RenderDevice;
 		PipelineStateDesc m_Desc;

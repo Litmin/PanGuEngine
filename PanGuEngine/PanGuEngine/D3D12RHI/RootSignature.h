@@ -267,6 +267,8 @@ namespace RHI
             return m_NumRootDescriptor[VarType];
         }
 
+
+
         template <typename TOperation>
         void ProcessRootDescriptors(TOperation Operation) const
         {
@@ -278,12 +280,6 @@ namespace RHI
 		{
             m_RootParams.ProcessRootTables(Operation);
 		}
-		
-		/*
-		 * 提交资源
-		 * @param isStatic:提交资源的类型，当切换PSO时，提交Static资源，切换SRB时，提交Mutable/Dynamic资源
-		 */
-        void CommitResource(bool isStatic);
 		
 
 	private:

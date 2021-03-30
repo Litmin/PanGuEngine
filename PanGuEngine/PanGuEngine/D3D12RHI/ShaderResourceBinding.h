@@ -12,6 +12,7 @@ namespace RHI
     class ShaderResourceBinding
     {
 		friend class PipelineState;
+        friend class CommandContext;
 
 	public:
         ShaderResourceBinding(PipelineState* PSO, 

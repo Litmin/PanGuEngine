@@ -170,9 +170,6 @@
     <ClCompile Include="Renderer\SceneManager.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Shader.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\ShaderManager.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -187,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="D3D12RHI\DynamicResource.cpp">
       <Filter>D3D12RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ShaderOld.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -387,9 +387,6 @@
     <ClInclude Include="Renderer\SceneManager.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Shader.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\ShaderManager.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -407,6 +404,9 @@
     </ClInclude>
     <ClInclude Include="D3D12RHI\DynamicResource.h">
       <Filter>D3D12RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ShaderOld.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

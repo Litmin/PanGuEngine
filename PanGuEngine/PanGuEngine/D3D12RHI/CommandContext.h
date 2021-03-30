@@ -108,11 +108,14 @@ namespace RHI
 		inline void FlushResourceBarriers(void);
 
 
-		// 渲染状态和资源绑定
-		// 切换PSO时，会自动提交Static SRB
+		/*渲染状态和资源绑定
+		* 切换PSO时，会自动提交Static SRB，Static SRB只绑定Static Shader Variable
+		* 切换SRB时，会自动提交Mutable SRB的资源
+		* Draw Call前，会自动提交当前SRB中的Dynamic Shader Variable和Dynamic Buffer，提交前会检查是否资源是否有更新
+		*/
 		void SetPipelineState(PipelineState* PSO);
-		// 提交Mutable、Dynamic SRB
-		void CommitShaderResourceBinding(ShaderResourceBinding* SRB);
+		void SetShaderResourceBinding(ShaderResourceBinding* SRB);
+		void CommitDynamic();	// TODO: Make private
 
 
 	protected:
@@ -132,6 +135,10 @@ namespace RHI
 
 		// Dynamic Resource
 		DynamicResourceHeap m_DynamicResourceHeap;
+
+		// 资源绑定
+		PipelineState* m_CurPSO = nullptr;
+		ShaderResourceBinding* m_CurSRB = nullptr;
 
 		std::wstring m_ID;
     };
@@ -178,6 +185,7 @@ namespace RHI
     class ComputeContext : public CommandContext
     {
 	public:
+		static ComputeContext& Begin(const std::wstring& ID = L"", bool Async = false);
 
 
     };

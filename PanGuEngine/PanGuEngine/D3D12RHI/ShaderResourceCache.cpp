@@ -19,13 +19,13 @@ namespace RHI
 
 		const UINT32 allowedTypeBits = GetAllowedTypeBits(allowedVarTypes, allowedTypeNum);
 
-		rootSignature->ProcessRootDescriptors([&](const RootParameter& rootView)
+		rootSignature->ProcessRootDescriptors([&](const RootParameter& rootDescriptor)
 		{
-			SHADER_RESOURCE_VARIABLE_TYPE variableType = rootView.GetShaderVariableType();
-			UINT32 rootIndex = rootView.GetRootIndex();
+			SHADER_RESOURCE_VARIABLE_TYPE variableType = rootDescriptor.GetShaderVariableType();
+			UINT32 rootIndex = rootDescriptor.GetRootIndex();
 			
 			if (IsAllowedType(variableType, allowedTypeBits))
-				m_RootViews.insert(make_pair(rootIndex, RootDescriptor()));
+				m_RootDescriptors.insert(make_pair(rootIndex, RootDescriptor(variableType)));
 		});
 
 		UINT32 descriptorNum = 0;
@@ -42,7 +42,7 @@ namespace RHI
 
 
 			if (IsAllowedType(variableType, allowedTypeBits))
-				m_RootTables.insert({ rootIndex, RootTable(rootTableSize) });
+				m_RootTables.insert({ rootIndex, RootTable(variableType, rootTableSize) });
 
 			if (variableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{
@@ -59,31 +59,70 @@ namespace RHI
 			m_CbvSrvUavGPUHeapSpace = device->AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, descriptorNum);
 			assert(!m_CbvSrvUavGPUHeapSpace.IsNull() && "Failed to allocate  GPU-visible CBV/SRV/UAV descriptor");
 		}
+
+		m_D3D12Device = device->GetD3D12Device();
 	}
 
 	void ShaderResourceCache::CommitResource(CommandContext& cmdContext)
 	{
-		// Dynamic的资源需要Copy到动态分配的Descriptor Allocation中
+		// 提交Root View（CBV），只需要绑定Buffer的地址
+		for (const auto& [rootIndex, rootDescriptor] : m_RootDescriptors)
+		{
+			// Dynamic Buffer和Dynamic Variable都在Draw之前的CommitDynamic提交
+			if (rootDescriptor.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
+			{
+				GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptor.ConstantBuffer.get());
+
+				if(dynamicBuffer == nullptr)
+					cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, rootDescriptor.ConstantBuffer->GetGpuVirtualAddress());
+			}
+		}
+
+		// Static、Mutable的资源的Descriptor已经Copy到了ShaderResourceCache的Heap中，直接提交
+		for (const auto& [rootIndex, rootTable] : m_RootTables)
+		{
+			if(rootTable.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
+				cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, GetShaderVisibleTableGPUDescriptorHandle
+				<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(rootIndex, 0));
+		}
+	}
+
+	void ShaderResourceCache::CommitDynamic(CommandContext& cmdContext)
+	{
+		for (const auto& [rootIndex, rootDescriptors] : m_RootDescriptors)
+		{
+			if (rootDescriptors.VariableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
+			{
+				GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptors.ConstantBuffer.get());
+
+				if(dynamicBuffer != nullptr)
+					cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, dynamicBuffer->GetGpuVirtualAddress());
+			}
+		}
+
 		if (m_NumDynamicDescriptor > 0)
 		{
+			// 分配动态的Descriptor Allocation
+			DescriptorHeapAllocation dynamicAllocation = cmdContext.AllocateDynamicGPUVisibleDescriptor(m_NumDynamicDescriptor);
+			UINT32 dynamicTableOffset = 0;
 
-		}
-		// Static、Mutable的资源的Descriptor已经Copy到了ShaderResourceCache的Heap中，直接提交
-		else
-		{
-			// 提交Root View（CBV），只需要绑定Buffer的地址
-			for (const auto& [rootIndex, rootView] : m_RootViews)
-			{
-				cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, rootView.ConstantBuffer->GetGpuVirtualAddress());
-			}
-
-			// 提交Root Table，Dynamic类型的需要分配空间
 			for (const auto& [rootIndex, rootTable] : m_RootTables)
 			{
-				cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, GetShaderVisibleTableGPUDescriptorHandle
-					<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(rootIndex, 0));
+				if (rootTable.VariableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
+				{
+					// 先绑定再Copy，因为要绑定这个Table的起始位置，所以得用Copy前的dynamicTableOffset
+					cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, dynamicAllocation.GetGpuHandle(dynamicTableOffset));
+
+					// 把资源的CPU Descriptor拷贝到GPU Descriptor Heap中
+					for (INT32 i = 0; i < rootTable.Descriptors.size(); ++i)
+					{
+						m_D3D12Device->CopyDescriptorsSimple(1, dynamicAllocation.GetCpuHandle(dynamicTableOffset), 
+							rootTable.Descriptors[i]->GetCpuHandle(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+						dynamicTableOffset++;
+					}
+				}
 			}
 		}
-		
 	}
+
 }

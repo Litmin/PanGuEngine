@@ -255,16 +255,38 @@ namespace RHI
 	{
 		assert(PSO != nullptr);
 
+		if (m_CurPSO == PSO)
+			return;
+		m_CurPSO = PSO;
+
 		// 绑定PSO
 		m_CommandList->SetPipelineState(PSO->GetD3D12PipelineState());
 
 		// 提交Static资源
-		PSO->CommitStaticShaderResource();
+		PSO->CommitStaticSRB(*this);
 	}
 
-	void CommandContext::CommitShaderResourceBinding(ShaderResourceBinding* SRB)
+	void CommandContext::SetShaderResourceBinding(ShaderResourceBinding* SRB)
 	{
+		assert(SRB != nullptr);
+		assert(m_CurPSO != nullptr);
+		assert(SRB->m_PSO == m_CurPSO);
 
+		if (m_CurSRB == SRB)
+			return;
+		// 记录SRB，在Draw之前提交Dynamic Shader Variable和Dynamic Buffer,因为Dynamic Buffer在修改数据时GPU地址会变，在Draw之前提交Dynamic Shader Vaiable减少更新频率
+		m_CurSRB = SRB;
+
+		m_CurPSO->CommitSRB(*this, SRB);
+	}
+
+	void CommandContext::CommitDynamic()
+	{
+		assert(m_CurSRB != nullptr);
+		assert(m_CurPSO != nullptr);
+		assert(m_CurSRB->m_PSO == m_CurPSO);
+
+		m_CurPSO->CommitDynamic(*this, m_CurSRB);
 	}
 
 	// TODO: Remove dynamic_cast
@@ -352,7 +374,8 @@ namespace RHI
 	{
 		FlushResourceBarriers();
 
-		// TODO: 提交动态资源
+		// 提交动态资源
+		CommitDynamic();
 
 		m_CommandList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 	}
@@ -361,9 +384,19 @@ namespace RHI
 	{
 		FlushResourceBarriers();
 
-		// TODO: 提交动态资源
+		// 提交动态资源
+		CommitDynamic();
 
 		m_CommandList->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
+	}
+
+	// ComputeContext如果是异步计算，就在Compute Queue中分配
+	ComputeContext& ComputeContext::Begin(const std::wstring& ID /*= L""*/, bool Async /*= false*/)
+	{
+		ComputeContext& NewContext = ContextManager::GetSingleton().AllocateContext(
+			Async ? D3D12_COMMAND_LIST_TYPE_COMPUTE : D3D12_COMMAND_LIST_TYPE_DIRECT)->GetComputeContext();
+		NewContext.SetID(ID);
+		return NewContext;
 	}
 
 }

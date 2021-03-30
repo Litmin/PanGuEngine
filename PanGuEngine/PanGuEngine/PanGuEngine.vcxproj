@@ -205,7 +205,7 @@
     <ClCompile Include="Renderer\RendererStateDesc.cpp" />
     <ClCompile Include="Renderer\RenderQueue.cpp" />
     <ClCompile Include="Renderer\SceneManager.cpp" />
-    <ClCompile Include="Renderer\Shader.cpp" />
+    <ClCompile Include="Renderer\ShaderOld.cpp" />
     <ClCompile Include="Renderer\ShaderManager.cpp" />
     <ClCompile Include="Renderer\StandardShader.cpp" />
     <ClCompile Include="Renderer\Transform.cpp" />
@@ -277,7 +277,7 @@
     <ClInclude Include="Renderer\RendererStateDesc.h" />
     <ClInclude Include="Renderer\RenderQueue.h" />
     <ClInclude Include="Renderer\SceneManager.h" />
-    <ClInclude Include="Renderer\Shader.h" />
+    <ClInclude Include="Renderer\ShaderOld.h" />
     <ClInclude Include="Renderer\ShaderManager.h" />
     <ClInclude Include="Renderer\StandardShader.h" />
     <ClInclude Include="Renderer\Transform.h" />

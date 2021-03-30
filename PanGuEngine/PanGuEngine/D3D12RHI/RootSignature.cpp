@@ -218,14 +218,6 @@ namespace RHI
 		}
 	}
 
-	void RootSignature::CommitResource(bool isStatic)
-	{
-		// 提交Dynamic资源时，需要在GPU Descriptor Heap的Dynamic部分分配空间
-		bool hasDynamicDescriptor = m_NumDescriptorInRootTable[SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC] != 0;
-
-		
-	}
-
 	// <--------------------RootSignature-------------------------------->
 
 }

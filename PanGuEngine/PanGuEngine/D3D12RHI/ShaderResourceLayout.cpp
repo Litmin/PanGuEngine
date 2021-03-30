@@ -87,6 +87,7 @@ namespace RHI
 	// 绑定Constant Buffer时只需要持有GpuBuffer对象，提交资源时只需要Buffer的GPU地址
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
+		assert(buffer != nullptr);
 		// 只有Constant Buffer作为Root Descriptor绑定！！！
 		assert(ResourceType == BindingResourceType::CBV);
 
@@ -104,6 +105,8 @@ namespace RHI
 	// 绑定Root Table中的Descriptor时，需要把资源在CPUDescriptorHeap中的Descriptor拷贝到ShaderResourceCache中的GPUDescriptorHeap中
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceDescriptor> descriptor, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
+		assert(descriptor != nullptr);
+
 		ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
 
 		// 如果已经绑定了资源就不更新，除非是Dynamic资源

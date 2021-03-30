@@ -48,7 +48,7 @@ namespace RHI
 		// 调用SafeReleaseDeviceObject释放资源时，会把该资源添加到m_StaleResources中，
 		// 当提交一个CommandList时，会把下一个CommandList的编号和m_StaleResources中的资源添加到m_ReleaseQueue中，
 		// 在每帧的末尾，调用PurgeReleaseQueue来释放可以安全释放的资源（也就是记录的Cmd编号比GPU已经完成的CmdList数量小的所有资源）
-		using ReleaseQueueElementType = std::pair<UINT64, StaleResourceWrapper>;
+		using ReleaseQueueElementType = std::tuple<UINT64/*Graphic Queue Fence*/, UINT64/*Compute Queue Fence*/, UINT64/*Copy Queue Fence*/, StaleResourceWrapper>;
 		std::deque<ReleaseQueueElementType> m_ReleaseQueue;
 		std::deque<ReleaseQueueElementType> m_StaleResources;
 
