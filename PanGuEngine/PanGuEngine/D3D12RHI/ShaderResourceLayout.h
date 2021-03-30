@@ -10,19 +10,19 @@ namespace RHI
     class RootSignature;
 
     /**
-    * å®šä¹‰äº†Shaderä¸­çš„èµ„æºä¸Descriptor Heapä¸­çš„æ˜ å°„
+    * ¶¨ÒåÁËShaderÖĞµÄ×ÊÔ´ÓëDescriptor HeapÖĞµÄÓ³Éä
     */
     class ShaderResourceLayout
     {
     public:
-        // éå†ä¸€ä¸ªShaderçš„æ‰€æœ‰èµ„æºï¼Œç”±RootSignatureæŒ‰ç…§è§„åˆ™åˆ†ç»„åˆ°ä¸åŒçš„Descriptor Tableï¼ŒShaderResourceLayoutResourceè®°å½•Shaderèµ„æºçš„ä¿¡æ¯ä»¥åŠRootIndexå’ŒOffsetFromTableStart
+        // ±éÀúÒ»¸öShaderµÄËùÓĞ×ÊÔ´£¬ÓÉRootSignature°´ÕÕ¹æÔò·Ö×éµ½²»Í¬µÄDescriptor Table£¬ShaderResourceLayoutResource¼ÇÂ¼Shader×ÊÔ´µÄĞÅÏ¢ÒÔ¼°RootIndexºÍOffsetFromTableStart
         ShaderResourceLayout(ID3D12Device* pd3d12Device,
                              PIPELINE_TYPE pipelineType,
                              const ShaderVariableConfig& shaderVariableConfig,
                              const ShaderResource* shaderResource,
                              RootSignature* rootSignature);
 
-        // è¡¨ç¤ºShaderä¸­çš„ä¸€ä¸ªèµ„æºï¼Œå¹¶ä¸”åŒ…å«RootIndexå’ŒOffsetFromTableä¸¤ä¸ªé¢å¤–ä¿¡æ¯
+        // ±íÊ¾ShaderÖĞµÄÒ»¸ö×ÊÔ´£¬²¢ÇÒ°üº¬RootIndexºÍOffsetFromTableÁ½¸ö¶îÍâĞÅÏ¢
         struct Resource 
         {
         public:
@@ -31,16 +31,16 @@ namespace RHI
             Resource& operator = (const Resource&) = delete;
             Resource& operator = (Resource&&) = delete;
 
-            // TODO:ä½¿ç”¨ä½åŸŸbitfieldä¼˜åŒ–å†…å­˜
+            // TODO:Ê¹ÓÃÎ»ÓòbitfieldÓÅ»¯ÄÚ´æ
             static constexpr UINT32 InvalidSamplerId = -1;
             static constexpr UINT32 InvalidRootIndex = -1;
             static constexpr UINT32 InvalidOffset = -1;
 
             const ShaderResourceLayout& ParentResLayout;
-            const ShaderResourceAttribs& Attribs;   // å¯¹åº”ShaderResourceä¸­çš„ä¸€ä¸ªèµ„æº
+            const ShaderResourceAttribs& Attribs;   // ¶ÔÓ¦ShaderResourceÖĞµÄÒ»¸ö×ÊÔ´
             const UINT32 OffsetFromTableStart;
-            const BindingResourceType ResourceType;   // CBVã€TexSRVã€BufSRVã€TexUAVã€BufUAVã€Sampler
-            const SHADER_RESOURCE_VARIABLE_TYPE VariableType;   // Staticã€Mutableã€Dynamic
+            const BindingResourceType ResourceType;   // CBV¡¢TexSRV¡¢BufSRV¡¢TexUAV¡¢BufUAV¡¢Sampler
+            const SHADER_RESOURCE_VARIABLE_TYPE VariableType;   // Static¡¢Mutable¡¢Dynamic
             const UINT32 RootIndex;
 
             Resource(const ShaderResourceLayout&      _ParentLayout,
@@ -58,7 +58,7 @@ namespace RHI
             {
             }
 
-            // æ˜¯å¦å·²ç»ç»‘å®šäº†èµ„æº
+            // ÊÇ·ñÒÑ¾­°ó¶¨ÁË×ÊÔ´
             bool IsBound(UINT32 arrayIndex, const ShaderResourceCache& resourceCache) const;
 
 			void BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const;
@@ -70,7 +70,7 @@ namespace RHI
             return m_SrvCbvUavs[VarType].size();
         }
 
-        // indexInArrayå°±æ˜¯è¿™ä¸ªD3D12Resourceåœ¨æ•°ç»„ä¸­çš„ç´¢å¼•ï¼Œä¸æ˜¯RootIndexï¼Œå› ä¸ºå¯èƒ½æœ‰å¤šä¸ªRootIndexç›¸åŒçš„D3D12Resource
+        // indexInArray¾ÍÊÇÕâ¸öD3D12ResourceÔÚÊı×éÖĞµÄË÷Òı£¬²»ÊÇRootIndex£¬ÒòÎª¿ÉÄÜÓĞ¶à¸öRootIndexÏàÍ¬µÄD3D12Resource
         const Resource& GetSrvCbvUav(SHADER_RESOURCE_VARIABLE_TYPE VarType, UINT32 indexInArray) const
         {
             return *m_SrvCbvUavs[VarType][indexInArray].get();
@@ -79,7 +79,7 @@ namespace RHI
     private:
         ID3D12Device* m_D3D12Device;
 
-        // Shaderä¸­çš„æ‰€æœ‰èµ„æºï¼ŒæŒ‰ç…§æ›´æ–°é¢‘ç‡åˆ†äº†ä¸‰ä¸ªvector
+        // ShaderÖĞµÄËùÓĞ×ÊÔ´£¬°´ÕÕ¸üĞÂÆµÂÊ·ÖÁËÈı¸övector
         std::vector<std::unique_ptr<Resource>> m_SrvCbvUavs[SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES];
     };
 

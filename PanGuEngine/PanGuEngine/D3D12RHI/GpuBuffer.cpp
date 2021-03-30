@@ -30,7 +30,7 @@ namespace RHI
 
 		m_GpuVirtualAddress = m_pResource->GetGPUVirtualAddress();
 
-		// å¦‚æœæä¾›äº†åˆå§‹æ•°æ®å°±ä¼šæŠŠæ•°æ®ä¸Šä¼ åˆ°Uploadå †ä¸­ï¼Œç„¶åCopyåˆ°Buffer
+		// Èç¹ûÌá¹©ÁË³õÊ¼Êı¾İ¾Í»á°ÑÊı¾İÉÏ´«µ½Upload¶ÑÖĞ£¬È»ºóCopyµ½Buffer
 		if (initialData)
 			CommandContext::InitializeBuffer(*this, initialData, m_BufferSize);
 	}
@@ -54,7 +54,7 @@ namespace RHI
 		CommandContext::InitializeBuffer(*this, srcData, srcOffset);
 	}
 
-	// Offset:èµ·å§‹åœ°å€åç§»ï¼ŒSizeï¼šBufferçš„å¤§å°ï¼ŒStrideï¼šæ¯ä¸ªElementçš„å¤§å°
+	// Offset:ÆğÊ¼µØÖ·Æ«ÒÆ£¬Size£ºBufferµÄ´óĞ¡£¬Stride£ºÃ¿¸öElementµÄ´óĞ¡
 	D3D12_VERTEX_BUFFER_VIEW GpuBuffer::CreateVBV(size_t Offset, uint32_t Size, uint32_t Stride) const
 	{
 		D3D12_VERTEX_BUFFER_VIEW VBView;
@@ -70,7 +70,7 @@ namespace RHI
 		return CreateVBV(Offset, (uint32_t)(m_BufferSize - Offset), m_ElementSize);
 	}
 
-	// Offset:èµ·å§‹åœ°å€åç§»ï¼Œ Sizeï¼šBufferçš„å¤§å°ï¼Œ b32Bit:æ ¼å¼æ˜¯32ä½è¿˜æ˜¯16ä½
+	// Offset:ÆğÊ¼µØÖ·Æ«ÒÆ£¬ Size£ºBufferµÄ´óĞ¡£¬ b32Bit:¸ñÊ½ÊÇ32Î»»¹ÊÇ16Î»
 	D3D12_INDEX_BUFFER_VIEW GpuBuffer::CreateIBV(size_t Offset, uint32_t Size, bool b32Bit) const
 	{
 		D3D12_INDEX_BUFFER_VIEW IBView;
@@ -107,7 +107,7 @@ namespace RHI
 	{
 		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-		// TODO: UAVéœ€è¦å®ç°Counter Buffer
+		// TODO: UAVĞèÒªÊµÏÖCounter Buffer
 // 		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};
 // 		UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 // 		UAVDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -132,7 +132,7 @@ namespace RHI
 		Desc.DepthOrArraySize = 1;
 		Desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-		// Bufferçš„Formatæ˜¯Unkown
+		// BufferµÄFormatÊÇUnkown
 		Desc.Format = DXGI_FORMAT_UNKNOWN;
 		Desc.Height = 1;
 		Desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
@@ -149,10 +149,10 @@ namespace RHI
 	}
 
 	/// <summary>
-	/// Mapæ—¶ä¼šåœ¨Dynamic Resource Heapä¸Šåˆ†é…ä¸€å—å†…å­˜ï¼Œä¸éœ€è¦Unmap
+	/// MapÊ±»áÔÚDynamic Resource HeapÉÏ·ÖÅäÒ»¿éÄÚ´æ£¬²»ĞèÒªUnmap
 	/// </summary>
 	/// <param name="cmdContext"></param>
-	/// <param name="alignment">Constant Bufferæ˜¯256å­—èŠ‚å¯¹é½ï¼Œå…¶ä»–çš„16å­—èŠ‚å¯¹é½</param>
+	/// <param name="alignment">Constant BufferÊÇ256×Ö½Ú¶ÔÆë£¬ÆäËûµÄ16×Ö½Ú¶ÔÆë</param>
 	/// <returns></returns>
 	void* GpuDynamicBuffer::Map(CommandContext& cmdContext, size_t alignment)
 	{

@@ -11,15 +11,15 @@ namespace RHI
     class CommandContext;
 
     /**
-    * Default: GPUè¯»å†™  
-    * Upload: CPUå†™ GPUè¯» 
-    * Dynamic: åŠ¨æ€Bufferï¼ŒCPUå†™ï¼ŒGPUè¯»
+    * Default: GPU¶ÁĞ´  
+    * Upload: CPUĞ´ GPU¶Á 
+    * Dynamic: ¶¯Ì¬Buffer£¬CPUĞ´£¬GPU¶Á
     */
     class GpuBuffer : public GpuResource
     {
     public:
 
-        // åŠ¨æ€èµ„æºä½¿ç”¨ï¼Œæ„é€ å‡½æ•°ä¸­ä¸ä¼šåˆ›å»ºèµ„æº
+        // ¶¯Ì¬×ÊÔ´Ê¹ÓÃ£¬¹¹Ôìº¯ÊıÖĞ²»»á´´½¨×ÊÔ´
         GpuBuffer(UINT32 NumElements, UINT32 ElementSize, D3D12_RESOURCE_STATES initialState, D3D12_HEAP_TYPE heapType);
 
         // Descriptor
@@ -46,7 +46,7 @@ namespace RHI
 		D3D12_RESOURCE_DESC DescribeBuffer();
 
 
-        // Bufferçš„GPUåœ°å€
+        // BufferµÄGPUµØÖ·
 		D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
         D3D12_HEAP_TYPE m_HeapType;
 
@@ -108,7 +108,7 @@ namespace RHI
         void* Map(CommandContext& cmdContext, size_t alignment);
         
     protected:
-        // ä¸éœ€è¦é‡Šæ”¾ï¼Œåœ¨æ¯å¸§ä¸­ç”±DynamicResourceHeapé‡Šæ”¾
+        // ²»ĞèÒªÊÍ·Å£¬ÔÚÃ¿Ö¡ÖĞÓÉDynamicResourceHeapÊÍ·Å
         D3D12DynamicAllocation m_DynamicData;
     };
 

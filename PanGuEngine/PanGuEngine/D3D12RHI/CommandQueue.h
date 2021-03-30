@@ -16,15 +16,18 @@ namespace RHI
 		~CommandQueue();
 
 		// 同步相关处理
-		uint64_t IncrementFence(void);
-		bool IsFenceComplete(uint64_t FenceValue);
-		void StallForFence(uint64_t FenceValue, D3D12_COMMAND_LIST_TYPE Type);
+		UINT64 IncrementFence(void);
+		bool IsFenceComplete(UINT64 FenceValue);
+		void StallForFence(UINT64 FenceValue, D3D12_COMMAND_LIST_TYPE Type);
 		void StallForProducer(CommandQueue& Producer);
-		void WaitForFence(uint64_t FenceValue);
+		void WaitForFence(UINT64 FenceValue);
 		void WaitForIdle(void) { WaitForFence(IncrementFence()); }
 
+		UINT64 GetNextFenceValue() const { return m_NextFenceValue; }
+		UINT64 GetCompletedFenceValue() const { return m_LastCompletedFenceValue; }
+
     private:
-		uint64_t ExecuteCommandList(ID3D12CommandList* List);
+		UINT64 ExecuteCommandList(ID3D12CommandList* List);
 
 		ID3D12CommandAllocator* RequestAllocator(void);
 		void DiscardAllocator(uint64_t FenceValue, ID3D12CommandAllocator* Allocator);
@@ -36,8 +39,8 @@ namespace RHI
 		CommandAllocatorPool m_AllocatorPool;
 
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_pFence;
-		uint64_t m_NextFenceValue;
-		uint64_t m_LastCompletedFenceValue;
+		UINT64 m_NextFenceValue;
+		UINT64 m_LastCompletedFenceValue;
 		HANDLE m_FenceEventHandle;
     };
 

@@ -12,7 +12,7 @@ namespace RHI
     {
     public:
 
-        // ä»Swapchainçš„èµ„æºåˆ›å»º
+        // ´ÓSwapchainµÄ×ÊÔ´´´½¨
         GpuRenderTextureColor(ID3D12Resource* resource, D3D12_RESOURCE_DESC desc, Color clearColor = Color(0.0f, 0.0f, 0.0f, 0.0f));
 
         GpuRenderTextureColor(UINT32 width, UINT32 height, 

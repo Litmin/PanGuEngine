@@ -34,13 +34,13 @@ namespace RHI
 		CloseHandle(m_FenceEventHandle);
 	}
 
-	uint64_t CommandQueue::IncrementFence(void)
+	UINT64 CommandQueue::IncrementFence(void)
 	{
 		m_CommandQueue->Signal(m_pFence.Get(), m_NextFenceValue);
 		return m_NextFenceValue++;
 	}
 
-	bool CommandQueue::IsFenceComplete(uint64_t FenceValue)
+	bool CommandQueue::IsFenceComplete(UINT64 FenceValue)
 	{
 		// Avoid querying the fence value by testing against the last one seen.
 		// The max() is to protect against an unlikely race condition that could cause the last
@@ -52,7 +52,7 @@ namespace RHI
 	}
 
 
-	void CommandQueue::StallForFence(uint64_t FenceValue, D3D12_COMMAND_LIST_TYPE Type)
+	void CommandQueue::StallForFence(UINT64 FenceValue, D3D12_COMMAND_LIST_TYPE Type)
 	{
 		// TODO: Get Command Queue
 		CommandQueue& Producer = CommandListManager::GetSingleton().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
@@ -65,7 +65,7 @@ namespace RHI
 		m_CommandQueue->Wait(Producer.m_pFence.Get(), Producer.m_NextFenceValue - 1);
 	}
 
-	void CommandQueue::WaitForFence(uint64_t FenceValue)
+	void CommandQueue::WaitForFence(UINT64 FenceValue)
 	{
 		if (IsFenceComplete(FenceValue))
 			return;
@@ -75,7 +75,7 @@ namespace RHI
 		m_LastCompletedFenceValue = FenceValue;
 	}
 
-	uint64_t CommandQueue::ExecuteCommandList(ID3D12CommandList* List)
+	UINT64 CommandQueue::ExecuteCommandList(ID3D12CommandList* List)
 	{
 		ThrowIfFailed(((ID3D12GraphicsCommandList*)List)->Close());
 

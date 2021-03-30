@@ -5,7 +5,7 @@
 namespace RHI 
 {
     /**
-    * è¡¨ç¤ºèµ„æºçš„Descriptoræˆ–è€…RTVã€DSVï¼Œæ‰€ä»¥æ˜¯åœ¨CPUDescriptorHeapä¸­åˆ†é…çš„
+    * ±íÊ¾×ÊÔ´µÄDescriptor»òÕßRTV¡¢DSV£¬ËùÒÔÊÇÔÚCPUDescriptorHeapÖĞ·ÖÅäµÄ
     */
     class GpuResourceDescriptor
     {
@@ -21,7 +21,7 @@ namespace RHI
 		bool   IsShaderVisible()        const { return m_Allocation.IsShaderVisible(); }
 
     protected:
-        // å¯¹èµ„æºæ‹¥æœ‰æ‰€æœ‰æƒï¼ŒGpuResourceViewå­˜åœ¨æ—¶ä¿è¯èµ„æºä¸è¢«é‡Šæ”¾
+        // ¶Ô×ÊÔ´ÓµÓĞËùÓĞÈ¨£¬GpuResourceView´æÔÚÊ±±£Ö¤×ÊÔ´²»±»ÊÍ·Å
         std::shared_ptr<GpuResource> m_Resource;
 
         DescriptorHeapAllocation m_Allocation;

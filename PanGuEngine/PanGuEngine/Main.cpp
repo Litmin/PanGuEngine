@@ -56,7 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		meshRenderer2->SetMaterial(material.get());
 
 
-		// TODO: åœ¨Componentçš„Addå›è°ƒä¸­å¤„ç†
+		// TODO: ÔÚComponentµÄAdd»Øµ÷ÖĞ´¦Àí
 		SceneManager::GetSingleton().AddCamera(camera);
 		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
 		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer2);

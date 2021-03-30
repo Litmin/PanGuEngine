@@ -7,7 +7,7 @@ namespace RHI
     class PipelineState;
 
     /**
-    * ç®¡ç†èµ„æºç»‘å®š
+    * ¹ÜÀí×ÊÔ´°ó¶¨
     */
     class ShaderResourceBinding
     {
@@ -34,7 +34,7 @@ namespace RHI
         PipelineState* m_PSO;
 
         ShaderResourceCache m_ShaderResourceCache;
-        // ä¸€ä¸ªSRBå¯¹è±¡å¯ä»¥ç»‘å®šä¸€ä¸ªç®¡çº¿ä¸­æ‰€æœ‰Shaderçš„èµ„æºï¼Œæ‰€ä»¥æœ‰å‡ ä¸ªShaderå°±æœ‰å‡ ä¸ªShaderVariableManagerï¼Œä¸€ä¸ªShaderVariableManagerè¡¨ç¤ºä¸€ä¸ªShaderçš„å˜é‡
+        // Ò»¸öSRB¶ÔÏó¿ÉÒÔ°ó¶¨Ò»¸ö¹ÜÏßÖĞËùÓĞShaderµÄ×ÊÔ´£¬ËùÒÔÓĞ¼¸¸öShader¾ÍÓĞ¼¸¸öShaderVariableManager£¬Ò»¸öShaderVariableManager±íÊ¾Ò»¸öShaderµÄ±äÁ¿
         std::unordered_map<SHADER_TYPE, ShaderVariableCollection> m_ShaderVariableManagers;
     };
 }

@@ -5,13 +5,13 @@ namespace RHI
     class RenderDevice;
 
     /**
-    * GPUä¸Šæ‰€æœ‰èµ„æºçš„åŸºç±»
-    * GPUèµ„æºåŒ…æ‹¬ï¼š
-    *   GpuBufferï¼šStructuredBufferã€ByteAddressBufferã€IndirectArgsBufferã€ReadbackBufferã€TypedBuffer
-    *   PixelBufferï¼šColorBufferã€DepthBuffer
+    * GPUÉÏËùÓĞ×ÊÔ´µÄ»ùÀà
+    * GPU×ÊÔ´°üÀ¨£º
+    *   GpuBuffer£ºStructuredBuffer¡¢ByteAddressBuffer¡¢IndirectArgsBuffer¡¢ReadbackBuffer¡¢TypedBuffer
+    *   PixelBuffer£ºColorBuffer¡¢DepthBuffer
     *   UploadBuffer
-    *   Textureï¼š
-    * GpuResourceç»§æ‰¿enable_shared_from_thisï¼Œå› ä¸ºåœ¨å†…éƒ¨ä¼šåˆ›å»ºGpuResourceViewï¼ŒGpuResourceViewä¼šæ‹¥æœ‰GpuResourceçš„æ‰€æœ‰æƒï¼Œæ¥ä¿è¯ä½¿ç”¨GpuResourceViewæ—¶ï¼ŒGpuResourceä¸è¢«é‡Šæ”¾
+    *   Texture£º
+    * GpuResource¼Ì³Ğenable_shared_from_this£¬ÒòÎªÔÚÄÚ²¿»á´´½¨GpuResourceView£¬GpuResourceView»áÓµÓĞGpuResourceµÄËùÓĞÈ¨£¬À´±£Ö¤Ê¹ÓÃGpuResourceViewÊ±£¬GpuResource²»±»ÊÍ·Å
     */
     class GpuResource : public std::enable_shared_from_this<GpuResource>
     {

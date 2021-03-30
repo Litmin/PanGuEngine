@@ -10,7 +10,7 @@ namespace RHI
     class ShaderVariableCollection;
 
     /**
-   * è¡¨ç¤ºShaderä¸­çš„ä¸€ä¸ªå˜é‡ï¼Œå¤–éƒ¨å¯ä»¥é€šè¿‡è¿™ä¸ªå˜é‡ç»‘å®šèµ„æº(ä¸€ä¸ªå¸¸é‡æˆ–è€…ä¸€å¼ è´´å›¾)
+   * ±íÊ¾ShaderÖĞµÄÒ»¸ö±äÁ¿£¬Íâ²¿¿ÉÒÔÍ¨¹ıÕâ¸ö±äÁ¿°ó¶¨×ÊÔ´(Ò»¸ö³£Á¿»òÕßÒ»ÕÅÌùÍ¼)
    */
     class ShaderVariable
     {
@@ -29,11 +29,11 @@ namespace RHI
         ShaderVariable& operator=(const ShaderVariable&) = delete;
         ShaderVariable& operator=(ShaderVariable&&) = delete;
 
-        /*  åªæœ‰CBVå’Œå…¶ä»–Bufferçš„SRV/UAVå¯ä»¥ä½œä¸ºRoot Descriptorç»‘å®šï¼Œå› ä¸ºè°ƒç”¨ID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView()å‡½æ•°æ—¶ï¼Œ
-        *   æ˜¯ä¸æŒ‡å®šBufferçš„å¤§å°çš„ï¼ŒBufferçš„å¤§å°ç”±Shaderç¡®å®šï¼Œå› ä¸ºTextureæ˜¯éœ€è¦å¾ˆå¤šä¿¡æ¯æ¥æè¿°çš„ï¼Œæ‰€ä»¥åªæä¾›ä¸€ä¸ªåœ°å€æ˜¯ä¸å¤Ÿçš„
-        *   Bufferç›´æ¥ç»‘å®šåˆ°Root Descriptoræ—¶ä¸å­˜åœ¨æ•°ç»„çš„æƒ…å†µ
-        *   ç›®å‰åªæœ‰CBVæ˜¯ä½œä¸ºRoot Descriptorç»‘å®šçš„
-        *   ä¸€ä¸ªæ•°ç»„ä¹Ÿç”¨ä¸€ä¸ªShaderVariableè¡¨ç¤ºï¼Œå‘æ•°ç»„ä¸­ç»‘å®šèµ„æºæ—¶éœ€è¦ä¼ åœ¨æ•°ç»„ä¸­çš„ç´¢å¼•
+        /*  Ö»ÓĞCBVºÍÆäËûBufferµÄSRV/UAV¿ÉÒÔ×÷ÎªRoot Descriptor°ó¶¨£¬ÒòÎªµ÷ÓÃID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView()º¯ÊıÊ±£¬
+        *   ÊÇ²»Ö¸¶¨BufferµÄ´óĞ¡µÄ£¬BufferµÄ´óĞ¡ÓÉShaderÈ·¶¨£¬ÒòÎªTextureÊÇĞèÒªºÜ¶àĞÅÏ¢À´ÃèÊöµÄ£¬ËùÒÔÖ»Ìá¹©Ò»¸öµØÖ·ÊÇ²»¹»µÄ
+        *   BufferÖ±½Ó°ó¶¨µ½Root DescriptorÊ±²»´æÔÚÊı×éµÄÇé¿ö
+        *   Ä¿Ç°Ö»ÓĞCBVÊÇ×÷ÎªRoot Descriptor°ó¶¨µÄ
+        *   Ò»¸öÊı×éÒ²ÓÃÒ»¸öShaderVariable±íÊ¾£¬ÏòÊı×éÖĞ°ó¶¨×ÊÔ´Ê±ĞèÒª´«ÔÚÊı×éÖĞµÄË÷Òı
         */
         void Set(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex = 0);
         void Set(std::shared_ptr<GpuResourceDescriptor> view, UINT32 arrayIndex = 0);
@@ -45,14 +45,14 @@ namespace RHI
     };
 
     /*
-    * ShaderVariableCollectionæŒæœ‰ç‰¹å®šç±»å‹çš„ShaderVariableåˆ—è¡¨ã€‚
-    * PipelineStateä½¿ç”¨Manageræ¥ç®¡ç†Staticèµ„æºï¼ŒShaderResourceBindingä½¿ç”¨Manageræ¥ç®¡ç†Mutableå’ŒDynamicèµ„æº
-    * æŠŠShaderResourceLayoutå’ŒShaderResourceCacheå…³è”äº†èµ·æ¥ï¼ï¼ï¼
+    * ShaderVariableCollection³ÖÓĞÌØ¶¨ÀàĞÍµÄShaderVariableÁĞ±í¡£
+    * PipelineStateÊ¹ÓÃManagerÀ´¹ÜÀíStatic×ÊÔ´£¬ShaderResourceBindingÊ¹ÓÃManagerÀ´¹ÜÀíMutableºÍDynamic×ÊÔ´
+    * °ÑShaderResourceLayoutºÍShaderResourceCache¹ØÁªÁËÆğÀ´£¡£¡£¡
     */
     class ShaderVariableCollection
     {
     public:
-        // ä¸ºShaderResourceLayoutä¸­çš„æ¯ä¸ªShaderèµ„æºåˆ›å»ºä¸€ä¸ªShaderVariable
+        // ÎªShaderResourceLayoutÖĞµÄÃ¿¸öShader×ÊÔ´´´½¨Ò»¸öShaderVariable
         ShaderVariableCollection(ShaderResourceCache& resourceCache,
             const ShaderResourceLayout& srcLayout,
             const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
@@ -69,7 +69,7 @@ namespace RHI
 
         ShaderResourceCache& m_ResourceCache;
 
-        // å› ä¸ºShaderVariableä¸èƒ½æ‹·è´ä¸èƒ½ç§»åŠ¨ï¼Œæ‰€ä»¥ä¿å­˜å®ƒçš„æŒ‡é’ˆ
+        // ÒòÎªShaderVariable²»ÄÜ¿½±´²»ÄÜÒÆ¶¯£¬ËùÒÔ±£´æËüµÄÖ¸Õë
         std::vector<std::unique_ptr<ShaderVariable>> m_Variables;
     };
 

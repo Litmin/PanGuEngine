@@ -17,9 +17,9 @@ public:
 	GameObject(GameObject* parent);
 	~GameObject();
 
-	// åˆ›å»ºå­èŠ‚ç‚¹
+	// ´´½¨×Ó½Úµã
 	GameObject* CreateChild();
-	// åˆ é™¤æ‰€æœ‰å­èŠ‚ç‚¹
+	// É¾³ıËùÓĞ×Ó½Úµã
 	void DestroyChildren();
 
 	template<typename T> T* AddComponent();
@@ -43,9 +43,9 @@ public:
 private:
 	void _UpdateFromParent();
 
-	// çˆ¶èŠ‚ç‚¹
+	// ¸¸½Úµã
 	GameObject* m_Parent;
-	// å­èŠ‚ç‚¹
+	// ×Ó½Úµã
 	std::vector<std::unique_ptr<GameObject>> m_Children;
 
 	// Transform
@@ -60,7 +60,7 @@ private:
 	DirectX::XMFLOAT4X4 m_WorldToLocalMatrix;
 
 	bool m_TransformDirty = true;
-	// æ¯ä¸ªç‰©ä½“çš„Constant Bufferç´¢å¼•
+	// Ã¿¸öÎïÌåµÄConstant BufferË÷Òı
 	UINT m_ObjCBIndex = -1;
 
 	// Components

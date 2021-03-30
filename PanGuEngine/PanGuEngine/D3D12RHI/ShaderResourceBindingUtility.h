@@ -6,13 +6,13 @@ namespace RHI
 
     UINT32 GetAllowedTypeBits(const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes, UINT32 allowedTypeNum) noexcept;
 
-    // åˆ¤æ–­Shader Typeå’ŒPipeline Typeæ˜¯å¦å…¼å®¹ï¼Œæ¯”å¦‚Compute Pipelineå°±ä¸èƒ½æœ‰VSã€PS
+    // ÅĞ¶ÏShader TypeºÍPipeline TypeÊÇ·ñ¼æÈİ£¬±ÈÈçCompute Pipeline¾Í²»ÄÜÓĞVS¡¢PS
     bool IsConsistentShaderType(SHADER_TYPE ShaderType, PIPELINE_TYPE PipelineType);
 
-    // æŠŠShader Typeä½œä¸ºç´¢å¼•ï¼Œæ„é€ Root Tableæ—¶ä¼šä½¿ç”¨
+    // °ÑShader Type×÷ÎªË÷Òı£¬¹¹ÔìRoot TableÊ±»áÊ¹ÓÃ
     INT32 GetShaderTypePipelineIndex(SHADER_TYPE ShaderType, PIPELINE_TYPE PipelineType);
 
-    // ä»ShaderVariableConfigä¸­æ‰¾å‡ºæŸä¸ªShaderResourceçš„Variable Typeï¼ˆStaticã€Mutableã€Dynamicï¼‰
+    // ´ÓShaderVariableConfigÖĞÕÒ³öÄ³¸öShaderResourceµÄVariable Type£¨Static¡¢Mutable¡¢Dynamic£©
     SHADER_RESOURCE_VARIABLE_TYPE GetShaderVariableType(SHADER_TYPE shaderType, 
                                                         const std::string& name, 
                                                         const struct ShaderVariableConfig& shaderVariableConfig);

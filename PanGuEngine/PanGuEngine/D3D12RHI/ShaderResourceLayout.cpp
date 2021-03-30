@@ -14,7 +14,7 @@ namespace RHI
 											   RootSignature* rootSignature) :
 		m_D3D12Device(pd3d12Device)
 	{
-		// æŠŠShaderResourceä¸­çš„æ¯ä¸ªèµ„æºéƒ½é€šè¿‡RootSignatureç¡®å®šRootIndexå’ŒOffsetFromTableStartï¼Œç„¶åå­˜å‚¨ä¸‹æ¥
+		// °ÑShaderResourceÖĞµÄÃ¿¸ö×ÊÔ´¶¼Í¨¹ıRootSignatureÈ·¶¨RootIndexºÍOffsetFromTableStart£¬È»ºó´æ´¢ÏÂÀ´
 		auto AddResource = [&](const ShaderResourceAttribs& Attribs,
 							   BindingResourceType              ResType,
 							   SHADER_RESOURCE_VARIABLE_TYPE   VarType) //
@@ -27,7 +27,7 @@ namespace RHI
 			D3D12_DESCRIPTOR_RANGE_TYPE DescriptorRangeType = GetDescriptorRangeType(ResType);
 			SHADER_TYPE shaderType = shaderResource->GetShaderType();
 			
-			// æŒ‰ç…§ShaderResourceä¸­çš„é¡ºåºæ·»åŠ åˆ°RootSignatureä¸­ï¼Œå¹¶åˆ†é…RootIndexå’ŒOffset
+			// °´ÕÕShaderResourceÖĞµÄË³ĞòÌí¼Óµ½RootSignatureÖĞ£¬²¢·ÖÅäRootIndexºÍOffset
 			rootSignature->AllocateResourceSlot(shaderType, pipelineType, Attribs, VarType, DescriptorRangeType, RootIndex, Offset);
 
 			std::unique_ptr<Resource> resource = std::make_unique<Resource>(*this, Attribs, VarType, ResType, RootIndex, Offset);
@@ -84,40 +84,40 @@ namespace RHI
 		return false;
 	}
 
-	// ç»‘å®šConstant Bufferæ—¶åªéœ€è¦æŒæœ‰GpuBufferå¯¹è±¡ï¼Œæäº¤èµ„æºæ—¶åªéœ€è¦Bufferçš„GPUåœ°å€
+	// °ó¶¨Constant BufferÊ±Ö»ĞèÒª³ÖÓĞGpuBuffer¶ÔÏó£¬Ìá½»×ÊÔ´Ê±Ö»ĞèÒªBufferµÄGPUµØÖ·
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
 		assert(buffer != nullptr);
-		// åªæœ‰Constant Bufferä½œä¸ºRoot Descriptorç»‘å®šï¼ï¼ï¼
+		// Ö»ÓĞConstant Buffer×÷ÎªRoot Descriptor°ó¶¨£¡£¡£¡
 		assert(ResourceType == BindingResourceType::CBV);
 
 		ShaderResourceCache::RootDescriptor& rootDescriptor = resourceCache.GetRootDescriptor(RootIndex);
 
 		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootDescriptor.ConstantBuffer != nullptr)
 		{
-			// å¦‚æœå·²ç»ç»‘å®šäº†èµ„æºå°±ä¸æ›´æ–°ï¼Œé™¤éæ˜¯Dynamicèµ„æº
+			// Èç¹ûÒÑ¾­°ó¶¨ÁË×ÊÔ´¾Í²»¸üĞÂ£¬³ı·ÇÊÇDynamic×ÊÔ´
 			return;
 		}
 
 		rootDescriptor.ConstantBuffer = buffer;
 	}
 
-	// ç»‘å®šRoot Tableä¸­çš„Descriptoræ—¶ï¼Œéœ€è¦æŠŠèµ„æºåœ¨CPUDescriptorHeapä¸­çš„Descriptoræ‹·è´åˆ°ShaderResourceCacheä¸­çš„GPUDescriptorHeapä¸­
+	// °ó¶¨Root TableÖĞµÄDescriptorÊ±£¬ĞèÒª°Ñ×ÊÔ´ÔÚCPUDescriptorHeapÖĞµÄDescriptor¿½±´µ½ShaderResourceCacheÖĞµÄGPUDescriptorHeapÖĞ
 	void ShaderResourceLayout::Resource::BindResource(std::shared_ptr<GpuResourceDescriptor> descriptor, UINT32 arrayIndex, ShaderResourceCache& resourceCache) const
 	{
 		assert(descriptor != nullptr);
 
 		ShaderResourceCache::RootTable& rootTable = resourceCache.GetRootTable(RootIndex);
 
-		// å¦‚æœå·²ç»ç»‘å®šäº†èµ„æºå°±ä¸æ›´æ–°ï¼Œé™¤éæ˜¯Dynamicèµ„æº
+		// Èç¹ûÒÑ¾­°ó¶¨ÁË×ÊÔ´¾Í²»¸üĞÂ£¬³ı·ÇÊÇDynamic×ÊÔ´
 		if (VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC && rootTable.Descriptors[OffsetFromTableStart + arrayIndex] != nullptr)
 		{
 			return;
 		}
-		// ä¿å­˜descriptorå¯¹è±¡çš„å¼•ç”¨
+		// ±£´ædescriptor¶ÔÏóµÄÒıÓÃ
 		rootTable.Descriptors[OffsetFromTableStart + arrayIndex] = descriptor;
 
-		// Staticã€Mutableçš„èµ„æºä¼šCopyåˆ°ShaderResourceCacheçš„GPUDescriptorHeapä¸­ï¼ŒDynamicèµ„æºæ¯å¸§åŠ¨æ€åˆ†é…ï¼Œåªéœ€è¦è®°å½•èµ„æºåœ¨CPUDescriptorHeapä¸­çš„Descriptor
+		// Static¡¢MutableµÄ×ÊÔ´»áCopyµ½ShaderResourceCacheµÄGPUDescriptorHeapÖĞ£¬Dynamic×ÊÔ´Ã¿Ö¡¶¯Ì¬·ÖÅä£¬Ö»ĞèÒª¼ÇÂ¼×ÊÔ´ÔÚCPUDescriptorHeapÖĞµÄDescriptor
 		D3D12_CPU_DESCRIPTOR_HANDLE shaderVisibleHeapCPUDescriptorHandle = resourceCache.
 			GetShaderVisibleTableCPUDescriptorHandle<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(RootIndex, OffsetFromTableStart + arrayIndex);
 

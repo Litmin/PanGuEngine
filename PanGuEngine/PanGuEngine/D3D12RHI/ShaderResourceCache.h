@@ -11,10 +11,10 @@ namespace RHI
     class CommandContext;
 	
     /**
-    * åªæä¾›ä¸ªå­˜å‚¨ç©ºé—´ï¼ˆGPUDescriptorHeapï¼‰ï¼Œå…¶ä»–çš„å•¥éƒ½ä¸çŸ¥é“
-    * å­˜å‚¨ç»‘å®šåˆ°Shaderçš„èµ„æº,ShaderResourceCacheä¼šåˆ†é…GPU-visible Descriptor Heapä¸Šçš„ç©ºé—´ï¼Œæ¥å­˜å‚¨èµ„æºçš„Descriptor
-    * Root Viewä¸åœ¨GPUDescriptorHeapä¸­åˆ†é…ç©ºé—´ï¼Œå®ƒç›´æ¥ç»‘å®šåˆ°RootSignature
-    * Staticå’ŒMutableçš„Root Tableä¼šåœ¨GPUDescriptorHeapä¸­åˆ†é…ç©ºé—´ï¼ŒDynamicåœ¨æ¯æ¬¡Draw Callä¸­åŠ¨æ€çš„åˆ†é…ç©ºé—´
+    * Ö»Ìá¹©¸ö´æ´¢¿Õ¼ä£¨GPUDescriptorHeap£©£¬ÆäËûµÄÉ¶¶¼²»ÖªµÀ
+    * ´æ´¢°ó¶¨µ½ShaderµÄ×ÊÔ´,ShaderResourceCache»á·ÖÅäGPU-visible Descriptor HeapÉÏµÄ¿Õ¼ä£¬À´´æ´¢×ÊÔ´µÄDescriptor
+    * Root View²»ÔÚGPUDescriptorHeapÖĞ·ÖÅä¿Õ¼ä£¬ËüÖ±½Ó°ó¶¨µ½RootSignature
+    * StaticºÍMutableµÄRoot Table»áÔÚGPUDescriptorHeapÖĞ·ÖÅä¿Õ¼ä£¬DynamicÔÚÃ¿´ÎDraw CallÖĞ¶¯Ì¬µÄ·ÖÅä¿Õ¼ä
     */
     class ShaderResourceCache
     {
@@ -37,7 +37,7 @@ namespace RHI
 
         static constexpr UINT32 InvalidDescriptorOffset = static_cast<UINT32>(-1);
 
-		// ç›®å‰åªæœ‰Constant Bufferä½œä¸ºRoot Descriptorç»‘å®š
+		// Ä¿Ç°Ö»ÓĞConstant Buffer×÷ÎªRoot Descriptor°ó¶¨
 		struct RootDescriptor
 		{
             RootDescriptor(SHADER_RESOURCE_VARIABLE_TYPE _VariableType) : VariableType(_VariableType) {}
@@ -48,23 +48,23 @@ namespace RHI
 
         struct RootTable
         {
-            // TODO: RootTableæ²¡æœ‰é»˜è®¤æ„é€ å‡½æ•°ä¼šæŠ¥é”™ï¼š
+            // TODO: RootTableÃ»ÓĞÄ¬ÈÏ¹¹Ôìº¯Êı»á±¨´í£º
             // Error C2512	'RHI::ShaderResourceCache::RootTable::RootTable': no appropriate default constructor available	
             // PanGuEngine	F:\Tools\VS2019\VC\Tools\MSVC\14.28.29333\include\tuple	980	
             RootTable(SHADER_RESOURCE_VARIABLE_TYPE _VariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC, UINT32 tableSize = 0) : Descriptors(tableSize){}
 
 			SHADER_RESOURCE_VARIABLE_TYPE VariableType;
 
-            // æ¯ä¸ªRoot Tableåœ¨GPUDescriptorHeapä¸­çš„èµ·å§‹ä½ç½®
+            // Ã¿¸öRoot TableÔÚGPUDescriptorHeapÖĞµÄÆğÊ¼Î»ÖÃ
             UINT32 TableStartOffset = InvalidDescriptorOffset;
 
-            // è¯¥Tableä¸­èµ„æºçš„æ•°é‡
+            // ¸ÃTableÖĞ×ÊÔ´µÄÊıÁ¿
             std::vector<std::shared_ptr<GpuResourceDescriptor>> Descriptors;
         };
 
 
-        // ShaderResourceLayouté€šè¿‡è¯¥å‡½æ•°æ¥è·å–Descriptor Handleï¼Œå¹¶æŠŠè¦ç»‘å®šçš„èµ„æºçš„Descriptoræ‹·è´è¿‡æ¥!!!
-        // OffsetFromTableStartæ˜¯åœ¨Tableä¸­çš„åç§»ï¼Œè·ŸRootParam.m_TableStartOffsetä¸åŒ
+        // ShaderResourceLayoutÍ¨¹ı¸Ãº¯ÊıÀ´»ñÈ¡Descriptor Handle£¬²¢°ÑÒª°ó¶¨µÄ×ÊÔ´µÄDescriptor¿½±´¹ıÀ´!!!
+        // OffsetFromTableStartÊÇÔÚTableÖĞµÄÆ«ÒÆ£¬¸úRootParam.m_TableStartOffset²»Í¬
         template <D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
         D3D12_CPU_DESCRIPTOR_HANDLE GetShaderVisibleTableCPUDescriptorHandle(UINT32 RootIndex, UINT32 OffsetFromTableStart = 0) const
         {
@@ -80,14 +80,14 @@ namespace RHI
             return CPUDescriptorHandle;
         }
 
-        // RootSignatureé€šè¿‡è¯¥å‡½æ•°æ¥è®¿é—®GPU Descriptor Handleï¼Œç„¶åæäº¤åˆ°æ¸²æŸ“ç®¡çº¿!!!
-    	// OffsetFromTableStartæ˜¯åœ¨Tableä¸­çš„åç§»ï¼Œè·ŸRootParam.m_TableStartOffsetä¸åŒ
+        // RootSignatureÍ¨¹ı¸Ãº¯ÊıÀ´·ÃÎÊGPU Descriptor Handle£¬È»ºóÌá½»µ½äÖÈ¾¹ÜÏß!!!
+    	// OffsetFromTableStartÊÇÔÚTableÖĞµÄÆ«ÒÆ£¬¸úRootParam.m_TableStartOffset²»Í¬
         template <D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
         D3D12_GPU_DESCRIPTOR_HANDLE GetShaderVisibleTableGPUDescriptorHandle(UINT32 RootIndex, UINT32 OffsetFromTableStart = 0) const
         {
             const auto& RootParam = GetRootTable(RootIndex);
 
-            // Dynamicèµ„æºæ²¡æœ‰åœ¨ShaderResourceCacheçš„Heapä¸­åˆ†é…ç©ºé—´ï¼Œæ‰€ä»¥m_TableStartOffsetåº”è¯¥æ—¶Invalid
+            // Dynamic×ÊÔ´Ã»ÓĞÔÚShaderResourceCacheµÄHeapÖĞ·ÖÅä¿Õ¼ä£¬ËùÒÔm_TableStartOffsetÓ¦¸ÃÊ±Invalid
             assert(RootParam.TableStartOffset != InvalidDescriptorOffset && "GPU descriptor handle must never be requested for dynamic resources");
 
             D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle = m_CbvSrvUavGPUHeapSpace.GetGpuHandle(RootParam.TableStartOffset + OffsetFromTableStart);
@@ -95,11 +95,11 @@ namespace RHI
             return GPUDescriptorHandle;
         }
 
-        // æäº¤Staticã€Mutableçš„èµ„æºç»‘å®š
+        // Ìá½»Static¡¢MutableµÄ×ÊÔ´°ó¶¨
         void CommitResource(CommandContext& cmdContext);
-        /*æäº¤Dynamic Shader Variableçš„èµ„æºç»‘å®šä»¥åŠDynamic Resourceçš„èµ„æºï¼Œæ¯æ¬¡Drawå‰è‡ªåŠ¨æäº¤
-        * Dynamic Resourceä¸ç­‰äºDynamic Shader Variableï¼ŒDynamic Resourceè¡¨ç¤ºèµ„æºæœ¬èº«è¢«ä¿®æ”¹çš„é¢‘ç‡ï¼ŒDynamic Shader Variableè¡¨ç¤ºèµ„æºç»‘å®šåˆ‡æ¢çš„é¢‘ç‡
-        * æ¯”å¦‚Transformçš„Constant Bufferçš„Shader Variableç±»å‹å°±æ˜¯Staticï¼Œä½†æ˜¯è¿™ä¸ªBufferæ˜¯Dynamic Buffer
+        /*Ìá½»Dynamic Shader VariableµÄ×ÊÔ´°ó¶¨ÒÔ¼°Dynamic ResourceµÄ×ÊÔ´£¬Ã¿´ÎDrawÇ°×Ô¶¯Ìá½»
+        * Dynamic Resource²»µÈÓÚDynamic Shader Variable£¬Dynamic Resource±íÊ¾×ÊÔ´±¾Éí±»ĞŞ¸ÄµÄÆµÂÊ£¬Dynamic Shader Variable±íÊ¾×ÊÔ´°ó¶¨ÇĞ»»µÄÆµÂÊ
+        * ±ÈÈçTransformµÄConstant BufferµÄShader VariableÀàĞÍ¾ÍÊÇStatic£¬µ«ÊÇÕâ¸öBufferÊÇDynamic Buffer
         */
         void CommitDynamic(CommandContext& cmdContext);
 
@@ -121,7 +121,7 @@ namespace RHI
         const RootTable& GetRootTable(UINT32 RootIndex) const
         {
             return m_RootTables.at(RootIndex);
-        	// è¿™æ ·å†™ä¼šæŠ¥é”™ï¼Œå› ä¸º[]è¿ç®—ç¬¦å¦‚æœæ²¡æœ‰å‘ç°è¿™ä¸ªKeyï¼Œå®ƒå°±ä¼šæ’å…¥ä¸€ä¸ªæ–°çš„å…ƒç´ ï¼Œæ‰€ä»¥[]æ˜¯éconstçš„
+        	// ÕâÑùĞ´»á±¨´í£¬ÒòÎª[]ÔËËã·ûÈç¹ûÃ»ÓĞ·¢ÏÖÕâ¸öKey£¬Ëü¾Í»á²åÈëÒ»¸öĞÂµÄÔªËØ£¬ËùÒÔ[]ÊÇ·ÇconstµÄ
             //return m_RootTables[RootIndex];
         }
         

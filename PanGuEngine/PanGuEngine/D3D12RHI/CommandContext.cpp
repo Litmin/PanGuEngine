@@ -61,7 +61,7 @@ namespace RHI
 		m_CurrentAllocator = CommandListManager::GetSingleton().GetQueue(m_Type).RequestAllocator();
 		m_CommandList->Reset(m_CurrentAllocator, nullptr);
 
-		// TODO:é‡ç½®æ¸²æŸ“çŠ¶æ€
+		// TODO:ÖØÖÃäÖÈ¾×´Ì¬
 	}
 
 	CommandContext& CommandContext::Begin(const std::wstring ID /*= L""*/)
@@ -84,7 +84,7 @@ namespace RHI
 
 		m_CommandList->Reset(m_CurrentAllocator, nullptr);
 
-		// TODO:é‡æ–°è®¾ç½®ä¸€è¾¹æ¸²æŸ“çŠ¶æ€
+		// TODO:ÖØĞÂÉèÖÃÒ»±ßäÖÈ¾×´Ì¬
 
 		return FenceValue;
 	}
@@ -99,13 +99,19 @@ namespace RHI
 
 		CommandQueue& Queue = CommandListManager::GetSingleton().GetQueue(m_Type);
 
+		// ÇåÀíRelease Queue
+		RenderDevice::GetSingleton().PurgeReleaseQueue(false);
+
+		// ÊÍ·Å·ÖÅäµÄDynamic Descriptor
+		m_DynamicGPUDescriptorAllocator.ReleaseAllocations();
+
+		// ÊÍ·Å·ÖÅäµÄDynamic Resource
+		m_DynamicResourceHeap.ReleaseAllocatedPages();
+
+
 		uint64_t FenceValue = Queue.ExecuteCommandList(m_CommandList.Get());
 		Queue.DiscardAllocator(FenceValue, m_CurrentAllocator);
 		m_CurrentAllocator = nullptr;
-
-
-		// é‡Šæ”¾åˆ†é…çš„Dynamic Descriptor
-		m_DynamicGPUDescriptorAllocator.ReleaseAllocations();
 
 
 		if (WaitForCompletion)
@@ -120,7 +126,7 @@ namespace RHI
 	{
 		CommandContext& InitContext = CommandContext::Begin();
 
-		// Copyåˆ°UploadBuffer,è¿™é‡Œçš„UploadBufferä¼šè‡ªåŠ¨é‡Šæ”¾ï¼Œåœ¨ææ„å‡½æ•°ä¸­ä¼šè°ƒç”¨SafeRelease
+		// Copyµ½UploadBuffer,ÕâÀïµÄUploadBuffer»á×Ô¶¯ÊÍ·Å£¬ÔÚÎö¹¹º¯ÊıÖĞ»áµ÷ÓÃSafeRelease
 		GpuUploadBuffer uploadBuffer(1, NumBytes);
 		void* dataPtr = uploadBuffer.Map();
 		memcpy(dataPtr, Data, NumBytes);
@@ -176,7 +182,7 @@ namespace RHI
 	{
 		D3D12_RESOURCE_STATES OldState = Resource.m_UsageState;
 
-		// é™åˆ¶Computeç®¡çº¿å¯ä»¥è¿‡åº¦çš„çŠ¶æ€
+		// ÏŞÖÆCompute¹ÜÏß¿ÉÒÔ¹ı¶ÈµÄ×´Ì¬
 		if (m_Type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 		{
 			assert((OldState & VALID_COMPUTE_QUEUE_RESOURCE_STATES) == OldState);
@@ -185,7 +191,7 @@ namespace RHI
 
 		if (OldState != NewState)
 		{
-			assert(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers");
+			assert(m_NumBarriersToFlush < 16 && "Exceeded arbitrary limit on buffered barriers");
 			D3D12_RESOURCE_BARRIER& BarrierDesc = m_ResourceBarrierBuffer[m_NumBarriersToFlush++];
 
 			BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -210,7 +216,7 @@ namespace RHI
 			FlushResourceBarriers();
 	}
 
-	// ä½¿ç”¨Split Barrieræ¥ä¼˜åŒ–æ€§èƒ½
+	// Ê¹ÓÃSplit BarrierÀ´ÓÅ»¯ĞÔÄÜ
 	void CommandContext::BeginResourceTransition(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate /*= false*/)
 	{
 		// If it's already transitioning, finish that transition
@@ -221,7 +227,7 @@ namespace RHI
 
 		if (OldState != NewState)
 		{
-			assert(m_NumBarriersToFlush < 16, "Exceeded arbitrary limit on buffered barriers");
+			assert(m_NumBarriersToFlush < 16 && "Exceeded arbitrary limit on buffered barriers");
 			D3D12_RESOURCE_BARRIER& BarrierDesc = m_ResourceBarrierBuffer[m_NumBarriersToFlush++];
 
 			BarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -240,8 +246,8 @@ namespace RHI
 	}
 
 	// https://docs.microsoft.com/en-us/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12
-	// æ–‡æ¡£ä¸­æœ‰è¯´æ˜ï¼šApplications should batch multiple transitions into one API call wherever possible. 
-	// TODO: æ‰€ä»¥è¿™é‡Œå°½é‡ç¼“å­˜åˆ°16ä¸ªä»¥åå†ä¸€èµ·æ‰§è¡Œ,è¿˜ä¸æ¸…æ¥šåŸå› 
+	// ÎÄµµÖĞÓĞËµÃ÷£ºApplications should batch multiple transitions into one API call wherever possible. 
+	// TODO: ËùÒÔÕâÀï¾¡Á¿»º´æµ½16¸öÒÔºóÔÙÒ»ÆğÖ´ĞĞ,»¹²»Çå³şÔ­Òò
 	void CommandContext::FlushResourceBarriers(void)
 	{
 		if (m_NumBarriersToFlush > 0)
@@ -259,10 +265,10 @@ namespace RHI
 			return;
 		m_CurPSO = PSO;
 
-		// ç»‘å®šPSO
+		// °ó¶¨PSO
 		m_CommandList->SetPipelineState(PSO->GetD3D12PipelineState());
 
-		// æäº¤Staticèµ„æº
+		// Ìá½»Static×ÊÔ´
 		PSO->CommitStaticSRB(*this);
 	}
 
@@ -274,7 +280,7 @@ namespace RHI
 
 		if (m_CurSRB == SRB)
 			return;
-		// è®°å½•SRBï¼Œåœ¨Drawä¹‹å‰æäº¤Dynamic Shader Variableå’ŒDynamic Buffer,å› ä¸ºDynamic Bufferåœ¨ä¿®æ”¹æ•°æ®æ—¶GPUåœ°å€ä¼šå˜ï¼Œåœ¨Drawä¹‹å‰æäº¤Dynamic Shader Vaiableå‡å°‘æ›´æ–°é¢‘ç‡
+		// ¼ÇÂ¼SRB£¬ÔÚDrawÖ®Ç°Ìá½»Dynamic Shader VariableºÍDynamic Buffer,ÒòÎªDynamic BufferÔÚĞŞ¸ÄÊı¾İÊ±GPUµØÖ·»á±ä£¬ÔÚDrawÖ®Ç°Ìá½»Dynamic Shader Vaiable¼õÉÙ¸üĞÂÆµÂÊ
 		m_CurSRB = SRB;
 
 		m_CurPSO->CommitSRB(*this, SRB);
@@ -374,7 +380,7 @@ namespace RHI
 	{
 		FlushResourceBarriers();
 
-		// æäº¤åŠ¨æ€èµ„æº
+		// Ìá½»¶¯Ì¬×ÊÔ´
 		CommitDynamic();
 
 		m_CommandList->DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
@@ -384,13 +390,13 @@ namespace RHI
 	{
 		FlushResourceBarriers();
 
-		// æäº¤åŠ¨æ€èµ„æº
+		// Ìá½»¶¯Ì¬×ÊÔ´
 		CommitDynamic();
 
 		m_CommandList->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
 	}
 
-	// ComputeContextå¦‚æœæ˜¯å¼‚æ­¥è®¡ç®—ï¼Œå°±åœ¨Compute Queueä¸­åˆ†é…
+	// ComputeContextÈç¹ûÊÇÒì²½¼ÆËã£¬¾ÍÔÚCompute QueueÖĞ·ÖÅä
 	ComputeContext& ComputeContext::Begin(const std::wstring& ID /*= L""*/, bool Async /*= false*/)
 	{
 		ComputeContext& NewContext = ContextManager::GetSingleton().AllocateContext(

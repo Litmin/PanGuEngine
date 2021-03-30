@@ -10,9 +10,9 @@ namespace RHI
 	class RootParameter
 	{
 	public:
-		// ä¸‰ä¸ªæ„é€ å‡½æ•°,å¯¹åº”DX12ä¸­RootParamaterä¸‰ç§ç±»å‹ï¼šRoot Constantã€Root Viewã€Root Table
-        // æœ€å¥½ä¸å­˜å‚¨Root Constantï¼ŒRoot Parameterçš„æ€»å¤§å°æœ‰é™åˆ¶ï¼ŒRoot Constantä¼šå ç”¨å¤§é‡ç©ºé—´
-        // Root Tableç¨å¾®å¤æ‚ä¸€ç‚¹,ä¸€ä¸ªRoot Tableå¯ä»¥æœ‰å¤šä¸ªDescriptor Rangeï¼Œä¸€ä¸ªDescriptor Rangeå…¶å®å°±æ˜¯ä¸€ä¸ªç›¸åŒç±»å‹(CBVã€SRVã€UAV)çš„Descriptoræ•°ç»„
+		// Èı¸ö¹¹Ôìº¯Êı,¶ÔÓ¦DX12ÖĞRootParamaterÈıÖÖÀàĞÍ£ºRoot Constant¡¢Root View¡¢Root Table
+        // ×îºÃ²»´æ´¢Root Constant£¬Root ParameterµÄ×Ü´óĞ¡ÓĞÏŞÖÆ£¬Root Constant»áÕ¼ÓÃ´óÁ¿¿Õ¼ä
+        // Root TableÉÔÎ¢¸´ÔÓÒ»µã,Ò»¸öRoot Table¿ÉÒÔÓĞ¶à¸öDescriptor Range£¬Ò»¸öDescriptor RangeÆäÊµ¾ÍÊÇÒ»¸öÏàÍ¬ÀàĞÍ(CBV¡¢SRV¡¢UAV)µÄDescriptorÊı×é
         // Root View
         RootParameter(D3D12_ROOT_PARAMETER_TYPE     ParameterType,
                       UINT32                        RootIndex,
@@ -23,7 +23,7 @@ namespace RHI
             m_RootIndex{ RootIndex },
             m_ShaderVarType{ VarType }
         {
-            assert(ParameterType == D3D12_ROOT_PARAMETER_TYPE_CBV || ParameterType == D3D12_ROOT_PARAMETER_TYPE_SRV || ParameterType == D3D12_ROOT_PARAMETER_TYPE_UAV, "Unexpected parameter type - verify argument list");
+            assert(ParameterType == D3D12_ROOT_PARAMETER_TYPE_CBV || ParameterType == D3D12_ROOT_PARAMETER_TYPE_SRV || ParameterType == D3D12_ROOT_PARAMETER_TYPE_UAV && "Unexpected parameter type - verify argument list");
             m_RootParam.ParameterType = ParameterType;
             m_RootParam.ShaderVisibility = Visibility;
             m_RootParam.Descriptor.ShaderRegister = Register;
@@ -76,17 +76,17 @@ namespace RHI
         RootParameter& operator=(const RootParameter&) = delete;
         RootParameter& operator=(RootParameter&&) = delete;
 
-        // åœ¨ç°æœ‰çš„Root Tableä¸­æ·»åŠ Descriptor Range
+        // ÔÚÏÖÓĞµÄRoot TableÖĞÌí¼ÓDescriptor Range
         void AddDescriptorRanges(UINT32 addRangesNum)
         {
             m_DescriptorRanges.insert(m_DescriptorRanges.end(), addRangesNum, D3D12_DESCRIPTOR_RANGE{});
 
-            // æ·»åŠ äº†æ–°çš„Descriptor Rangeåï¼Œè¦é‡æ–°èµ‹å€¼æŒ‡é’ˆï¼Œå› ä¸ºå½“vectoræ‰©å®¹åï¼Œå­˜å‚¨ä½ç½®ä¼šå˜åŒ–!!!!!!
+            // Ìí¼ÓÁËĞÂµÄDescriptor Rangeºó£¬ÒªÖØĞÂ¸³ÖµÖ¸Õë£¬ÒòÎªµ±vectorÀ©Èİºó£¬´æ´¢Î»ÖÃ»á±ä»¯!!!!!!
             m_RootParam.DescriptorTable.pDescriptorRanges = &m_DescriptorRanges[0];
             m_RootParam.DescriptorTable.NumDescriptorRanges += addRangesNum;
         }
 
-        // è®¾ç½®æŒ‡å®šDescriptor Rangeçš„å±æ€§
+        // ÉèÖÃÖ¸¶¨Descriptor RangeµÄÊôĞÔ
         void SetDescriptorRange(UINT                        RangeIndex,
                                 D3D12_DESCRIPTOR_RANGE_TYPE Type,
                                 UINT                        Register,
@@ -109,7 +109,7 @@ namespace RHI
 
         SHADER_RESOURCE_VARIABLE_TYPE GetShaderVariableType() const { return m_ShaderVarType; }
 
-        // è¯¥Root Tableçš„Descriptoræ•°é‡ï¼ŒRoot Tableä¸­æœ‰å¤šä¸ªDescriptor Rangeï¼Œæ‰€ä»¥æ˜¯æŠŠæ¯ä¸ªDescriptor Rangeçš„Descriptoræ•°é‡åŠ èµ·æ¥
+        // ¸ÃRoot TableµÄDescriptorÊıÁ¿£¬Root TableÖĞÓĞ¶à¸öDescriptor Range£¬ËùÒÔÊÇ°ÑÃ¿¸öDescriptor RangeµÄDescriptorÊıÁ¿¼ÓÆğÀ´
         UINT32 GetDescriptorTableSize() const
         {
             assert(m_RootParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE && "Incorrect parameter table: descriptor table is expected");
@@ -121,7 +121,7 @@ namespace RHI
 
         UINT32 GetRootIndex() const { return m_RootIndex; }
 
-        // å®šä¹‰åˆ°D3D12_ROOT_PARAMETERçš„éšå¼è½¬æ¢
+        // ¶¨Òåµ½D3D12_ROOT_PARAMETERµÄÒşÊ½×ª»»
         operator const D3D12_ROOT_PARAMETER& () const { return m_RootParam; }
 
         bool operator==(const RootParameter& rhs) const
@@ -226,7 +226,7 @@ namespace RHI
         }
 
 	private:
-		// TODO: ç”¨-1åˆå§‹åŒ–æ˜¯ä»€ä¹ˆä½œç”¨ï¼Ÿï¼Ÿï¼Ÿ
+		// TODO: ÓÃ-1³õÊ¼»¯ÊÇÊ²Ã´×÷ÓÃ£¿£¿£¿
 		SHADER_RESOURCE_VARIABLE_TYPE m_ShaderVarType = static_cast<SHADER_RESOURCE_VARIABLE_TYPE>(-1);
 		D3D12_ROOT_PARAMETER m_RootParam = {};
 		UINT32 m_DescriptorTableSize = 0;
@@ -241,12 +241,12 @@ namespace RHI
         RootSignature(RenderDevice* renderDevice);
         ~RootSignature();
 
-        // å®ŒæˆRoot Signatureçš„æ„é€ ï¼Œåˆ›å»ºDirect3D 12çš„Root Signature
+        // Íê³ÉRoot SignatureµÄ¹¹Ôì£¬´´½¨Direct3D 12µÄRoot Signature
         void Finalize(ID3D12Device* pd3d12Device);
 
         ID3D12RootSignature* GetD3D12RootSignature() const { return m_pd3d12RootSignature.Get(); }
 
-        // ä¸ºShaderä¸­çš„æ¯ä¸ªShaderResourceåˆ†é…ä¸€ä¸ªå®¹èº«ä¹‹åœ°
+        // ÎªShaderÖĞµÄÃ¿¸öShaderResource·ÖÅäÒ»¸öÈİÉíÖ®µØ
         void AllocateResourceSlot(SHADER_TYPE                     ShaderType,
                                   PIPELINE_TYPE                   PipelineType,
                                   const ShaderResourceAttribs& ShaderResAttribs,
@@ -255,13 +255,13 @@ namespace RHI
                                   UINT32& RootIndex,
                                   UINT32& OffsetFromTableStart);
 
-        // VarTypeç±»å‹çš„RootTableä¸­æ‰€æœ‰Descriptorçš„æ€»æ•°é‡
+        // VarTypeÀàĞÍµÄRootTableÖĞËùÓĞDescriptorµÄ×ÜÊıÁ¿
         UINT32 GetNumDescriptorInRootTable(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
         {
             return m_NumDescriptorInRootTable[VarType];
         }
 
-        // VarTypeç±»å‹çš„RootViewçš„æ•°é‡
+        // VarTypeÀàĞÍµÄRootViewµÄÊıÁ¿
         UINT32 GetNumRootDescriptor(SHADER_RESOURCE_VARIABLE_TYPE VarType) const
         {
             return m_NumRootDescriptor[VarType];
@@ -283,7 +283,7 @@ namespace RHI
 		
 
 	private:
-        // å†…éƒ¨åµŒå¥—ç±»ï¼Œå¸®åŠ©ç®¡ç†RootParam
+        // ÄÚ²¿Ç¶Ì×Àà£¬°ïÖú¹ÜÀíRootParam
         class RootParamsManager
         {
         public:
@@ -314,18 +314,18 @@ namespace RHI
                 return m_RootDescriptors[descriptorIndex];
             }
 
-            // æ·»åŠ ä¸€ä¸ªæ–°çš„RootView
+            // Ìí¼ÓÒ»¸öĞÂµÄRootView
             void AddRootDescriptor(D3D12_ROOT_PARAMETER_TYPE     ParameterType,
                              UINT32                        RootIndex,
                              UINT                          Register,
                              D3D12_SHADER_VISIBILITY       Visibility,
                              SHADER_RESOURCE_VARIABLE_TYPE VarType);
-            // æ·»åŠ ä¸€ä¸ªæ–°çš„RootTable
+            // Ìí¼ÓÒ»¸öĞÂµÄRootTable
             void AddRootTable(UINT32                        RootIndex,
                               D3D12_SHADER_VISIBILITY       Visibility,
                               SHADER_RESOURCE_VARIABLE_TYPE VarType,
                               UINT32                        NumRangesInNewTable = 1);
-            // åœ¨ç°æœ‰çš„RootTableä¸­æ·»åŠ Descriptor Range
+            // ÔÚÏÖÓĞµÄRootTableÖĞÌí¼ÓDescriptor Range
             void AddDescriptorRanges(UINT32 RootTableInd, UINT32 NumExtraRanges = 1);
 
             template <typename TOperation>
@@ -345,18 +345,18 @@ namespace RHI
         //                                                                    |
         Microsoft::WRL::ComPtr<ID3D12RootSignature> m_pd3d12RootSignature;//  |
         //                                                                    |                        
-        // RootParameteråŒ…æ‹¬Root Viewå’ŒRoot Tableï¼Œåˆ†åˆ«å­˜å‚¨åœ¨ä¸¤ä¸ªVectorä¸­ï¼Œ--------
-        // æ„é€ RootParameteræ—¶ï¼ŒæŒ‰ç…§Shaderä¸­å£°æ˜çš„é¡ºåºä¾æ¬¡å¤„ç†ï¼ŒRootIndexä¹Ÿå°±æŒ‰å£°æ˜çš„é¡ºåº
-        // CBVä¿å­˜ä¸ºRootViewï¼Œå…¶ä»–çš„æŒ‰ç…§æ›´æ–°é¢‘ç‡åˆ†ç»„ï¼ŒStaticã€Mutableã€Dynamicåˆ†åˆ«ä¿å­˜ä¸ºä¸‰ç»„Root Tableï¼Œä¸åŒçš„Shaderåˆ†å¼€ä¿å­˜ï¼Œæ‰€ä»¥Root Tableæœ€å¤§æ•°æ˜¯:Shaderæ•°é‡ x 3
-        // ä¸‹é¢çš„m_SrvCbvUavRootTablesMapå­˜å‚¨çš„æ˜¯æŒ‡å®šShaderé˜¶æ®µå’ŒæŒ‡å®šShader Variableç±»å‹çš„Root Tableåœ¨ä¸Šé¢çš„m_RootTablesä¸­çš„ç´¢å¼•ï¼ˆä¸æ˜¯Root Indexï¼‰
-        // ç”¨æ¥åˆ¤æ–­æŸä¸ªShaderçš„æŸä¸ªVariable Typeçš„RootTableæ˜¯å¦å·²ç»åˆ›å»ºï¼Œå¦‚æœå·²ç»åˆ›å»ºï¼Œå°±å‘è¿™ä¸ªRoot Tableä¸­æ·»åŠ Descriptor Rangeï¼Œå¦‚æœæ²¡æœ‰åˆ›å»ºï¼Œå°±åˆ›å»ºä¸€ä¸ªæ–°çš„Root Table
+        // RootParameter°üÀ¨Root ViewºÍRoot Table£¬·Ö±ğ´æ´¢ÔÚÁ½¸öVectorÖĞ£¬--------
+        // ¹¹ÔìRootParameterÊ±£¬°´ÕÕShaderÖĞÉùÃ÷µÄË³ĞòÒÀ´Î´¦Àí£¬RootIndexÒ²¾Í°´ÉùÃ÷µÄË³Ğò
+        // CBV±£´æÎªRootView£¬ÆäËûµÄ°´ÕÕ¸üĞÂÆµÂÊ·Ö×é£¬Static¡¢Mutable¡¢Dynamic·Ö±ğ±£´æÎªÈı×éRoot Table£¬²»Í¬µÄShader·Ö¿ª±£´æ£¬ËùÒÔRoot Table×î´óÊıÊÇ:ShaderÊıÁ¿ x 3
+        // ÏÂÃæµÄm_SrvCbvUavRootTablesMap´æ´¢µÄÊÇÖ¸¶¨Shader½×¶ÎºÍÖ¸¶¨Shader VariableÀàĞÍµÄRoot TableÔÚÉÏÃæµÄm_RootTablesÖĞµÄË÷Òı£¨²»ÊÇRoot Index£©
+        // ÓÃÀ´ÅĞ¶ÏÄ³¸öShaderµÄÄ³¸öVariable TypeµÄRootTableÊÇ·ñÒÑ¾­´´½¨£¬Èç¹ûÒÑ¾­´´½¨£¬¾ÍÏòÕâ¸öRoot TableÖĞÌí¼ÓDescriptor Range£¬Èç¹ûÃ»ÓĞ´´½¨£¬¾Í´´½¨Ò»¸öĞÂµÄRoot Table
         RootParamsManager m_RootParams;
 
         RenderDevice* m_RenderDevice;
 
-        // è®°å½•æ¯ç§Variableç±»å‹çš„æ‰€æœ‰RootTableçš„Descriptorçš„æ€»æ•°é‡
+        // ¼ÇÂ¼Ã¿ÖÖVariableÀàĞÍµÄËùÓĞRootTableµÄDescriptorµÄ×ÜÊıÁ¿
         std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumDescriptorInRootTable = {};
-        // è®°å½•æ¯ç§Variableç±»å‹çš„æ‰€æœ‰RootDescriptorçš„æ•°é‡
+        // ¼ÇÂ¼Ã¿ÖÖVariableÀàĞÍµÄËùÓĞRootDescriptorµÄÊıÁ¿
         std::array<UINT32, SHADER_RESOURCE_VARIABLE_TYPE_NUM_TYPES> m_NumRootDescriptor = {};
 
         static constexpr UINT8 InvalidRootTableIndex = static_cast<UINT8>(-1);

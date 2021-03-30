@@ -8,7 +8,7 @@ using Microsoft::WRL::ComPtr;
 
 ShaderOld::ShaderOld()
 {
-	// ç»‘å®šé€šç”¨å‚æ•°
+	// °ó¶¨Í¨ÓÃ²ÎÊı
 	// Per Object Buffer
 	ShaderParameter perObject("cbPerObject", ShaderParamType::CBVDescriptorHeap, 1, 0, 0);
 	m_ParamMap[ShaderManager::GetSingleton().PropertyToID("cbPerObject")] = m_Params.size();
@@ -19,10 +19,10 @@ ShaderOld::ShaderOld()
 	m_ParamMap[ShaderManager::GetSingleton().PropertyToID("cbPass")] = m_Params.size();
 	m_Params.push_back(perPass);
 
-	// å…‰ç…§å‚æ•°
+	// ¹âÕÕ²ÎÊı
 
 
-	// æ¯ä¸ªShaderå¯ä»¥overrideè¿™äº›æ¸²æŸ“çŠ¶æ€
+	// Ã¿¸öShader¿ÉÒÔoverrideÕâĞ©äÖÈ¾×´Ì¬
 	m_RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	m_BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	m_DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -30,16 +30,16 @@ ShaderOld::ShaderOld()
 
 void ShaderOld::Initialize(ID3D12Device* device)
 {
-	// ç¼–è¯‘Shader
+	// ±àÒëShader
 	m_VS = d3dUtil::CompileShader(m_FilePath, nullptr, m_VSEntry, "vs_5_0");
 	m_PS = d3dUtil::CompileShader(m_FilePath, nullptr, m_PSEntry, "ps_5_0");
 
-	// æ ¹æ®å‚æ•°åˆ›å»ºæ ¹ç­¾å
+	// ¸ù¾İ²ÎÊı´´½¨¸ùÇ©Ãû
 	vector<CD3DX12_ROOT_PARAMETER> rootParameters;
 	vector<CD3DX12_DESCRIPTOR_RANGE> texTables;
 	vector<CD3DX12_DESCRIPTOR_RANGE> constantTables;
 
-	// TODO:ç”¨æ›´å¥½çš„æ–¹å¼åˆå§‹åŒ–æ ¹ç­¾åå‚æ•°
+	// TODO:ÓÃ¸üºÃµÄ·½Ê½³õÊ¼»¯¸ùÇ©Ãû²ÎÊı
 	constantTables.reserve(m_Params.size());
 
 	for (auto& shaderParameter : m_Params)

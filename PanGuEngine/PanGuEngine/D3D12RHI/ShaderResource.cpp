@@ -12,18 +12,18 @@ namespace RHI
 		m_ShaderType{shaderDesc.ShaderType}
 	{
 
-		// ä½¿ç”¨åå°„æ¥è·å–è¿™ä¸ªShaderéœ€è¦ç»‘å®šçš„èµ„æº
+		// Ê¹ÓÃ·´ÉäÀ´»ñÈ¡Õâ¸öShaderĞèÒª°ó¶¨µÄ×ÊÔ´
 		ComPtr<ID3D12ShaderReflection> pShaderReflection;
 		ThrowIfFailed(D3DReflect(pShaderBytecode->GetBufferPointer(),
 							 pShaderBytecode->GetBufferSize(), 
-							 __uuidof(pShaderReflection), reinterpret_cast<void**>(pShaderReflection.Get())));// å¯èƒ½æœ‰é—®é¢˜
+							 __uuidof(pShaderReflection), reinterpret_cast<void**>(pShaderReflection.Get())));// ¿ÉÄÜÓĞÎÊÌâ
 
 		D3D12_SHADER_DESC DXshaderDesc = {};
 		pShaderReflection->GetDesc(&DXshaderDesc);
 
 		m_ShaderVersion = DXshaderDesc.Version;
 
-		// è®°å½•Shaderä½¿ç”¨çš„æ¯ä¸ªèµ„æº
+		// ¼ÇÂ¼ShaderÊ¹ÓÃµÄÃ¿¸ö×ÊÔ´
 		UINT skipCount = 1;
 		for (UINT i = 0; i < DXshaderDesc.BoundResources; i += skipCount)
 		{
@@ -36,19 +36,19 @@ namespace RHI
 
 			UINT bindCount = bindingDesc.BindCount;
 
-			// å¤„ç†æ•°ç»„
-			// Shader Model 5_0å’Œä¹‹å‰çš„ç‰ˆæœ¬ä¸­ï¼Œæ¯ä¸ªæ•°ç»„èµ„æºæ˜¯åˆ†å¼€åˆ—å‡ºæ¥çš„ã€‚
-			// æ¯”å¦‚ï¼ŒShaderä¸­å®šä¹‰äº†ä¸‹é¢è¿™ä¸ªçº¹ç†æ•°ç»„ï¼š
+			// ´¦ÀíÊı×é
+			// Shader Model 5_0ºÍÖ®Ç°µÄ°æ±¾ÖĞ£¬Ã¿¸öÊı×é×ÊÔ´ÊÇ·Ö¿ªÁĞ³öÀ´µÄ¡£
+			// ±ÈÈç£¬ShaderÖĞ¶¨ÒåÁËÏÂÃæÕâ¸öÎÆÀíÊı×é£º
 			// 
 			//		Texture2D<float3> g_tex2DDiffuse[4];
 			//
-			// Shaderåå°„ç³»ç»Ÿå°±ä¼šä½¿ç”¨ä»¥ä¸‹åå­—çš„å››ä¸ªèµ„æºåˆ—ä¸¾å‡ºæ¥ï¼š
+			// Shader·´ÉäÏµÍ³¾Í»áÊ¹ÓÃÒÔÏÂÃû×ÖµÄËÄ¸ö×ÊÔ´ÁĞ¾Ù³öÀ´£º
 			// "g_tex2DDiffuse[0]"
 			// "g_tex2DDiffuse[1]"
 			// "g_tex2DDiffuse[2]"
 			// "g_tex2DDiffuse[3]"
 			//
-			// å¦‚æœæ•°ç»„èµ„æºçš„å…¶ä¸­ä¸€äº›å…ƒç´ æ²¡æœ‰è¢«Shaderä½¿ç”¨ï¼Œå°±ä¸ä¼šè¢«åˆ—å‡ºæ¥
+			// Èç¹ûÊı×é×ÊÔ´µÄÆäÖĞÒ»Ğ©ÔªËØÃ»ÓĞ±»ShaderÊ¹ÓÃ£¬¾Í²»»á±»ÁĞ³öÀ´
 			auto openBracketPos = name.find('[');
 			if (-1 != openBracketPos)
 			{
@@ -57,7 +57,7 @@ namespace RHI
 				// Name == "g_tex2DDiffuse[0]"
 				//                        ^
 				//                   OpenBracketPos
-				// åå­—å»æ‰æ‹¬å·
+				// Ãû×ÖÈ¥µôÀ¨ºÅ
 				name.erase(openBracketPos, name.length() - openBracketPos);
 				// Name == "g_tex2DDiffuse"
 
@@ -66,16 +66,16 @@ namespace RHI
 					D3D12_SHADER_INPUT_BIND_DESC arrayElementBindingDesc = {};
 					pShaderReflection->GetResourceBindingDesc(j, &arrayElementBindingDesc);
 
-					// strncmpï¼šç›¸ç­‰è¿”å›0
+					// strncmp£ºÏàµÈ·µ»Ø0
 					if (strncmp(name.c_str(), arrayElementBindingDesc.Name, openBracketPos) == 0 && arrayElementBindingDesc.Name[openBracketPos] == '[')
 					{
-						// å­—ç¬¦ä¸²è½¬intï¼Œå­—ç¬¦ä¸²çš„æ•°å­—åé¢å¯ä»¥åŒ…å«å…¶ä»–å­—ç¬¦ï¼Œä¸å½±å“ç»“æœï¼Œè¯¥å‡½æ•°ä¸ä¼šæŠ›å‡ºå¼‚å¸¸
+						// ×Ö·û´®×ªint£¬×Ö·û´®µÄÊı×ÖºóÃæ¿ÉÒÔ°üº¬ÆäËû×Ö·û£¬²»Ó°Ïì½á¹û£¬¸Ãº¯Êı²»»áÅ×³öÒì³£
 						UINT index = atoi(arrayElementBindingDesc.Name + openBracketPos + 1);
 						bindCount = std::max(bindCount, index + 1);
 
 						++skipCount;
 					}
-					// æ•°ç»„ç»“æŸ
+					// Êı×é½áÊø
 					else
 					{
 						break;
@@ -125,8 +125,8 @@ namespace RHI
 			}
 		}
 
-		// TODO:å®ç°è·ŸTextureå…³è”çš„Sampler
-		// ç»™Texture SRVåˆ†é…Sampler Id
+		// TODO:ÊµÏÖ¸úTexture¹ØÁªµÄSampler
+		// ¸øTexture SRV·ÖÅäSampler Id
 	}
 
 	bool ShaderResource::IsCompatibleWith(const ShaderResource& shaderResource) const

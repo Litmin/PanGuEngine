@@ -15,7 +15,7 @@ namespace RHI
 	class ComputeContext;
 
 
-	// Compute Command Liståªæ”¯æŒè¿™å‡ ç§çŠ¶æ€çš„è¿‡æ¸¡
+	// Compute Command ListÖ»Ö§³ÖÕâ¼¸ÖÖ×´Ì¬µÄ¹ı¶É
 	#define VALID_COMPUTE_QUEUE_RESOURCE_STATES \
 	    ( D3D12_RESOURCE_STATE_UNORDERED_ACCESS \
 	    | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE \
@@ -23,7 +23,7 @@ namespace RHI
 		| D3D12_RESOURCE_STATE_COPY_SOURCE )
 
 
-	// TODO:è¯¥åŠŸèƒ½ç§»åŠ¨åˆ°RenderDeviceä¸­
+	// TODO:¸Ã¹¦ÄÜÒÆ¶¯µ½RenderDeviceÖĞ
 	class ContextManager : public Singleton<ContextManager>
 	{
 	public:
@@ -43,36 +43,36 @@ namespace RHI
 	};
 
     /**
-    * CommandListå’ŒCommandListAllocatorçš„é›†åˆä½“
-	* è°ƒç”¨Staticå‡½æ•°Beginä¼šè¯·æ±‚ä¸€ä¸ªCommandContextï¼Œç„¶åå¯ä»¥å¼€å§‹å½•åˆ¶å‘½ä»¤ï¼Œè°ƒç”¨EndæŠŠå‘½ä»¤æ¨å…¥CommandQueue
-	* Beginæ—¶è¿˜ä¼šè¯·æ±‚ä¸€ä¸ªæ–°çš„Allocatorï¼ŒEndæ—¶å›æ”¶è¿™ä¸ªAllocator
-	* æ¯ä¸ªçº¿ç¨‹ä½¿ç”¨è‡ªå·±çš„CommandContext
+    * CommandListºÍCommandListAllocatorµÄ¼¯ºÏÌå
+	* µ÷ÓÃStaticº¯ÊıBegin»áÇëÇóÒ»¸öCommandContext£¬È»ºó¿ÉÒÔ¿ªÊ¼Â¼ÖÆÃüÁî£¬µ÷ÓÃEnd°ÑÃüÁîÍÆÈëCommandQueue
+	* BeginÊ±»¹»áÇëÇóÒ»¸öĞÂµÄAllocator£¬EndÊ±»ØÊÕÕâ¸öAllocator
+	* Ã¿¸öÏß³ÌÊ¹ÓÃ×Ô¼ºµÄCommandContext
     */
     class CommandContext : public NonCopyable
     {
 		friend ContextManager;
 
-		// CommandContextç”±ContextManageråˆ›å»º,æ‰€ä»¥æŠŠæ„é€ å‡½æ•°çš„è®¿é—®æƒé™è®¾ä¸ºprivate
+		// CommandContextÓÉContextManager´´½¨,ËùÒÔ°Ñ¹¹Ôìº¯ÊıµÄ·ÃÎÊÈ¨ÏŞÉèÎªprivate
 	private:
 		CommandContext(D3D12_COMMAND_LIST_TYPE Type);
-		// åˆ›å»ºCommandContextæ—¶è°ƒç”¨ï¼Œè¯¥å‡½æ•°ä¼šåˆ›å»ºä¸€ä¸ªCommandListï¼Œå¹¶è¯·æ±‚ä¸€ä¸ªAllocator
+		// ´´½¨CommandContextÊ±µ÷ÓÃ£¬¸Ãº¯Êı»á´´½¨Ò»¸öCommandList£¬²¢ÇëÇóÒ»¸öAllocator
 		void Initialize();
-		// å¤ç”¨CommandContextæ—¶è°ƒç”¨ï¼Œé‡ç½®æ¸²æŸ“çŠ¶æ€ï¼Œè¯¥å‡½æ•°ä¼šè¯·æ±‚ä¸€ä¸ªAllocatorï¼Œå¹¶è°ƒç”¨CommandList::Reset
+		// ¸´ÓÃCommandContextÊ±µ÷ÓÃ£¬ÖØÖÃäÖÈ¾×´Ì¬£¬¸Ãº¯Êı»áÇëÇóÒ»¸öAllocator£¬²¢µ÷ÓÃCommandList::Reset
 		void Reset();
 
 	public:
-		// å¼€å§‹è®°å½•å‘½ä»¤
+		// ¿ªÊ¼¼ÇÂ¼ÃüÁî
 		 static CommandContext& Begin(const std::wstring ID = L"");
 		// Flush existing commands to the GPU but keep the context alive
 		uint64_t Flush(bool WaitForCompletion = false);
-		// å®Œæˆè®°å½•å‘½ä»¤
+		// Íê³É¼ÇÂ¼ÃüÁî
 		uint64_t Finish(bool WaitForCompletion = false);
 
 
-		// Graphic Contextå¯ä»¥è½¬æ¢æˆCompute Contextï¼Œä½†æ˜¯Compute Contextä¸èƒ½è½¬æ¢æˆGraphic Context
+		// Graphic Context¿ÉÒÔ×ª»»³ÉCompute Context£¬µ«ÊÇCompute Context²»ÄÜ×ª»»³ÉGraphic Context
 		GraphicsContext& GetGraphicsContext() 
 		{
-			assert(m_Type != D3D12_COMMAND_LIST_TYPE_COMPUTE, "Cannot convert async compute context to graphics");
+			assert(m_Type != D3D12_COMMAND_LIST_TYPE_COMPUTE && "Cannot convert async compute context to graphics");
 			return reinterpret_cast<GraphicsContext&>(*this);
 		}
 
@@ -82,36 +82,36 @@ namespace RHI
 		}
 
 
-		// TODO: Implement åˆå§‹åŒ–èµ„æº
+		// TODO: Implement ³õÊ¼»¯×ÊÔ´
 		static void InitializeBuffer(GpuBuffer& Dest, const void* Data, size_t NumBytes, size_t DestOffset = 0);
 		static void InitializeBuffer(GpuBuffer& Dest, const GpuUploadBuffer& Src, size_t SrcOffset, size_t NumBytes = -1, size_t DestOffset = 0);
 		static void InitializeTexture(GpuResource& Dest, UINT NumSubresources, D3D12_SUBRESOURCE_DATA SubData[]);
 
 
-		// Dynamic Descriptoråœ¨GPUDescriptorHeapä¸Šåˆ†é…,åœ¨Finishä¸­é‡Šæ”¾
+		// Dynamic DescriptorÔÚGPUDescriptorHeapÉÏ·ÖÅä,ÔÚFinishÖĞÊÍ·Å
 		DescriptorHeapAllocation AllocateDynamicGPUVisibleDescriptor(UINT Count = 1);
 
-		// ä¸ºDynamic Resourceåˆ†é…å†…å­˜
+		// ÎªDynamic Resource·ÖÅäÄÚ´æ
 		D3D12DynamicAllocation AllocateDynamicSpace(size_t NumBytes, size_t Alignment);
 
 		/* Resource Barrier TODO: UAVBarrier
-		* GpuResourceæœ‰ä¸¤ä¸ªæˆå‘˜ï¼šm_UsageStateã€m_TransitioningStateï¼Œ
-		* m_UsageState:è¡¨ç¤ºèµ„æºå½“å‰çš„çŠ¶æ€ï¼Œè°ƒç”¨TransitionResourceï¼Œä¼šä½¿ç”¨m_UsageStateæ£€æŸ¥èµ„æºçš„å½“å‰çŠ¶æ€å’Œè¿‡åº¦ä¹‹åçš„çŠ¶æ€ï¼Œå¦‚æœä¸ç›¸ç­‰æ‰æäº¤Resource Barrier
-		* m_TransitioningState:è¡¨ç¤ºèµ„æºæ­£åœ¨è¿‡åº¦çš„çŠ¶æ€ï¼Œç”¨åœ¨Split Barrierï¼Œæ ‡è®°èµ„æºå·²ç»è¿›è¡Œäº†Begin Barrier
-		* BeginResourceTransitionä½¿ç”¨Split Barrieræ¥ä¼˜åŒ–æ€§èƒ½
+		* GpuResourceÓĞÁ½¸ö³ÉÔ±£ºm_UsageState¡¢m_TransitioningState£¬
+		* m_UsageState:±íÊ¾×ÊÔ´µ±Ç°µÄ×´Ì¬£¬µ÷ÓÃTransitionResource£¬»áÊ¹ÓÃm_UsageState¼ì²é×ÊÔ´µÄµ±Ç°×´Ì¬ºÍ¹ı¶ÈÖ®ºóµÄ×´Ì¬£¬Èç¹û²»ÏàµÈ²ÅÌá½»Resource Barrier
+		* m_TransitioningState:±íÊ¾×ÊÔ´ÕıÔÚ¹ı¶ÈµÄ×´Ì¬£¬ÓÃÔÚSplit Barrier£¬±ê¼Ç×ÊÔ´ÒÑ¾­½øĞĞÁËBegin Barrier
+		* BeginResourceTransitionÊ¹ÓÃSplit BarrierÀ´ÓÅ»¯ĞÔÄÜ
 		* https://docs.microsoft.com/en-us/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12
-		* æ–‡æ¡£ä¸­æœ‰è¯´æ˜ï¼šApplications should batch multiple transitions into one API call wherever possible.
-		* TODO: æ‰€ä»¥è¿™é‡Œå°½é‡ç¼“å­˜åˆ°16ä¸ªä»¥åå†ä¸€èµ·æ‰§è¡Œ(FlushResourceBarriers),è¿˜ä¸æ¸…æ¥šåŸå› 
+		* ÎÄµµÖĞÓĞËµÃ÷£ºApplications should batch multiple transitions into one API call wherever possible.
+		* TODO: ËùÒÔÕâÀï¾¡Á¿»º´æµ½16¸öÒÔºóÔÙÒ»ÆğÖ´ĞĞ(FlushResourceBarriers),»¹²»Çå³şÔ­Òò
 		*/
 		void TransitionResource(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate = false);
 		void BeginResourceTransition(GpuResource& Resource, D3D12_RESOURCE_STATES NewState, bool FlushImmediate = false);
 		inline void FlushResourceBarriers(void);
 
 
-		/*æ¸²æŸ“çŠ¶æ€å’Œèµ„æºç»‘å®š
-		* åˆ‡æ¢PSOæ—¶ï¼Œä¼šè‡ªåŠ¨æäº¤Static SRBï¼ŒStatic SRBåªç»‘å®šStatic Shader Variable
-		* åˆ‡æ¢SRBæ—¶ï¼Œä¼šè‡ªåŠ¨æäº¤Mutable SRBçš„èµ„æº
-		* Draw Callå‰ï¼Œä¼šè‡ªåŠ¨æäº¤å½“å‰SRBä¸­çš„Dynamic Shader Variableå’ŒDynamic Bufferï¼Œæäº¤å‰ä¼šæ£€æŸ¥æ˜¯å¦èµ„æºæ˜¯å¦æœ‰æ›´æ–°
+		/*äÖÈ¾×´Ì¬ºÍ×ÊÔ´°ó¶¨
+		* ÇĞ»»PSOÊ±£¬»á×Ô¶¯Ìá½»Static SRB£¬Static SRBÖ»°ó¶¨Static Shader Variable
+		* ÇĞ»»SRBÊ±£¬»á×Ô¶¯Ìá½»Mutable SRBµÄ×ÊÔ´
+		* Draw CallÇ°£¬»á×Ô¶¯Ìá½»µ±Ç°SRBÖĞµÄDynamic Shader VariableºÍDynamic Buffer£¬Ìá½»Ç°»á¼ì²éÊÇ·ñ×ÊÔ´ÊÇ·ñÓĞ¸üĞÂ
 		*/
 		void SetPipelineState(PipelineState* PSO);
 		void SetShaderResourceBinding(ShaderResourceBinding* SRB);
@@ -122,11 +122,11 @@ namespace RHI
 		void SetID(const std::wstring& ID) { m_ID = ID; }
 
 		D3D12_COMMAND_LIST_TYPE m_Type;
-		// CommandListç”±CommandContextæŒæœ‰ï¼ŒCommandAllocatorç”±å¯¹è±¡æ± ç®¡ç†
+		// CommandListÓÉCommandContext³ÖÓĞ£¬CommandAllocatorÓÉ¶ÔÏó³Ø¹ÜÀí
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_CommandList;
 		ID3D12CommandAllocator* m_CurrentAllocator;
 
-		// ResourceBarrieråˆ°äº†16ä¸ªæ—¶Flush
+		// ResourceBarrierµ½ÁË16¸öÊ±Flush
 		D3D12_RESOURCE_BARRIER m_ResourceBarrierBuffer[16];
 		UINT m_NumBarriersToFlush;
 
@@ -136,7 +136,7 @@ namespace RHI
 		// Dynamic Resource
 		DynamicResourceHeap m_DynamicResourceHeap;
 
-		// èµ„æºç»‘å®š
+		// ×ÊÔ´°ó¶¨
 		PipelineState* m_CurPSO = nullptr;
 		ShaderResourceBinding* m_CurSRB = nullptr;
 
@@ -159,7 +159,7 @@ namespace RHI
 		void ClearStencil(GpuResourceDescriptor& DSV);
 		void ClearDepthAndStencil(GpuResourceDescriptor& DSV);
 
-		// Vertex Bufferã€Index Buffer
+		// Vertex Buffer¡¢Index Buffer
 		void SetVertexBuffer(UINT Slot, const D3D12_VERTEX_BUFFER_VIEW& VBView);
 		void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& IBView);
 

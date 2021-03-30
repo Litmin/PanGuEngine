@@ -16,7 +16,7 @@ namespace RHI
 		Desc.DepthOrArraySize = 1;
 		Desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		Desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-		// ËΩ¨Êç¢Âà∞TypelessÁöÑÊ†ºÂºè
+		// ◊™ªªµΩTypelessµƒ∏Ò Ω
 		Desc.Format = GetBaseFormat(format);
 		Desc.Height = (UINT)m_Height;
 		Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;

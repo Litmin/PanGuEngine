@@ -5,7 +5,7 @@
 namespace RHI 
 {
     /**
-    * å•ä¾‹ç±»ï¼ŒæŒæœ‰ä¸‰ä¸ªCommandQueueï¼šGraphicã€Computeã€Copyï¼Œå¯¹åº”GPUä¸­çš„ä¸‰ç§å¯ä»¥å¹¶è¡Œçš„ç®¡çº¿
+    * µ¥ÀıÀà£¬³ÖÓĞÈı¸öCommandQueue£ºGraphic¡¢Compute¡¢Copy£¬¶ÔÓ¦GPUÖĞµÄÈıÖÖ¿ÉÒÔ²¢ĞĞµÄ¹ÜÏß
     */
     class CommandListManager : public Singleton<CommandListManager>
     {

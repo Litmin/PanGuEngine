@@ -9,7 +9,7 @@ using namespace std;
 
 namespace RHI
 {
-	// åªåˆ›å»ºRootTableå’ŒResourceå¯¹è±¡
+	// Ö»´´½¨RootTableºÍResource¶ÔÏó
 	void ShaderResourceCache::Initialize(RenderDevice* device, 
 										 const RootSignature* rootSignature,
 										 const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
@@ -35,7 +35,7 @@ namespace RHI
 			SHADER_RESOURCE_VARIABLE_TYPE variableType = rootTable.GetShaderVariableType();
 			UINT32 rootIndex = rootTable.GetRootIndex();
 			UINT32 rootTableSize = rootTable.GetDescriptorTableSize();
-			const auto& D3D12RootParam = static_cast<const D3D12_ROOT_PARAMETER&>(rootTable); // éšå¼è½¬æ¢
+			const auto& D3D12RootParam = static_cast<const D3D12_ROOT_PARAMETER&>(rootTable); // ÒşÊ½×ª»»
 
 			assert(D3D12RootParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
 			assert(rootTableSize > 0 && "Unexpected empty descriptor table");
@@ -46,14 +46,14 @@ namespace RHI
 
 			if (variableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{
-				// è®¾ç½®æ¯ä¸ªRoot Tableåœ¨Heapä¸­çš„èµ·å§‹ä½ç½®ï¼Œå› ä¸ºRoot Tableæ˜¯ç´§å¯†æ’åˆ—çš„ï¼Œæ‰€ä»¥èµ·å§‹ä½ç½®å°±æ˜¯å½“å‰çš„æ€»æ•°
+				// ÉèÖÃÃ¿¸öRoot TableÔÚHeapÖĞµÄÆğÊ¼Î»ÖÃ£¬ÒòÎªRoot TableÊÇ½ôÃÜÅÅÁĞµÄ£¬ËùÒÔÆğÊ¼Î»ÖÃ¾ÍÊÇµ±Ç°µÄ×ÜÊı
 				m_RootTables[rootIndex].TableStartOffset = descriptorNum;
 				descriptorNum += rootTableSize;
 				m_NumDynamicDescriptor += rootTableSize;
 			}
 		});
 
-		// åˆ†é…GPU Descriptor Heapä¸Šçš„ç©ºé—´
+		// ·ÖÅäGPU Descriptor HeapÉÏµÄ¿Õ¼ä
 		if (descriptorNum)
 		{
 			m_CbvSrvUavGPUHeapSpace = device->AllocateGPUDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, descriptorNum);
@@ -65,10 +65,10 @@ namespace RHI
 
 	void ShaderResourceCache::CommitResource(CommandContext& cmdContext)
 	{
-		// æäº¤Root Viewï¼ˆCBVï¼‰ï¼Œåªéœ€è¦ç»‘å®šBufferçš„åœ°å€
+		// Ìá½»Root View£¨CBV£©£¬Ö»ĞèÒª°ó¶¨BufferµÄµØÖ·
 		for (const auto& [rootIndex, rootDescriptor] : m_RootDescriptors)
 		{
-			// Dynamic Bufferå’ŒDynamic Variableéƒ½åœ¨Drawä¹‹å‰çš„CommitDynamicæäº¤
+			// Dynamic BufferºÍDynamic Variable¶¼ÔÚDrawÖ®Ç°µÄCommitDynamicÌá½»
 			if (rootDescriptor.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{
 				GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptor.ConstantBuffer.get());
@@ -78,7 +78,7 @@ namespace RHI
 			}
 		}
 
-		// Staticã€Mutableçš„èµ„æºçš„Descriptorå·²ç»Copyåˆ°äº†ShaderResourceCacheçš„Heapä¸­ï¼Œç›´æ¥æäº¤
+		// Static¡¢MutableµÄ×ÊÔ´µÄDescriptorÒÑ¾­Copyµ½ÁËShaderResourceCacheµÄHeapÖĞ£¬Ö±½ÓÌá½»
 		for (const auto& [rootIndex, rootTable] : m_RootTables)
 		{
 			if(rootTable.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
@@ -102,7 +102,7 @@ namespace RHI
 
 		if (m_NumDynamicDescriptor > 0)
 		{
-			// åˆ†é…åŠ¨æ€çš„Descriptor Allocation
+			// ·ÖÅä¶¯Ì¬µÄDescriptor Allocation
 			DescriptorHeapAllocation dynamicAllocation = cmdContext.AllocateDynamicGPUVisibleDescriptor(m_NumDynamicDescriptor);
 			UINT32 dynamicTableOffset = 0;
 
@@ -110,10 +110,10 @@ namespace RHI
 			{
 				if (rootTable.VariableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 				{
-					// å…ˆç»‘å®šå†Copyï¼Œå› ä¸ºè¦ç»‘å®šè¿™ä¸ªTableçš„èµ·å§‹ä½ç½®ï¼Œæ‰€ä»¥å¾—ç”¨Copyå‰çš„dynamicTableOffset
+					// ÏÈ°ó¶¨ÔÙCopy£¬ÒòÎªÒª°ó¶¨Õâ¸öTableµÄÆğÊ¼Î»ÖÃ£¬ËùÒÔµÃÓÃCopyÇ°µÄdynamicTableOffset
 					cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, dynamicAllocation.GetGpuHandle(dynamicTableOffset));
 
-					// æŠŠèµ„æºçš„CPU Descriptoræ‹·è´åˆ°GPU Descriptor Heapä¸­
+					// °Ñ×ÊÔ´µÄCPU Descriptor¿½±´µ½GPU Descriptor HeapÖĞ
 					for (INT32 i = 0; i < rootTable.Descriptors.size(); ++i)
 					{
 						m_D3D12Device->CopyDescriptorsSimple(1, dynamicAllocation.GetCpuHandle(dynamicTableOffset), 

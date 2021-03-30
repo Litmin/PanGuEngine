@@ -93,11 +93,11 @@ void GameObject::_UpdateFromParent()
 
 		m_DerivedScale = parentScale * m_Scale;
 		m_DerivedRotation = parentRotation * m_Rotation;
-		// å­èŠ‚ç‚¹çš„Positionè·Ÿçˆ¶èŠ‚ç‚¹çš„Scaleã€Rotationæœ‰å…³
+		// ×Ó½ÚµãµÄPosition¸ú¸¸½ÚµãµÄScale¡¢RotationÓĞ¹Ø
 		m_DerivedPosition = parentRotation * (parentScale * m_Position);
 		m_DerivedPosition += parentPosition;
 
-		// TODO:ä¼˜åŒ–ï¼Œå»æ‰ä¸‰ä¸ªçŸ©é˜µçš„ä¹˜æ³•ï¼Œåªéœ€è¦ä»å››å…ƒæ•°æ„é€ ä¸€ä¸ªçŸ©é˜µ
+		// TODO:ÓÅ»¯£¬È¥µôÈı¸ö¾ØÕóµÄ³Ë·¨£¬Ö»ĞèÒª´ÓËÄÔªÊı¹¹ÔìÒ»¸ö¾ØÕó
 		XMMATRIX scale = XMMatrixScalingFromVector(m_DerivedScale);
 		XMMATRIX rotate = XMMatrixRotationQuaternion(m_DerivedRotation);
 		XMMATRIX translation = XMMatrixTranslationFromVector(m_DerivedPosition);

@@ -16,7 +16,7 @@ namespace RHI
 
 	void CommandListManager::CreateNewCommandList(D3D12_COMMAND_LIST_TYPE Type, ID3D12GraphicsCommandList** List, ID3D12CommandAllocator** Allocator)
 	{
-		assert(Type != D3D12_COMMAND_LIST_TYPE_BUNDLE, "Bundles are not yet supported");
+		assert(Type != D3D12_COMMAND_LIST_TYPE_BUNDLE && "Bundles are not yet supported");
 		switch (Type)
 		{
 		case D3D12_COMMAND_LIST_TYPE_DIRECT: *Allocator = m_GraphicsQueue.RequestAllocator(); break;
