@@ -176,9 +176,6 @@
     <ClCompile Include="Renderer\StandardShader.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Transform.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Core\RingBuffer.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -391,9 +388,6 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\StandardShader.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\Transform.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\UploadBuffer.h">

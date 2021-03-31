@@ -13,7 +13,8 @@ namespace RHI
         GpuResourceDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type);
 
         D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const;
-        D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const;
+        // 资源的Descriptor只分配在CPU Descriptor Heap中，绑定到管线的GPU Descriptor Heap在ShaderResourceCache中分配
+        //D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const;
 
         const GpuResource* GetResource() const { return m_Resource.get(); }
 

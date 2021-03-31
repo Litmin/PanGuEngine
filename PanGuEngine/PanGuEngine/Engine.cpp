@@ -3,8 +3,8 @@
 #include "Input.h"
 
 using namespace std;
-using Microsoft::WRL::ComPtr;
 using namespace DirectX;
+using Microsoft::WRL::ComPtr;
 
 Engine* Engine::m_Engine = nullptr;
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -33,6 +33,24 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
     m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
     InitialMainWindow();
+
+	// 开启调试
+#if defined(DEBUG) || defined(_DEBUG) 
+	{
+		ComPtr<ID3D12Debug> debugController;
+		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
+		debugController->EnableDebugLayer();
+	}
+#endif
+    ID3D12Device* D3D12Device;
+	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_DXGIFactory)));
+	ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&D3D12Device)));
+
+    m_RenderDevice = make_unique<RHI::RenderDevice>(D3D12Device);
+    m_CommandListManager = make_unique<RHI::CommandListManager>(D3D12Device);
+    m_CommandContextManager = make_unique<RHI::ContextManager>();
+
+
 	InitialDirect3D();
 
     OnResize();
@@ -314,19 +332,6 @@ void Engine::Resume()
 
 void Engine::InitialDirect3D()
 {
-    // 开启调试
-#if defined(DEBUG) || defined(_DEBUG) 
-    {
-        ComPtr<ID3D12Debug> debugController;
-        ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
-        debugController->EnableDebugLayer();
-    }
-#endif
-
-    ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_DXGIFactory)));
-
-    ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_Device)));
-
     ThrowIfFailed(m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
 
     m_RtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -395,32 +400,6 @@ void Engine::CreateCommandObjects()
     m_CommandList->Close();
 }
 
-void Engine::CreateSwapChain()
-{
-    m_SwapChain.Reset();
-
-    DXGI_SWAP_CHAIN_DESC sd;
-    sd.BufferDesc.Width = m_Width;
-    sd.BufferDesc.Height = m_Height;
-    sd.BufferDesc.RefreshRate.Numerator = 60;
-    sd.BufferDesc.RefreshRate.Denominator = 1;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.BufferCount = SwapChainBufferCount;
-    sd.OutputWindow = m_MainWnd;
-    sd.Windowed = true;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-    ThrowIfFailed(m_DXGIFactory->CreateSwapChain(
-        m_CommandQueue.Get(),
-        &sd,
-        m_SwapChain.GetAddressOf()));
-}
 
 void Engine::CreateRtvAndDsvDescriptorHeaps()
 {

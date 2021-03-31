@@ -208,7 +208,6 @@
     <ClCompile Include="Renderer\ShaderOld.cpp" />
     <ClCompile Include="Renderer\ShaderManager.cpp" />
     <ClCompile Include="Renderer\StandardShader.cpp" />
-    <ClCompile Include="Renderer\Transform.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\Debug.cpp" />
@@ -280,7 +279,6 @@
     <ClInclude Include="Renderer\ShaderOld.h" />
     <ClInclude Include="Renderer\ShaderManager.h" />
     <ClInclude Include="Renderer\StandardShader.h" />
-    <ClInclude Include="Renderer\Transform.h" />
     <ClInclude Include="Renderer\UploadBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resource\ResourceManager.h" />

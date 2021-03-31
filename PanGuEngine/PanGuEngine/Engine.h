@@ -9,6 +9,9 @@
 #include "Renderer/ShaderManager.h"
 #include "Resource/ResourceManager.h"
 #include "Renderer/GraphicContext.h"
+#include "D3D12RHI/RenderDevice.h"
+#include "D3D12RHI/CommandListManager.h"
+#include "D3D12RHI/CommandContext.h"
 
 struct EngineCreateInfo
 {
@@ -51,12 +54,10 @@ private:
 	void InitialDirect3D();
 	void InitialMainWindow();
 	void CreateCommandObjects();
-	void CreateSwapChain();
 	void CreateRtvAndDsvDescriptorHeaps();
 
 private:
 	static Engine* m_Engine;
-	static const int SwapChainBufferCount = 2;
 
 	bool m_Initialized = false;
 	//wstring m_Title;
@@ -80,9 +81,16 @@ private:
 	CD3DX12_RECT m_ScissorRect;
 
 	Microsoft::WRL::ComPtr< IDXGIFactory4> m_DXGIFactory;
-	Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
 
-	Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
+	std::unique_ptr<RHI::RenderDevice> m_RenderDevice;
+	std::unique_ptr<RHI::CommandListManager> m_CommandListManager; // TODO: Move To RenderDevice
+	std::unique_ptr<RHI::ContextManager> m_CommandContextManager;	// TODO: Move To RenderDevice
+
+
+	std::unique_ptr<SceneManager> m_SceneManager;
+	std::unique_ptr<ShaderManager> m_ShaderManager;
+	std::unique_ptr<ResourceManager> m_ResourceManager;
+	std::unique_ptr<GraphicContext> m_GraphicContext;
 
 	//<-------------------------------Command Object------------------------------------------------->
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
@@ -97,9 +105,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DsvHeap;
 
-	int m_CurrBackBuffer = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_SwapChainBuffer[SwapChainBufferCount];
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_DepthStencilBuffer;
 	//<-------------------------------Resource Binding-------------------------------------------->
 
 	//<-------------------------------Sync---------------------------------------------->
@@ -114,10 +119,4 @@ private:
 	//<--------------------------------Constant Buffer--------------------------------------->
 	std::unique_ptr<UploadBuffer<ObjectConstants>> m_ObjCB;
 	//<--------------------------------Constant Buffer--------------------------------------->
-
-	std::unique_ptr<SceneManager> m_SceneManager;
-	std::unique_ptr<ShaderManager> m_ShaderManager;
-	std::unique_ptr<ResourceManager> m_ResourceManager;
-
-	std::unique_ptr<GraphicContext> m_GraphicContext;
 };

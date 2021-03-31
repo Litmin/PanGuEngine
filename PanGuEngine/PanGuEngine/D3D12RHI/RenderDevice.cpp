@@ -5,7 +5,7 @@ using namespace Microsoft::WRL;
 
 namespace RHI
 {
-	RenderDevice::RenderDevice(ComPtr<ID3D12Device> d3d12Device) :
+	RenderDevice::RenderDevice(ID3D12Device* d3d12Device) :
 		m_D3D12Device{d3d12Device},
 		m_CPUDescriptorHeaps
 		{

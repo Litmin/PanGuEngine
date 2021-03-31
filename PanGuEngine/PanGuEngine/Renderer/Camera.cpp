@@ -10,7 +10,7 @@ Camera::Camera()
 	m_View = MathHelper::Identity4x4();
 	m_Proj = MathHelper::Identity4x4();
 
-	SetProjection(1.0f, 1.0f, 1000.0f, MathHelper::Pi / 3.0f);
+	SetProjection(1920.0f / 1080.0f, 1.0f, 1000.0f, MathHelper::Pi / 3.0f);
 }
 
 Camera::~Camera()

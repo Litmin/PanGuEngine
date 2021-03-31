@@ -10,7 +10,7 @@ namespace RHI
 	class RenderDevice : public Singleton<RenderDevice>
 	{
 	public:
-		RenderDevice(Microsoft::WRL::ComPtr<ID3D12Device> d3d12Device);
+		RenderDevice(ID3D12Device* d3d12Device);
 		~RenderDevice();
 
 		// 在CPU Descriptor Heap中分配资源的Descriptor

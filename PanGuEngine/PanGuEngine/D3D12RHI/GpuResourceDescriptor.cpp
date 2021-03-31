@@ -16,9 +16,4 @@ namespace RHI
 		return m_Allocation.GetCpuHandle(0);
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GpuResourceDescriptor::GetGpuHandle() const
-	{
-		return m_Allocation.GetGpuHandle(0);
-	}
-
 }

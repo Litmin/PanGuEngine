@@ -15,7 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	try
 	{
-		engine.Initialize(720, 720, hInstance);
+		engine.Initialize(1920, 1080, hInstance);
 
 		// TODO:
 		GraphicContext::GetSingleton().ResetCommandList();
@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		vector<XMFLOAT3> boxPositions;
 		vector<XMFLOAT4> boxColors;
 		vector<uint16_t> boxIndices;
-		GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 1, boxVertexCount, boxPositions, boxColors, boxIndicesCount, boxIndices);
+		GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 0, boxVertexCount, boxPositions, boxColors, boxIndicesCount, boxIndices);
 		unique_ptr<Mesh> boxMesh = make_unique<Mesh>(boxVertexCount, boxPositions.data(), boxColors.data(),
 			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
 			boxIndicesCount, boxIndices.data());
