@@ -1,5 +1,7 @@
 #pragma once
 #include "GpuResourceDescriptor.h"
+#include "GpuRenderTextureColor.h"
+#include "GpuRenderTextureDepth.h"
 
 namespace RHI
 {
@@ -29,6 +31,10 @@ namespace RHI
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_SwapChainBuffer[SwapChainBufferCount];
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_DepthStencilBuffer;
 
+		std::shared_ptr<GpuRenderTextureColor> m_BackColorBuffers[SwapChainBufferCount] = {nullptr};
+		std::shared_ptr<GpuRenderTextureDepth> m_DepthStencilBuffer = nullptr;
+		std::shared_ptr<GpuResourceDescriptor> m_BackColorBufferRTVs[SwapChainBufferCount] = {nullptr};
+		std::shared_ptr<GpuResourceDescriptor> m_DepthStencilBufferDSV = nullptr;
 	};
 
 }

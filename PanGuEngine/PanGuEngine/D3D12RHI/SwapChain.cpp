@@ -2,6 +2,8 @@
 #include "SwapChain.h"
 #include "CommandListManager.h"
 
+using namespace Microsoft::WRL;
+
 namespace RHI
 {
 
@@ -42,18 +44,34 @@ namespace RHI
 
 		// 释放资源
 		for (int i = 0; i < SwapChainBufferCount; ++i)
-			m_SwapChainBuffer[i].Reset();
-		m_DepthStencilBuffer.Reset();
+		{
+			m_BackColorBuffers[i].reset();
+			m_BackColorBufferRTVs[i].reset();
+		}
+		m_DepthStencilBuffer.reset();
+		m_DepthStencilBufferDSV.reset();
 
 		ThrowIfFailed(m_SwapChain->ResizeBuffers(
 			SwapChainBufferCount,
-			m_Width, m_Height,
+			width, height,
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
 		m_CurrBackBuffer = 0;
 
-		// Render Target View
+		// 从SwapChain的BackBuffer创建GpuRenderTextureColor对象
+		for (int i = 0; i < SwapChainBufferCount; ++i)
+		{
+			ComPtr<ID3D12Resource> backBuffer;
+			ThrowIfFailed(m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+			D3D12_RESOURCE_DESC desc = backBuffer->GetDesc();
+			m_BackColorBuffers[i] = std::make_unique<GpuRenderTextureColor>(backBuffer.Detach(), desc);
+			// 创建RTV
+			m_BackColorBufferRTVs[i] = m_BackColorBuffers[i]->CreateRTV();
+		}
+
+
+
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(m_RtvHeap->GetCPUDescriptorHandleForHeapStart());
 		for (UINT i = 0; i < SwapChainBufferCount; i++)
 		{

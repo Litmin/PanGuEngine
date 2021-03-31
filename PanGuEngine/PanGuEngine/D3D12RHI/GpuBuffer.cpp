@@ -88,7 +88,7 @@ namespace RHI
 
 	std::shared_ptr<GpuResourceDescriptor> GpuBuffer::CreateSRV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
@@ -105,7 +105,7 @@ namespace RHI
 
 	std::shared_ptr<GpuResourceDescriptor> GpuBuffer::CreateUAV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
 
 		// TODO: UAV需要实现Counter Buffer
 // 		D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc = {};

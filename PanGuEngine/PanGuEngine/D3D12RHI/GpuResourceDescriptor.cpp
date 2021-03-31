@@ -5,7 +5,8 @@
 namespace RHI
 {
 
-	GpuResourceDescriptor::GpuResourceDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type)
+	GpuResourceDescriptor::GpuResourceDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, std::shared_ptr<GpuResource> OwnResource) :
+		m_Resource(OwnResource)
 	{
 		// TODO: 检查是否调用的移动赋值运算符
 		m_Allocation = RenderDevice::GetSingleton().AllocateDescriptor(Type);

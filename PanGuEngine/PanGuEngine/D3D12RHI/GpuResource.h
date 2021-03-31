@@ -11,7 +11,8 @@ namespace RHI
     *   PixelBuffer：ColorBuffer、DepthBuffer
     *   UploadBuffer
     *   Texture：
-    * GpuResource继承enable_shared_from_this，因为在内部会创建GpuResourceView，GpuResourceView会拥有GpuResource的所有权，来保证使用GpuResourceView时，GpuResource不被释放
+    * GpuResource继承enable_shared_from_this，因为在内部会创建GpuResourceDescriptor，GpuResourceDescriptor会拥有GpuResource的所有权，
+    * 来保证使用GpuResourceDescriptor时，GpuResource不被释放
     */
     class GpuResource : public std::enable_shared_from_this<GpuResource>
     {

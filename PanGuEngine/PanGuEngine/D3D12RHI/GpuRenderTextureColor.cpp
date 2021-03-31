@@ -53,7 +53,7 @@ namespace RHI
 
 	std::shared_ptr<GpuResourceDescriptor> GpuRenderTextureColor::CreateSRV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = m_Format;
@@ -69,7 +69,7 @@ namespace RHI
 
 	std::shared_ptr<GpuResourceDescriptor> GpuRenderTextureColor::CreateRTV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, shared_from_this());
 
 		D3D12_RENDER_TARGET_VIEW_DESC RTVDesc = {};
 		RTVDesc.Format = m_Format;
@@ -83,7 +83,7 @@ namespace RHI
 
 	std::shared_ptr<GpuResourceDescriptor> GpuRenderTextureColor::CreateUAV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
 
 		return descriptor;
 	}

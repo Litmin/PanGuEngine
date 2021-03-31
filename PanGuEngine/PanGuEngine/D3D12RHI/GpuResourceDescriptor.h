@@ -10,7 +10,7 @@ namespace RHI
     class GpuResourceDescriptor
     {
     public:
-        GpuResourceDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type);
+        GpuResourceDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, std::shared_ptr<GpuResource> OwnResource);
 
         D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const;
         // 资源的Descriptor只分配在CPU Descriptor Heap中，绑定到管线的GPU Descriptor Heap在ShaderResourceCache中分配

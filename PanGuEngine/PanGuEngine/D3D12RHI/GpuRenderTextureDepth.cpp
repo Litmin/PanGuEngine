@@ -40,7 +40,7 @@ namespace RHI
 
 	std::shared_ptr<RHI::GpuResourceDescriptor> GpuRenderTextureDepth::CreateDSV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, shared_from_this());
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 		dsvDesc.Format = GetDSVFormat(m_Format);
@@ -55,7 +55,7 @@ namespace RHI
 
 	std::shared_ptr<RHI::GpuResourceDescriptor> GpuRenderTextureDepth::CreateDepthSRV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = GetDepthFormat(m_Format);
@@ -68,7 +68,7 @@ namespace RHI
 
 	std::shared_ptr<RHI::GpuResourceDescriptor> GpuRenderTextureDepth::CreateStencilSRV()
 	{
-		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = GetStencilFormat(m_Format);
