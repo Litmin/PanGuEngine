@@ -12,11 +12,8 @@
 #include "D3D12RHI/RenderDevice.h"
 #include "D3D12RHI/CommandListManager.h"
 #include "D3D12RHI/CommandContext.h"
+#include "D3D12RHI/SwapChain.h"
 
-struct EngineCreateInfo
-{
-
-};
 
 class Engine
 {
@@ -25,7 +22,6 @@ public:
 	virtual ~Engine();
 	static Engine* Get() { return m_Engine; }
 
-public:
 	void Initialize(UINT width, UINT height, HINSTANCE hInstance);
 	bool IsInitialized() { return m_Initialized; }
 	int Run();
@@ -43,20 +39,8 @@ private:
 	void SetScreenSize(UINT width, UINT height);
 	void CalculateFrameStats();
 
-public:
-	ID3D12Resource* CurrentBackBuffer() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
-
-	void FlushCommandQueue();
-
-private:
-	void InitialDirect3D();
 	void InitialMainWindow();
-	void CreateCommandObjects();
-	void CreateRtvAndDsvDescriptorHeaps();
 
-private:
 	static Engine* m_Engine;
 
 	bool m_Initialized = false;
@@ -86,37 +70,9 @@ private:
 	std::unique_ptr<RHI::CommandListManager> m_CommandListManager; // TODO: Move To RenderDevice
 	std::unique_ptr<RHI::ContextManager> m_CommandContextManager;	// TODO: Move To RenderDevice
 
+	std::unique_ptr<RHI::SwapChain> m_SwapChain;
+
 
 	std::unique_ptr<SceneManager> m_SceneManager;
-	std::unique_ptr<ShaderManager> m_ShaderManager;
 	std::unique_ptr<ResourceManager> m_ResourceManager;
-	std::unique_ptr<GraphicContext> m_GraphicContext;
-
-	//<-------------------------------Command Object------------------------------------------------->
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_CommandList;
-	//<-------------------------------Command Object------------------------------------------------->
-
-	//<--------------------------------Resource Binding------------------------------------------------------>
-	UINT m_RtvDescriptorSize;
-	UINT m_DsvDescriptorSize = 0;
-	UINT m_CbvSrvUavDescriptorSize = 0;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DsvHeap;
-
-	//<-------------------------------Resource Binding-------------------------------------------->
-
-	//<-------------------------------Sync---------------------------------------------->
-	HANDLE m_FenceEvent;
-	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence;
-	UINT64 m_FenceValue;
-	//<-------------------------------Sync---------------------------------------------->
-
-	// TODO:实现FrameResource
-	std::vector<std::unique_ptr<FrameResource>> m_FrameResources;
-
-	//<--------------------------------Constant Buffer--------------------------------------->
-	std::unique_ptr<UploadBuffer<ObjectConstants>> m_ObjCB;
-	//<--------------------------------Constant Buffer--------------------------------------->
 };

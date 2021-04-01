@@ -26,6 +26,8 @@ namespace RHI
 		UINT64 GetNextFenceValue() const { return m_NextFenceValue; }
 		UINT64 GetCompletedFenceValue() const { return m_LastCompletedFenceValue; }
 
+		ID3D12CommandQueue* GetD3D12CommandQueue() { return m_CommandQueue.Get(); }
+
     private:
 		UINT64 ExecuteCommandList(ID3D12CommandList* List);
 

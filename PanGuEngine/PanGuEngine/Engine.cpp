@@ -20,13 +20,13 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-    if (m_Device != nullptr)
-        FlushCommandQueue();
+    RHI::CommandListManager::GetSingleton().IdleGPU();
 }
 
 void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 {
-    m_Width = width;
+	m_Initialized = true;
+	m_Width = width;
     m_Height = height;
     m_AppInst = hInstance;
     m_Aspect = static_cast<float>(width) / static_cast<float>(height);
@@ -50,19 +50,15 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     m_CommandListManager = make_unique<RHI::CommandListManager>(D3D12Device);
     m_CommandContextManager = make_unique<RHI::ContextManager>();
 
+    // SwapChaind要在后面创建，因为构造函数中会分配Descriptor，这需要RenderDevice初始化Descriptor Heap，
+    // SwapChadin和Graphic Queue关联
+    m_SwapChain = make_unique<RHI::SwapChain>(m_Width, m_Height, m_MainWnd, m_DXGIFactory.Get(), 
+        RHI::CommandListManager::GetSingleton().GetGraphicsQueue().GetD3D12CommandQueue());
 
-	InitialDirect3D();
-
-    OnResize();
     
     // Initilize Managers
     m_ResourceManager = make_unique<ResourceManager>();
     m_SceneManager = make_unique<SceneManager>();
-    m_ShaderManager = make_unique<ShaderManager>();
-
-    m_GraphicContext = make_unique<GraphicContext>(m_Device.Get(), m_CommandList.Get(), m_CommandAllocator.Get(), m_CommandQueue.Get(), m_Fence.Get(), m_CbvSrvUavDescriptorSize);
-
-    m_Initialized = true;
 }
 
 int Engine::Run()
@@ -72,7 +68,6 @@ int Engine::Run()
     MSG msg = {};
     while (msg.message != WM_QUIT)
     {
-        // Process any messages in the queue.
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
@@ -101,8 +96,6 @@ void Engine::Update(float deltaTime)
 {
     CalculateFrameStats();
 
-    // CPU、GPU同步
-    m_GraphicContext->Update();
     // 更新Constant Buffer
     m_SceneManager->UpdateCameraMovement(deltaTime);
     m_SceneManager->UpdateRendererCBs();
@@ -113,53 +106,31 @@ void Engine::Update(float deltaTime)
 
 void Engine::Render()
 {
-    auto cmdListAlloc = m_GraphicContext->GetCurrFrameResource()->m_CmdListAlloc;
+	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"ForwardRenderer");
 
-    // Reuse the memory associated with command recording.
-    // We can only reset when the associated command lists have finished execution on the GPU.
-    ThrowIfFailed(cmdListAlloc->Reset());
+    graphicContext.SetViewport(m_Viewport);
+    graphicContext.SetScissor(m_ScissorRect);
 
-    ThrowIfFailed(m_CommandList->Reset(cmdListAlloc.Get(), nullptr));
+    RHI::GpuResource* backBuffer = m_SwapChain->GetCurBackBuffer();
+    RHI::GpuResourceDescriptor* backBufferRTV = m_SwapChain->GetCurBackBufferRTV();
+    RHI::GpuResource* depthStencilBuffer = m_SwapChain->GetDepthStencilBuffer();
+    RHI::GpuResourceDescriptor* depthStencilBufferDSV = m_SwapChain->GetDepthStencilDSV();
 
-    // TODO:封装到Camera
-    m_CommandList->RSSetViewports(1, &m_Viewport);
-    m_CommandList->RSSetScissorRects(1, &m_ScissorRect);
+    graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    graphicContext.TransitionResource(*depthStencilBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    graphicContext.ClearColor(*backBufferRTV, Colors::LightSteelBlue);
+    graphicContext.ClearDepthAndStencil(*depthStencilBufferDSV);
+    graphicContext.SetRenderTargets(1, &backBufferRTV, depthStencilBufferDSV);
 
-    // Indicate a state transition on the resource usage.
-    m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-        D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	// 渲染场景
+	m_SceneManager->Render();
 
-    // Clear the back buffer and depth buffer.
-    m_CommandList->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
-    m_CommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+    graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
-    // Specify the buffers we are going to render to.
-    m_CommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+    graphicContext.Finish();
 
-    // 渲染场景
-    m_SceneManager->Render();
-
-    // Indicate a state transition on the resource usage.
-    m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-    // Done recording commands.
-    ThrowIfFailed(m_CommandList->Close());
-
-    ID3D12CommandList* ppCommandLists[] = { m_CommandList.Get() };
-    m_CommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-    // Present the frame.
-    ThrowIfFailed(m_SwapChain->Present(1, 0));
-    m_CurrBackBuffer = (m_CurrBackBuffer + 1) % SwapChainBufferCount;
-
-    // Advance the fence value to mark commands up to this fence point.
-    m_GraphicContext->GetCurrFrameResource()->Fence = ++m_FenceValue;
-
-    // Add an instruction to the command queue to set a new fence point. 
-    // Because we are on the GPU timeline, the new fence point won't be 
-    // set until the GPU finishes processing all the commands prior to this Signal().
-    m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
+    // TODO: 可以把过度到Present状态封装到Present函数中，函数内部再开始一个GraphicContext
+    m_SwapChain->Present();
 }
 
 LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -168,9 +139,6 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         switch (msg)
         {
-            // WM_ACTIVATE is sent when the window is activated or deactivated.  
-            // We pause the game when the window is deactivated and unpause it 
-            // when it becomes active.  
         case WM_ACTIVATE:
             if (LOWORD(wParam) == WA_INACTIVE)
             {
@@ -182,9 +150,7 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             return 0;
 
-            // WM_SIZE is sent when the user resizes the window.  
         case WM_SIZE:
-            // Save the new client area dimensions.
             SetScreenSize(LOWORD(lParam), HIWORD(lParam));
             if (wParam == SIZE_MINIMIZED)
             {
@@ -202,7 +168,6 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             else if (wParam == SIZE_RESTORED)
             {
 
-                // Restoring from minimized state?
                 if (m_minimized)
                 {
                     Resume();
@@ -210,7 +175,6 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     OnResize();
                 }
 
-                // Restoring from maximized state?
                 else if (m_maximized)
                 {
                     Resume();
@@ -219,53 +183,36 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
                 else if (m_resizing)
                 {
-                    // If user is dragging the resize bars, we do not resize 
-                    // the buffers here because as the user continuously 
-                    // drags the resize bars, a stream of WM_SIZE messages are
-                    // sent to the window, and it would be pointless (and slow)
-                    // to resize for each WM_SIZE message received from dragging
-                    // the resize bars.  So instead, we reset after the user is 
-                    // done resizing the window and releases the resize bars, which 
-                    // sends a WM_EXITSIZEMOVE message.
                 }
-                else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
+                else 
                 {
                     OnResize();
                 }
             }
             return 0;
 
-            // WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
         case WM_ENTERSIZEMOVE:
             Pause();
             m_resizing = true;
             return 0;
 
-            // WM_EXITSIZEMOVE is sent when the user releases the resize bars.
-            // Here we reset everything based on the new window dimensions.
         case WM_EXITSIZEMOVE:
             Resume();
             m_resizing = false;
             OnResize();
             return 0;
 
-            // WM_DESTROY is sent when the window is being destroyed.
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
 
-            // The WM_MENUCHAR message is sent when a menu is active and the user presses 
-            // a key that does not correspond to any mnemonic or accelerator key. 
         case WM_MENUCHAR:
-            // Don't beep when we alt-enter.
             return MAKELRESULT(0, MNC_CLOSE);
 
-            // Catch this message so to prevent the window from becoming too small.
         case WM_GETMINMAXINFO:
             ((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
             ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
             return 0;
-
 
         case WM_LBUTTONDOWN:
             Input::m_KeyStates[(int)KeyCode::Mouse0] = KeyState::KeyDown;
@@ -314,7 +261,6 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Engine::Destroy()
 {
-
 }
 
 void Engine::Pause()
@@ -327,20 +273,6 @@ void Engine::Resume()
 {
     m_Paused = false;
     m_Timer.Start();
-}
-
-
-void Engine::InitialDirect3D()
-{
-    ThrowIfFailed(m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
-
-    m_RtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    m_DsvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-    m_CbvSrvUavDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-    CreateCommandObjects();
-    CreateSwapChain();
-    CreateRtvAndDsvDescriptorHeaps();
 }
 
 void Engine::InitialMainWindow()
@@ -362,7 +294,6 @@ void Engine::InitialMainWindow()
         MessageBox(0, L"RegisterClass Failed.", 0, 0);
     }
 
-    // Compute window rectangle dimensions based on requested client area dimensions.
     RECT R = { 0, 0, m_Width, m_Height };
     AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
     int width = R.right - R.left;
@@ -378,48 +309,6 @@ void Engine::InitialMainWindow()
 
     ShowWindow(m_MainWnd, SW_SHOW);
     UpdateWindow(m_MainWnd);
-}
-
-void Engine::CreateCommandObjects()
-{
-    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.GetAddressOf())));
-
-    ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(m_CommandAllocator.GetAddressOf())));
-
-    ThrowIfFailed(m_Device->CreateCommandList(
-        0,
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_CommandAllocator.Get(),
-        nullptr,                   
-        IID_PPV_ARGS(m_CommandList.GetAddressOf())));
-
-    // 刚创建的CommandList处于记录状态，之后会调用Reset，调用Reset要求CommandList处于关闭状态
-    m_CommandList->Close();
-}
-
-
-void Engine::CreateRtvAndDsvDescriptorHeaps()
-{
-    // Swap Chain使用双缓冲，需要放两个RTV Descriptor
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-    rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
-    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    rtvHeapDesc.NodeMask = 0;
-    ThrowIfFailed(m_Device->CreateDescriptorHeap(
-        &rtvHeapDesc, IID_PPV_ARGS(m_RtvHeap.GetAddressOf())));
-
-
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-    dsvHeapDesc.NumDescriptors = 1;
-    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    dsvHeapDesc.NodeMask = 0;
-    ThrowIfFailed(m_Device->CreateDescriptorHeap(
-        &dsvHeapDesc, IID_PPV_ARGS(m_DsvHeap.GetAddressOf())));
 }
 
 void Engine::SetScreenSize(UINT width, UINT height)
@@ -462,77 +351,7 @@ void Engine::CalculateFrameStats()
 
 void Engine::OnResize()
 {
-    FlushCommandQueue();
-
-    // 修改资源前先同步CPU/GPU
-    ThrowIfFailed(m_CommandList->Reset(m_CommandAllocator.Get(), nullptr));
-
-    // 释放资源
-    for (int i = 0; i < SwapChainBufferCount; ++i)
-        m_SwapChainBuffer[i].Reset();
-    m_DepthStencilBuffer.Reset();
-
-    ThrowIfFailed(m_SwapChain->ResizeBuffers(
-        SwapChainBufferCount,
-        m_Width, m_Height,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
-
-    m_CurrBackBuffer = 0;
-
-    // Render Target View
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(m_RtvHeap->GetCPUDescriptorHandleForHeapStart());
-    for (UINT i = 0; i < SwapChainBufferCount; i++)
-    {
-        ThrowIfFailed(m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&m_SwapChainBuffer[i])));
-        m_Device->CreateRenderTargetView(m_SwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
-        rtvHeapHandle.Offset(1, m_RtvDescriptorSize);
-    }
-
-    // 创建Depth Stencil Buffer
-    D3D12_RESOURCE_DESC depthStencilDesc;
-    depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    depthStencilDesc.Alignment = 0;
-    depthStencilDesc.Width = m_Width;
-    depthStencilDesc.Height = m_Height;
-    depthStencilDesc.DepthOrArraySize = 1;
-    depthStencilDesc.MipLevels = 1;
-    depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-    depthStencilDesc.SampleDesc.Count = 1;
-    depthStencilDesc.SampleDesc.Quality = 0;
-    depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-    D3D12_CLEAR_VALUE optClear;
-    optClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    optClear.DepthStencil.Depth = 1.0f;
-    optClear.DepthStencil.Stencil = 0;
-    ThrowIfFailed(m_Device->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-        D3D12_HEAP_FLAG_NONE,
-        &depthStencilDesc,
-        D3D12_RESOURCE_STATE_COMMON,
-        &optClear,
-        IID_PPV_ARGS(m_DepthStencilBuffer.GetAddressOf())));
-
-    // 创建Depth Stencil View
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-    dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-    dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    dsvDesc.Texture2D.MipSlice = 0;
-    m_Device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), &dsvDesc, m_DsvHeap->GetCPUDescriptorHandleForHeapStart());
-
-    // 把Depth Stencil Buffer的状态过度为Depth Write
-    m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_DepthStencilBuffer.Get(),
-        D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-
-
-    ThrowIfFailed(m_CommandList->Close());
-    ID3D12CommandList* cmdsLists[] = { m_CommandList.Get() };
-    m_CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-    FlushCommandQueue();
+    m_SwapChain->Resize(m_Width, m_Height);
 
     m_Viewport.TopLeftX = 0;
     m_Viewport.TopLeftY = 0;
@@ -543,41 +362,3 @@ void Engine::OnResize()
 
     m_ScissorRect = CD3DX12_RECT(0, 0, m_Width, m_Height);
 }
-
-ID3D12Resource* Engine::CurrentBackBuffer()const
-{
-    return m_SwapChainBuffer[m_CurrBackBuffer].Get();
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE Engine::CurrentBackBufferView() const
-{
-    return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-        m_RtvHeap->GetCPUDescriptorHandleForHeapStart(),
-        m_CurrBackBuffer,
-        m_RtvDescriptorSize);
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE Engine::DepthStencilView()const
-{
-    return m_DsvHeap->GetCPUDescriptorHandleForHeapStart();
-}
-
-void Engine::FlushCommandQueue()
-{
-    m_FenceValue++;
-
-
-    ThrowIfFailed(m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue));
-
-    if (m_Fence->GetCompletedValue() < m_FenceValue)
-    {
-        HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
-
-        ThrowIfFailed(m_Fence->SetEventOnCompletion(m_FenceValue, eventHandle));
-
-        WaitForSingleObject(eventHandle, INFINITE);
-        CloseHandle(eventHandle);
-    }
-}
-
-

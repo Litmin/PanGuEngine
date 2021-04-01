@@ -6,6 +6,8 @@
 namespace RHI
 {
 
+	class CommandContext;
+
 	class SwapChain
 	{
 	public:
@@ -13,23 +15,21 @@ namespace RHI
 
 		void Resize(UINT32 width, UINT32 height);
 
+		// Present之前需要把Back Buffer过度到Present状态
 		void Present();
 
-		// 在SetRenderTarget时，需要过度到Render Target状态
-		GpuResourceDescriptor* GetCurBackBufferRTV();
-
-		GpuResourceDescriptor* GetDepthStencilDSV();
+		// 在SetRenderTarget时，需要过度到Render Target和Depth Write状态
+		GpuRenderTextureColor* GetCurBackBuffer() { return m_BackColorBuffers[m_CurrBackBuffer].get(); }
+		GpuRenderTextureDepth* GetDepthStencilBuffer() { return m_DepthStencilBuffer.get(); }
+		GpuResourceDescriptor* GetCurBackBufferRTV() { return m_BackColorBufferRTVs[m_CurrBackBuffer].get(); }
+		GpuResourceDescriptor* GetDepthStencilDSV() { return m_DepthStencilBufferDSV.get(); }
 
 	private:
-		void InitBufferAndDescriptor();
-
 		static constexpr UINT32 SwapChainBufferCount = 2;
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
 
 		UINT32 m_CurrBackBuffer = 0;
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_SwapChainBuffer[SwapChainBufferCount];
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_DepthStencilBuffer;
 
 		std::shared_ptr<GpuRenderTextureColor> m_BackColorBuffers[SwapChainBufferCount] = {nullptr};
 		std::shared_ptr<GpuRenderTextureDepth> m_DepthStencilBuffer = nullptr;

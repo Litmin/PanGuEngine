@@ -346,6 +346,42 @@ namespace RHI
 			m_CommandList->ClearDepthStencilView(DSV.GetCpuHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL , depth->GetClearDepth(), depth->GetClearStencil(), 0, nullptr);
 	}
 
+	void GraphicsContext::SetViewport(const D3D12_VIEWPORT& vp)
+	{
+		m_CommandList->RSSetViewports(1, &vp);
+	}
+
+	void GraphicsContext::SetScissor(const D3D12_RECT& rect)
+	{
+		assert(rect.left < rect.right && rect.top < rect.bottom);
+		m_CommandList->RSSetScissorRects(1, &rect);
+	}
+
+	void GraphicsContext::SetRenderTargets(UINT NumRTVs, const GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV /*= nullptr*/)
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE* RTVHandles = nullptr;
+		D3D12_CPU_DESCRIPTOR_HANDLE DSVHandle;
+
+		if (NumRTVs > 0)
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE* RTVHandles = new D3D12_CPU_DESCRIPTOR_HANDLE[NumRTVs];
+			for (INT32 i = 0; i < NumRTVs; ++i)
+			{
+				RTVHandles[i] = RTVs[i]->GetCpuHandle();
+			}
+		}
+
+		if (DSV != nullptr)
+		{
+			DSVHandle = DSV->GetCpuHandle();
+			m_CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, FALSE, &DSVHandle);
+		}
+		else
+		{
+			m_CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, FALSE, nullptr);
+		}
+	}
+
 	void GraphicsContext::SetVertexBuffer(UINT Slot, const D3D12_VERTEX_BUFFER_VIEW& VBView)
 	{
 		m_CommandList->IASetVertexBuffers(Slot, 1, &VBView);

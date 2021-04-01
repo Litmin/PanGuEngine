@@ -11,7 +11,7 @@
 namespace RHI 
 {
 	class CommandContext;
-	class GraphicContext;
+	class GraphicsContext;
 	class ComputeContext;
 
 
@@ -151,13 +151,17 @@ namespace RHI
 			return CommandContext::Begin(ID).GetGraphicsContext();
 		}
 
-
 		// Clear
 		void ClearColor(GpuResourceDescriptor& RTV, D3D12_RECT* Rect = nullptr);
 		void ClearColor(GpuResourceDescriptor& RTV, Color Colour, D3D12_RECT* Rect = nullptr);
 		void ClearDepth(GpuResourceDescriptor& DSV);
 		void ClearStencil(GpuResourceDescriptor& DSV);
 		void ClearDepthAndStencil(GpuResourceDescriptor& DSV);
+
+		void SetViewport(const D3D12_VIEWPORT& vp);
+		void SetScissor(const D3D12_RECT& rect);
+
+		void SetRenderTargets(UINT NumRTVs, const GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV = nullptr);
 
 		// Vertex Buffer¡¢Index Buffer
 		void SetVertexBuffer(UINT Slot, const D3D12_VERTEX_BUFFER_VIEW& VBView);

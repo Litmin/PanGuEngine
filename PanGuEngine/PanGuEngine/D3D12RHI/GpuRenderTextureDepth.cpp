@@ -12,18 +12,18 @@ namespace RHI
 		m_ClearStencil(clearStencil)
 	{
 		D3D12_RESOURCE_DESC Desc = {};
-		Desc.Alignment = 0;
-		Desc.DepthOrArraySize = 1;
 		Desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		Desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		// 转换到Typeless的格式
 		Desc.Format = GetBaseFormat(format);
 		Desc.Height = (UINT)m_Height;
-		Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		Desc.Width = (UINT64)m_Width;
+		Desc.Alignment = 0;
+		Desc.DepthOrArraySize = 1;
 		Desc.MipLevels = 0;
 		Desc.SampleDesc.Count = 1;
 		Desc.SampleDesc.Quality = 0;
-		Desc.Width = (UINT64)m_Width;
+		Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
 		D3D12_CLEAR_VALUE ClearValue = {};
 		ClearValue.Format = format;
