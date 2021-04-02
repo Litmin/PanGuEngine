@@ -2,7 +2,7 @@
 #include "Mesh.h"
 #include "GraphicContext.h"
 
-using namespace DirectX;
+using namespace RHI;
 
 // TODO:修改传入的顶点布局
 Mesh::Mesh(
@@ -44,9 +44,9 @@ Mesh::Mesh(
 	
 	m_IndexBufferByteSize = indexCount * sizeof(std::uint16_t);
 
-	ULONGLONG bufferSize = m_VertexBufferByteSize + m_IndexBufferByteSize;
+	ULONGLONG bufferSize = (ULONGLONG)m_VertexBufferByteSize + m_IndexBufferByteSize;
 	char* buffer = new char[bufferSize];
-	std::unique_ptr<char> dataPtrGuard(buffer);	// 用来释放buffer指向的内存
+	std::unique_ptr<char> dataPtrGuard(buffer);	// 用来释放buffer的内存
 
 	UINT offset = 0;
 	auto vertBufferCopy = [&](char* buffer, char* ptr, UINT size, UINT& offset) -> void
@@ -72,25 +72,14 @@ Mesh::Mesh(
 	char* indexBufferStart = buffer + m_VertexBufferByteSize;
 	memcpy(indexBufferStart, indices, indexCount * sizeof(std::uint16_t));
 
-	m_VertexBufferGPU = d3dUtil::CreateDefaultBuffer(GraphicContext::GetSingleton().Device(),
-		GraphicContext::GetSingleton().CommandList(), buffer, bufferSize, m_UploadBuffer);
-
-	m_VertexBufferView.BufferLocation = m_VertexBufferGPU->GetGPUVirtualAddress();
-	m_VertexBufferView.StrideInBytes = m_VertexByteStride;
-	m_VertexBufferView.SizeInBytes = m_VertexBufferByteSize;
-	m_IndexBufferView.BufferLocation = m_VertexBufferGPU->GetGPUVirtualAddress() + m_VertexBufferByteSize;
-	m_IndexBufferView.Format = m_IndexFormat;
-	m_IndexBufferView.SizeInBytes = m_IndexBufferByteSize;
-
-	// TODO:提交CommandList，同步CPU、GPU，释放UploadBuffer
+	m_VertexBuffer = std::make_shared<GpuDefaultBuffer>(vertexCount, m_VertexByteStride, buffer);
+	m_IndexBuffer = std::make_shared<GpuDefaultBuffer>(indexCount, sizeof(std::uint16_t), indexBufferStart);
+	m_VertexBufferView = m_VertexBuffer->CreateVBV();
+	m_IndexBufferView = m_IndexBuffer->CreateIBV();
 }
 
 Mesh::~Mesh()
 {
 }
 
-void Mesh::UpdateMeshData()
-{
-
-}
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "D3D12RHI/GpuBuffer.h"
 
 // TODO:可动态修改的Mesh，Unity的Read/Write
 class Mesh
@@ -24,13 +25,11 @@ public:
 	UINT IndexCount() const { return m_IndexCount; }
 	UINT GetLayoutIndex() { return m_LayoutIndex; }
 
-	void UpdateMeshData();
-
 private:
-	// Buffer
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_VertexBufferGPU = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_IndexBufferGPU = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_UploadBuffer = nullptr;
+
+	std::shared_ptr<RHI::GpuDefaultBuffer> m_VertexBuffer = nullptr;
+	std::shared_ptr<RHI::GpuDefaultBuffer> m_IndexBuffer = nullptr;
+
 	UINT m_VertexByteStride = 0;
 	ULONG m_VertexBufferByteSize = 0;
 	DXGI_FORMAT m_IndexFormat = DXGI_FORMAT_R16_UINT;
@@ -39,7 +38,7 @@ private:
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 
 	UINT m_VertexCount = 0;
-	UINT m_IndexCount;
+	UINT m_IndexCount = 0;
 
 	UINT m_LayoutIndex;
 };

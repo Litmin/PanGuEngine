@@ -357,14 +357,15 @@ namespace RHI
 		m_CommandList->RSSetScissorRects(1, &rect);
 	}
 
-	void GraphicsContext::SetRenderTargets(UINT NumRTVs, const GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV /*= nullptr*/)
+	void GraphicsContext::SetRenderTargets(UINT NumRTVs, GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV /*= nullptr*/)
 	{
-		D3D12_CPU_DESCRIPTOR_HANDLE* RTVHandles = nullptr;
+		// 使用unique_ptr来管理动态数组的内存
+		std::unique_ptr<D3D12_CPU_DESCRIPTOR_HANDLE[]> RTVHandles = nullptr;
 		D3D12_CPU_DESCRIPTOR_HANDLE DSVHandle;
 
 		if (NumRTVs > 0)
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE* RTVHandles = new D3D12_CPU_DESCRIPTOR_HANDLE[NumRTVs];
+			RTVHandles.reset(new D3D12_CPU_DESCRIPTOR_HANDLE[NumRTVs]);
 			for (INT32 i = 0; i < NumRTVs; ++i)
 			{
 				RTVHandles[i] = RTVs[i]->GetCpuHandle();
@@ -374,11 +375,11 @@ namespace RHI
 		if (DSV != nullptr)
 		{
 			DSVHandle = DSV->GetCpuHandle();
-			m_CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, FALSE, &DSVHandle);
+			m_CommandList->OMSetRenderTargets(NumRTVs, RTVHandles.get(), FALSE, &DSVHandle);
 		}
 		else
 		{
-			m_CommandList->OMSetRenderTargets(NumRTVs, RTVHandles, FALSE, nullptr);
+			m_CommandList->OMSetRenderTargets(NumRTVs, RTVHandles.get(), FALSE, nullptr);
 		}
 	}
 

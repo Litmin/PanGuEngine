@@ -161,7 +161,7 @@ namespace RHI
 		void SetViewport(const D3D12_VIEWPORT& vp);
 		void SetScissor(const D3D12_RECT& rect);
 
-		void SetRenderTargets(UINT NumRTVs, const GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV = nullptr);
+		void SetRenderTargets(UINT NumRTVs, GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV = nullptr);
 
 		// Vertex Buffer¡¢Index Buffer
 		void SetVertexBuffer(UINT Slot, const D3D12_VERTEX_BUFFER_VIEW& VBView);
