@@ -34,6 +34,7 @@ namespace RHI
 			m_SrvCbvUavs[VarType].push_back(std::move(resource));
 		};
 
+
 		shaderResource->ProcessResources(
 			[&](const ShaderResourceAttribs& CB, UINT32)
 		{

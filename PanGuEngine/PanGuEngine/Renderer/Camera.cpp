@@ -28,8 +28,10 @@ void Camera::SetProjection(float aspect, float nearPlane, float farPlane, float 
 	XMStoreFloat4x4(&m_Proj, projectionMatrix);
 }
 
-void Camera::UpdateCameraCBs()
+void Camera::UpdateCameraCBs(void* perPassCB)
 {
+	assert(perPassCB);
+
 	m_View = m_GameObject->LocalToWorldMatrix();
 
 	XMMATRIX view = XMLoadFloat4x4(&m_View);
@@ -42,21 +44,20 @@ void Camera::UpdateCameraCBs()
 	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
 	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
 
-	XMStoreFloat4x4(&m_MainPassCB.View, XMMatrixTranspose(view));
-	XMStoreFloat4x4(&m_MainPassCB.InvView, XMMatrixTranspose(invView));
-	XMStoreFloat4x4(&m_MainPassCB.Proj, XMMatrixTranspose(proj));
-	XMStoreFloat4x4(&m_MainPassCB.InvProj, XMMatrixTranspose(invProj));
-	XMStoreFloat4x4(&m_MainPassCB.ViewProj, XMMatrixTranspose(viewProj));
-	XMStoreFloat4x4(&m_MainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	XMStoreFloat4x4(&m_PerPassCBData.View, XMMatrixTranspose(view));
+	XMStoreFloat4x4(&m_PerPassCBData.InvView, XMMatrixTranspose(invView));
+	XMStoreFloat4x4(&m_PerPassCBData.Proj, XMMatrixTranspose(proj));
+	XMStoreFloat4x4(&m_PerPassCBData.InvProj, XMMatrixTranspose(invProj));
+	XMStoreFloat4x4(&m_PerPassCBData.ViewProj, XMMatrixTranspose(viewProj));
+	XMStoreFloat4x4(&m_PerPassCBData.InvViewProj, XMMatrixTranspose(invViewProj));
 
 	//m_MainPassCB.EyePosW = mEyePos;
 	//m_MainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)mClientHeight);
 	//m_MainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);
-	m_MainPassCB.NearZ = m_NearPlane;
-	m_MainPassCB.FarZ = m_FarPlane;
+	m_PerPassCBData.NearZ = m_NearPlane;
+	m_PerPassCBData.FarZ = m_FarPlane;
 	//m_MainPassCB.TotalTime = gt.TotalTime();
 	//m_MainPassCB.DeltaTime = gt.DeltaTime();
 
-	auto currPassCB = GraphicContext::GetSingleton().GetCurrFrameResource()->m_PassCB.get();
-	currPassCB->CopyData(0, m_MainPassCB);
+	memcpy(perPassCB, &m_PerPassCBData, sizeof(PerPassConstants));
 }

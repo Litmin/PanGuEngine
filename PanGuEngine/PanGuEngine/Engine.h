@@ -13,6 +13,11 @@
 #include "D3D12RHI/CommandListManager.h"
 #include "D3D12RHI/CommandContext.h"
 #include "D3D12RHI/SwapChain.h"
+#include "D3D12RHI/GpuBuffer.h"
+#include "D3D12RHI/PipelineState.h"
+#include "D3D12RHI/ShaderResourceBinding.h"
+#include "D3D12RHI/Shader.h"
+#include "Renderer/VertexFactory.h"
 
 
 class Engine
@@ -75,4 +80,13 @@ private:
 
 	std::unique_ptr<SceneManager> m_SceneManager;
 	std::unique_ptr<ResourceManager> m_ResourceManager;
+	std::unique_ptr<VertexFactory> m_vertexFactory;
+
+
+	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerDrawCB;
+	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerPassCB;
+
+	std::shared_ptr<RHI::Shader> m_StandardVS;
+	std::shared_ptr<RHI::Shader> m_StandardPS;
+	std::unique_ptr<RHI::PipelineState> m_PSO;
 };

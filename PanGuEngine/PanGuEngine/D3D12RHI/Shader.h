@@ -24,9 +24,9 @@ namespace RHI
 
     struct ShaderCreateInfo
     {
-        const std::wstring FilePath;
-        const std::string entryPoint;
-        const ShaderMacro* Macros;
+        std::wstring FilePath;
+        std::string entryPoint;
+        ShaderMacro* Macros = nullptr;
         ShaderDesc Desc;
         ShaderModel SM = {5, 1};
     };
@@ -39,7 +39,7 @@ namespace RHI
     class Shader
     {
     public:
-        Shader(RenderDevice* pRenderDevice, const ShaderCreateInfo& shaderCI);
+        Shader(const ShaderCreateInfo& shaderCI);
 
         const ShaderResource* GetShaderResources() const { return m_ShaderResource.get(); }
 

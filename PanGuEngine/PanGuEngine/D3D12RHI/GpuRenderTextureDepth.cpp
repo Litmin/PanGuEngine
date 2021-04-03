@@ -26,7 +26,9 @@ namespace RHI
 		Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
 		D3D12_CLEAR_VALUE ClearValue = {};
-		ClearValue.Format = format;
+		// ClearValue的格式不能是Typeless
+		// ID3D12Device::CreateCommittedResource: D3D12_CLEAR_VALUE::Format cannot be a typeless format. A fully qualified format must be supplied
+		ClearValue.Format = GetDSVFormat(format);
 		ClearValue.DepthStencil.Depth = m_ClearDepth;
 		ClearValue.DepthStencil.Stencil = m_ClearStencil;
 

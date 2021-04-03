@@ -10,7 +10,7 @@ namespace RHI
     class GpuRenderTextureDepth : public GpuRenderTexture
     {
     public:
-        GpuRenderTextureDepth(UINT32 width, UINT32 height, DXGI_FORMAT format, float clearDepth = 0.0f, UINT8 clearStencil = 0);
+        GpuRenderTextureDepth(UINT32 width, UINT32 height, DXGI_FORMAT format, float clearDepth = 1.0f, UINT8 clearStencil = 0);
 
         std::shared_ptr<GpuResourceDescriptor> CreateDSV();
         std::shared_ptr<GpuResourceDescriptor> CreateDepthSRV();

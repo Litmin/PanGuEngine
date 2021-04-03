@@ -164,9 +164,6 @@
     <ClCompile Include="Renderer\RendererStateDesc.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderQueue.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\SceneManager.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -183,6 +180,12 @@
       <Filter>D3D12RHI</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\ShaderOld.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ConstantBufferDefinition.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\VertexFactory.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -378,9 +381,6 @@
     <ClInclude Include="Renderer\RendererStateDesc.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderQueue.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\SceneManager.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -400,6 +400,12 @@
       <Filter>D3D12RHI</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\ShaderOld.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ConstantBufferDefinition.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\VertexFactory.h">
       <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>

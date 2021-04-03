@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Mesh.h"
-#include "GraphicContext.h"
+#include "VertexFactory.h"
 
 using namespace RHI;
 
@@ -20,7 +20,7 @@ Mesh::Mesh(
 	m_VertexCount(vertexCount),
 	m_IndexCount(indexCount)
 {
-	m_LayoutIndex = GraphicContext::GetSingleton().GetInputLayoutIndex(
+	m_LayoutIndex = VertexFactory::GetSingleton().GetInputLayoutIndex(
 		colors != nullptr,
 		normals != nullptr,
 		tangents != nullptr,

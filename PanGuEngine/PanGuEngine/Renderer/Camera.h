@@ -11,7 +11,7 @@ public:
 
 	void SetProjection(float aspect, float nearPlane, float farPlane, float fieldOfView);
 
-	void UpdateCameraCBs();
+	void UpdateCameraCBs(void* perPassCB);
 
 protected:
 	float m_Aspect;
@@ -26,8 +26,6 @@ protected:
 	DirectX::XMFLOAT4X4 m_View;// = MathHelper::Identity4x4();
 	DirectX::XMFLOAT4X4 m_Proj;// = MathHelper::Identity4x4();
 
-
-	int m_NumFramesDirty = gNumFrameResources;
-	PassConstants m_MainPassCB;
+	PerPassConstants m_PerPassCBData;
 };
 

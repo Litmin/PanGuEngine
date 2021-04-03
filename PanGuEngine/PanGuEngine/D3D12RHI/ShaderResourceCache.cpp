@@ -91,13 +91,10 @@ namespace RHI
 	{
 		for (const auto& [rootIndex, rootDescriptors] : m_RootDescriptors)
 		{
-			if (rootDescriptors.VariableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
-			{
-				GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptors.ConstantBuffer.get());
+			GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptors.ConstantBuffer.get());
 
-				if(dynamicBuffer != nullptr)
-					cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, dynamicBuffer->GetGpuVirtualAddress());
-			}
+			if (dynamicBuffer != nullptr)
+				cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, dynamicBuffer->GetGpuVirtualAddress());
 		}
 
 		if (m_NumDynamicDescriptor > 0)

@@ -121,11 +121,11 @@ namespace RHI
         UINT32 GetBufSRVNum() const noexcept { return m_BufferSRVs.size(); }
         UINT32 GetBufUAVNum() const noexcept { return m_BufferUAVs.size(); }
 
-        const ShaderResourceAttribs& GetCB(UINT32 n) const noexcept { assert(n > 0 && n < m_CBs.size()); return *m_CBs[n].get(); }
-        const ShaderResourceAttribs& GetTexSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureSRVs.size()); return *m_TextureSRVs[n].get(); }
-        const ShaderResourceAttribs& GetTexUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_TextureUAVs.size()); return *m_TextureUAVs[n].get(); }
-        const ShaderResourceAttribs& GetBufSRV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferSRVs.size()); return *m_BufferSRVs[n].get(); }
-        const ShaderResourceAttribs& GetBufUAV(UINT32 n) const noexcept { assert(n > 0 && n < m_BufferUAVs.size()); return *m_BufferUAVs[n].get(); }
+        const ShaderResourceAttribs& GetCB(UINT32 n) const noexcept { assert(n >= 0 && n < m_CBs.size()); return *m_CBs[n].get(); }
+        const ShaderResourceAttribs& GetTexSRV(UINT32 n) const noexcept { assert(n >= 0 && n < m_TextureSRVs.size()); return *m_TextureSRVs[n].get(); }
+        const ShaderResourceAttribs& GetTexUAV(UINT32 n) const noexcept { assert(n >= 0 && n < m_TextureUAVs.size()); return *m_TextureUAVs[n].get(); }
+        const ShaderResourceAttribs& GetBufSRV(UINT32 n) const noexcept { assert(n >= 0 && n < m_BufferSRVs.size()); return *m_BufferSRVs[n].get(); }
+        const ShaderResourceAttribs& GetBufUAV(UINT32 n) const noexcept { assert(n >= 0 && n < m_BufferUAVs.size()); return *m_BufferUAVs[n].get(); }
 
         SHADER_TYPE GetShaderType() const noexcept { return m_ShaderType; }
 
@@ -142,6 +142,7 @@ namespace RHI
         {
             for (UINT32 i = 0;i < m_CBs.size();++i)
                 HandleCB(GetCB(i), i);
+
 
             for (UINT32 i = 0; i < m_TextureSRVs.size(); ++i)
                 HandleTexSRV(GetTexSRV(i), i);

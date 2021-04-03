@@ -6,6 +6,7 @@ using namespace DirectX;
 
 void GeometryFactory::CreateBox(float width, float height, float depth, std::uint32_t numSubdivisions, 
 	UINT& vertexCount, std::vector<DirectX::XMFLOAT3>& positions, std::vector<DirectX::XMFLOAT4>& colors, 
+	std::vector<DirectX::XMFLOAT3>& normals, std::vector<DirectX::XMFLOAT4>& tangents, std::vector<DirectX::XMFLOAT2>& uvs,
 	UINT& indexCount, std::vector<uint16_t>& indices)
 {
 	GeometryGenerator geoGen;
@@ -26,6 +27,9 @@ void GeometryFactory::CreateBox(float width, float height, float depth, std::uin
 	{
 		positions.push_back(vertex.Position);
 		colors.push_back(color[i % 6]);
+		normals.push_back(vertex.Normal);
+		tangents.push_back(DirectX::XMFLOAT4(vertex.TangentU.x, vertex.TangentU.y, vertex.TangentU.z, 1.0f));
+		uvs.push_back(vertex.TexC);
 		i++;
 	}
 

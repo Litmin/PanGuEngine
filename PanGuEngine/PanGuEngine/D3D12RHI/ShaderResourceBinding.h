@@ -35,6 +35,6 @@ namespace RHI
 
         ShaderResourceCache m_ShaderResourceCache;
         // 一个SRB对象可以绑定一个管线中所有Shader的资源，所以有几个Shader就有几个ShaderVariableManager，一个ShaderVariableManager表示一个Shader的变量
-        std::unordered_map<SHADER_TYPE, ShaderVariableCollection> m_ShaderVariableManagers;
+        std::unordered_map<SHADER_TYPE, std::unique_ptr<ShaderVariableCollection>> m_ShaderVariableManagers;
     };
 }

@@ -50,7 +50,7 @@ namespace RHI
 	INT32 GetShaderTypePipelineIndex(SHADER_TYPE ShaderType, PIPELINE_TYPE PipelineType)
 	{
 		assert(IsConsistentShaderType(ShaderType, PipelineType) && "Shader Type和Pipeline Type不兼容！");
-		assert(IsPowerOfTwo(UINT32(ShaderType)) && "Only single shader stage should be provided");
+		assert(IsPowerOfTwoD(UINT32(ShaderType)) && "Only single shader stage should be provided");
 
 		static_assert(SHADER_TYPE_LAST == 0x080, "Please update the switch below to handle the new shader type");
 		switch (ShaderType)

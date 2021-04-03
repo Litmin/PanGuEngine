@@ -34,10 +34,10 @@ namespace RHI
 			for (const auto& [shaderType, shader] : m_Shaders)
 			{
 				m_ShaderResourceLayouts.insert(make_pair(shaderType, ShaderResourceLayout(pd3d12Device,
-					m_Desc.PipelineType,
-					m_Desc.VariableConfig,
-					shader->GetShaderResources(),
-					&m_RootSignature)));
+																						  m_Desc.PipelineType,
+																						  m_Desc.VariableConfig,
+																						  shader->GetShaderResources(),
+																						  &m_RootSignature)));
 			}
 
 			// 根签名完成初始化，创建Direct3D 12的RootSignature
@@ -45,7 +45,24 @@ namespace RHI
 
 
 			// 设置Direc3D 12的PSO Desc
-			D3D12_GRAPHICS_PIPELINE_STATE_DESC d3d12PSODesc = m_Desc.GraphicsPipeline.GraphicPipelineState;
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC d3d12PSODesc = {};
+
+			// 外部设置的状态
+			d3d12PSODesc.InputLayout = m_Desc.GraphicsPipeline.GraphicPipelineState.InputLayout;
+			d3d12PSODesc.RasterizerState = m_Desc.GraphicsPipeline.GraphicPipelineState.RasterizerState;
+			d3d12PSODesc.BlendState = m_Desc.GraphicsPipeline.GraphicPipelineState.BlendState;
+			d3d12PSODesc.DepthStencilState = m_Desc.GraphicsPipeline.GraphicPipelineState.DepthStencilState;
+			d3d12PSODesc.SampleMask = m_Desc.GraphicsPipeline.GraphicPipelineState.SampleMask;
+			d3d12PSODesc.PrimitiveTopologyType = m_Desc.GraphicsPipeline.GraphicPipelineState.PrimitiveTopologyType;
+			d3d12PSODesc.NumRenderTargets = m_Desc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets;
+			for (UINT32 i = 0; i < d3d12PSODesc.NumRenderTargets; ++i)
+			{
+				d3d12PSODesc.RTVFormats[i] = m_Desc.GraphicsPipeline.GraphicPipelineState.RTVFormats[i];
+			}
+			d3d12PSODesc.SampleDesc.Count = m_Desc.GraphicsPipeline.GraphicPipelineState.SampleDesc.Count;
+			d3d12PSODesc.SampleDesc.Quality = m_Desc.GraphicsPipeline.GraphicPipelineState.SampleDesc.Quality;
+			d3d12PSODesc.DSVFormat = m_Desc.GraphicsPipeline.GraphicPipelineState.DSVFormat;
+
 
 			// 设置PSO的Shader
 			for(const auto& [shaderType, shader] : m_Shaders)
@@ -82,17 +99,9 @@ namespace RHI
 			// 设置RootSignature
 			d3d12PSODesc.pRootSignature = m_RootSignature.GetD3D12RootSignature();
 
-			memset(&d3d12PSODesc.StreamOutput, 0, sizeof(d3d12PSODesc.StreamOutput));
-
-			// For single GPU operation, set this to zero. If there are multiple GPU nodes,
-			// set bits to identify the nodes (the device's physical adapters) for which the
-			// graphics pipeline state is to apply. Each bit in the mask corresponds to a single node.
 			d3d12PSODesc.NodeMask = 0;
-
 			d3d12PSODesc.CachedPSO.pCachedBlob = nullptr;
 			d3d12PSODesc.CachedPSO.CachedBlobSizeInBytes = 0;
-
-			// The only valid bit is D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG, which can only be set on WARP devices.
 			d3d12PSODesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 			// 创建D3D12 PSO
@@ -153,6 +162,8 @@ namespace RHI
 
 	void PipelineState::CommitDynamic(CommandContext& cmdContext, ShaderResourceBinding* SRB)
 	{
+		m_StaticSRB->m_ShaderResourceCache.CommitDynamic(cmdContext);
+
 		if (SRB != nullptr)
 		{
 			SRB->m_ShaderResourceCache.CommitDynamic(cmdContext);
@@ -161,10 +172,7 @@ namespace RHI
 
 	void PipelineState::CommitStaticSRB(CommandContext& cmdContext)
 	{
-		if (m_StaticSRB != nullptr)
-		{
-			m_StaticSRB->m_ShaderResourceCache.CommitResource(cmdContext);
-		}
+		m_StaticSRB->m_ShaderResourceCache.CommitResource(cmdContext);
 	}
 
 }

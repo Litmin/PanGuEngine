@@ -136,10 +136,11 @@ namespace RHI
 		rootSignatureDesc.pParameters = D3D12Parameters.size() ? D3D12Parameters.data() : nullptr;
 
 		// TODO: Static Sampler!!!!!!!!!!!!
+		rootSignatureDesc.NumStaticSamplers = 0;
 
-		ComPtr<ID3DBlob> signature;
-		ComPtr<ID3DBlob> error;
-		HRESULT           hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+		ComPtr<ID3DBlob> signature = nullptr;
+		ComPtr<ID3DBlob> error = nullptr;
+		HRESULT hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, signature.GetAddressOf(), error.GetAddressOf());
 
 		if (error != nullptr)
 		{

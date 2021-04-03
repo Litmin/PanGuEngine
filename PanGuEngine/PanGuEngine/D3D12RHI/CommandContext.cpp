@@ -84,7 +84,7 @@ namespace RHI
 
 		m_CommandList->Reset(m_CurrentAllocator, nullptr);
 
-		// TODO:重新设置一边渲染状态
+		// TODO: CommandList Reset后，重新设置一遍渲染状态
 
 		return FenceValue;
 	}
@@ -261,12 +261,12 @@ namespace RHI
 	{
 		assert(PSO != nullptr);
 
-		if (m_CurPSO == PSO)
-			return;
 		m_CurPSO = PSO;
 
 		// 绑定PSO
 		m_CommandList->SetPipelineState(PSO->GetD3D12PipelineState());
+		m_CommandList->SetGraphicsRootSignature(PSO->GetD3D12RootSignature());
+
 
 		// 提交Static资源
 		PSO->CommitStaticSRB(*this);
@@ -288,11 +288,19 @@ namespace RHI
 
 	void CommandContext::CommitDynamic()
 	{
-		assert(m_CurSRB != nullptr);
 		assert(m_CurPSO != nullptr);
-		assert(m_CurSRB->m_PSO == m_CurPSO);
 
-		m_CurPSO->CommitDynamic(*this, m_CurSRB);
+		if (m_CurSRB == nullptr)
+		{
+			m_CurPSO->CommitDynamic(*this, nullptr);
+		}
+		else
+		{
+			assert(m_CurSRB != nullptr);
+			assert(m_CurSRB->m_PSO == m_CurPSO);
+
+			m_CurPSO->CommitDynamic(*this, m_CurSRB);
+		}
 	}
 
 	// TODO: Remove dynamic_cast
@@ -355,6 +363,11 @@ namespace RHI
 	{
 		assert(rect.left < rect.right && rect.top < rect.bottom);
 		m_CommandList->RSSetScissorRects(1, &rect);
+	}
+
+	void GraphicsContext::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY Topology)
+	{
+		m_CommandList->IASetPrimitiveTopology(Topology);
 	}
 
 	void GraphicsContext::SetRenderTargets(UINT NumRTVs, GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV /*= nullptr*/)

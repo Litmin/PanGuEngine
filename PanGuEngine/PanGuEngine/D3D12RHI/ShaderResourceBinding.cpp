@@ -16,12 +16,14 @@ namespace RHI
         // 初始化Resource Cache
         m_ShaderResourceCache.Initialize(renderDevice, m_PSO->GetRootSignature(), allowedVarTypes, allowedTypeNum);
 
+        // lambda表达式
         m_PSO->ProcessShaders([&](SHADER_TYPE shaderType, const ShaderResourceLayout& layout)
         {
-                m_ShaderVariableManagers.emplace(shaderType, ShaderVariableCollection(m_ShaderResourceCache,
-                                                                                    layout,
-                                                                                    allowedVarTypes,
-                                                                                    allowedTypeNum));
+            std::unique_ptr<ShaderVariableCollection> variables = std::make_unique<ShaderVariableCollection>(&m_ShaderResourceCache,
+                layout,
+                allowedVarTypes,
+                allowedTypeNum);
+            m_ShaderVariableManagers.emplace(shaderType, std::move(variables));
         });
     }
 
@@ -35,7 +37,7 @@ namespace RHI
         if (ite == m_ShaderVariableManagers.end())
             return nullptr;
     	
-        return ite->second.GetVariable(Name);
+        return ite->second->GetVariable(Name);
     }
     
     UINT32 ShaderResourceBinding::GetVariableCount(SHADER_TYPE ShaderType) const
@@ -44,7 +46,7 @@ namespace RHI
         if (ite == m_ShaderVariableManagers.end())
             return 0;
 
-        return ite->second.GetVariableCount();
+        return ite->second->GetVariableCount();
     }
     
     ShaderVariable* ShaderResourceBinding::GetVariableByIndex(SHADER_TYPE ShaderType, UINT32 Index)
@@ -53,6 +55,6 @@ namespace RHI
         if (ite == m_ShaderVariableManagers.end())
             return nullptr;
 
-        return ite->second.GetVariable(Index);
+        return ite->second->GetVariable(Index);
     }
 }

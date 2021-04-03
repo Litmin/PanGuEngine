@@ -160,6 +160,7 @@ namespace RHI
 
 		void SetViewport(const D3D12_VIEWPORT& vp);
 		void SetScissor(const D3D12_RECT& rect);
+		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY Topology);
 
 		void SetRenderTargets(UINT NumRTVs, GpuResourceDescriptor* RTVs[], GpuResourceDescriptor* DSV = nullptr);
 

@@ -1,13 +1,13 @@
-// pch.h: 这是预编译标头文件。
-// 下方列出的文件仅编译一次，提高了将来生成的生成性能。
-// 这还将影响 IntelliSense 性能，包括代码完成和许多代码浏览功能。
-// 但是，如果此处列出的文件中的任何一个在生成之间有更新，它们全部都将被重新编译。
-// 请勿在此处添加要频繁更新的文件，这将使得性能优势无效。
+// pch.h: ����Ԥ�����ͷ�ļ���
+// �·��г����ļ�������һ�Σ�����˽������ɵ��������ܡ�
+// �⻹��Ӱ�� IntelliSense ���ܣ�����������ɺ��������������ܡ�
+// ���ǣ�����˴��г����ļ��е��κ�һ��������֮���и��£�����ȫ�����������±��롣
+// �����ڴ˴�����ҪƵ�����µ��ļ����⽫ʹ������������Ч��
 
 #ifndef PCH_H
 #define PCH_H
 
-// 添加要在此处预编译的标头
+// ����Ҫ�ڴ˴�Ԥ����ı�ͷ
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
 #endif
@@ -67,11 +67,13 @@
 #include "Core/Align.h"
 #include "Math/Common.h"
 #include "Math/VectorMath.h"
+#include "Renderer/ConstantBufferDefinition.h"
+
 
 #define D3D12_GPU_VIRTUAL_ADDRESS_NULL      ((D3D12_GPU_VIRTUAL_ADDRESS)0)
 #define D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN   ((D3D12_GPU_VIRTUAL_ADDRESS)-1)
 
-// Dynamic Resource的Page大小，单位字节，1M
+// Dynamic Resource��Page��С����λ�ֽڣ�1M
 #define DYNAMIC_RESOURCE_PAGE_SIZE 1048576
 
 #endif //PCH_H

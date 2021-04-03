@@ -7,7 +7,7 @@ using namespace std;
 namespace RHI
 {
 
-	ShaderVariableCollection::ShaderVariableCollection(ShaderResourceCache& resourceCache, 
+	ShaderVariableCollection::ShaderVariableCollection(ShaderResourceCache* resourceCache, 
 													   const ShaderResourceLayout& srcLayout, 
 													   const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes, 
 													   UINT32 allowedTypeNum) :
@@ -26,7 +26,7 @@ namespace RHI
 			for (UINT32 i = 0; i < resourceNum; ++i)
 			{
 				const auto& srcResource = srcLayout.GetSrvCbvUav(varType, i);
-				std::unique_ptr<ShaderVariable> shaderVariable = std::make_unique<ShaderVariable>(*this, srcResource);
+				std::unique_ptr<ShaderVariable> shaderVariable = std::make_unique<ShaderVariable>(m_ResourceCache, srcResource);
 				m_Variables.push_back(std::move(shaderVariable));
 			}
 		}
@@ -56,17 +56,17 @@ namespace RHI
 
 	void ShaderVariable::Set(std::shared_ptr<GpuBuffer> buffer, UINT32 arrayIndex /*= 0*/)
 	{
-		m_Resource.BindResource(buffer, arrayIndex, m_ParentManager.m_ResourceCache);
+		m_Resource.BindResource(buffer, arrayIndex, *m_ResourceCache);
 	}
 
 	void ShaderVariable::Set(std::shared_ptr<GpuResourceDescriptor> view, UINT32 arrayIndex /*= 0*/)
 	{
-		m_Resource.BindResource(view, arrayIndex, m_ParentManager.m_ResourceCache);
+		m_Resource.BindResource(view, arrayIndex, *m_ResourceCache);
 	}
 
 	bool ShaderVariable::IsBound(UINT32 arrayIndex) const
 	{
-		return m_Resource.IsBound(arrayIndex, m_ParentManager.m_ResourceCache);
+		return m_Resource.IsBound(arrayIndex, *m_ResourceCache);
 	}
 
 }

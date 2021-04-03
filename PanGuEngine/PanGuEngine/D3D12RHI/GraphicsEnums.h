@@ -19,15 +19,15 @@ namespace RHI
 		SHADER_TYPE_LAST = SHADER_TYPE_MESH
 	};
 
-	// ç®¡çº¿ç±»å‹ï¼šGraphicã€Computeã€Mesh
+	// ¹ÜÏßÀàĞÍ£ºGraphic¡¢Compute¡¢Mesh
 	enum PIPELINE_TYPE
 	{
 		PIPELINE_TYPE_GRAPHIC,
 		PIPELINE_TYPE_COMPUTE,
-		PIPELINE_TYPE_MESH	// 19å¹´åˆšå‡ºçš„æ–°ç®¡çº¿
+		PIPELINE_TYPE_MESH	// 19Äê¸Õ³öµÄĞÂ¹ÜÏß
 	};
 
-	// æŒ‰ç…§æ›´æ–°é¢‘ç‡ï¼Œåˆ’åˆ†Shaderå˜é‡
+	// °´ÕÕ¸üĞÂÆµÂÊ£¬»®·ÖShader±äÁ¿
 	enum SHADER_RESOURCE_VARIABLE_TYPE
 	{
 		/// Shader resource bound to the variable is the same for all SRB instances.

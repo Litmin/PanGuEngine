@@ -1,7 +1,6 @@
 #pragma once
 #include "D3D12RHI/GpuBuffer.h"
 
-// TODO:可动态修改的Mesh，Unity的Read/Write
 class Mesh
 {
 public:

@@ -65,11 +65,11 @@ public:
 	OffsetType Allocate(OffsetType size, OffsetType alignment)
 	{
 		assert(size > 0);
-		assert(IsPowerOfTwo(alignment));
+		assert(IsPowerOfTwoD(alignment));
 
 		size = Align(size, alignment);
 
-		// ç©ºé—´ä¸è¶³ï¼Œæ— æ³•åˆ†é…
+		// ¿Õ¼ä²»×ã£¬ÎÞ·¨·ÖÅä
 		if (m_UsedSize + size > m_MaxSize)
 		{
 			return InvalidOffset;

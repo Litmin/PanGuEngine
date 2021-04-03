@@ -98,7 +98,7 @@ namespace RHI
     }
 
 
-    Shader::Shader(RenderDevice* pRenderDevice, const ShaderCreateInfo& shaderCI) :
+    Shader::Shader(const ShaderCreateInfo& shaderCI) :
         m_Desc{shaderCI.Desc}
     {
         // ±‡“ÎShader

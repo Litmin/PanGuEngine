@@ -246,9 +246,9 @@ void GraphicContext::GenerateInputElementDesc(
 	{
 		m_FrameResources.clear();
 
-		UINT rendererCount = SceneManager::GetSingleton().GetRendererCount();
-		for (int i = 0; i < gNumFrameResources; ++i)
-		{
-			m_FrameResources.push_back(make_unique<FrameResource>(m_Device, 1, rendererCount));
-		}
+		//UINT rendererCount = SceneManager::GetSingleton().GetRendererCount();
+		//for (int i = 0; i < gNumFrameResources; ++i)
+		//{
+		//	m_FrameResources.push_back(make_unique<FrameResource>(m_Device, 1, rendererCount));
+		//}
 	}

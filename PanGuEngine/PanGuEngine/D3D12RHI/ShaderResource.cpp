@@ -13,10 +13,11 @@ namespace RHI
 	{
 
 		// 使用反射来获取这个Shader需要绑定的资源
-		ComPtr<ID3D12ShaderReflection> pShaderReflection;
+		ID3D12ShaderReflection* pShaderReflection;
+//		ID3D12ShaderReflection* pReflector = nullptr;
 		ThrowIfFailed(D3DReflect(pShaderBytecode->GetBufferPointer(),
 							 pShaderBytecode->GetBufferSize(), 
-							 __uuidof(pShaderReflection), reinterpret_cast<void**>(pShaderReflection.Get())));// 可能有问题
+							 __uuidof(pShaderReflection), reinterpret_cast<void**>(&pShaderReflection)));// 可能有问题
 
 		D3D12_SHADER_DESC DXshaderDesc = {};
 		pShaderReflection->GetDesc(&DXshaderDesc);

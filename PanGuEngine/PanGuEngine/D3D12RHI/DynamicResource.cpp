@@ -5,7 +5,7 @@
 namespace RHI
 {
 
-    // åœ¨Uploadå †ä¸Šåˆ†é…ä¸€ä¸ªBufferï¼Œå¹¶Map
+    // ÔÚUpload¶ÑÉÏ·ÖÅäÒ»¸öBuffer£¬²¢Map
     D3D12DynamicPage::D3D12DynamicPage(UINT64 Size)
     {
         D3D12_HEAP_PROPERTIES HeapProps;
@@ -49,10 +49,10 @@ namespace RHI
         }
     }
 
-    // è¿”å›çš„Pageçš„å¤§å°å¯èƒ½æ¯”SizeInByteså¤§
+    // ·µ»ØµÄPageµÄ´óĞ¡¿ÉÄÜ±ÈSizeInBytes´ó
     D3D12DynamicPage DynamicResourceAllocator::AllocatePage(UINT64 SizeInBytes)
     {
-        // è¿”å›æ¯”SizeInByteså¤§çš„ç¬¬ä¸€ä¸ªPageçš„è¿­ä»£å™¨
+        // ·µ»Ø±ÈSizeInBytes´óµÄµÚÒ»¸öPageµÄµü´úÆ÷
         auto PageIt = m_AvailablePages.lower_bound(SizeInBytes);
         if (PageIt != m_AvailablePages.end())
         {
@@ -125,13 +125,13 @@ namespace RHI
     D3D12DynamicAllocation DynamicResourceHeap::Allocate(UINT64 SizeInBytes, UINT64 Alignment)
     {
         assert(Alignment > 0);
-        assert(IsPowerOfTwo(Alignment) && "Alignment must be power of 2");
+        assert(IsPowerOfTwoD(Alignment) && "Alignment must be power of 2");
 
-        // å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡åˆ†é…ï¼Œæˆ–è€…å½“å‰Pageçš„å¤§å°ä¸å¤Ÿè¿™æ¬¡åˆ†é…ï¼Œå°±é‡æ–°åˆ›å»ºä¸€ä¸ªPage
+        // Èç¹ûÊÇµÚÒ»´Î·ÖÅä£¬»òÕßµ±Ç°PageµÄ´óĞ¡²»¹»Õâ´Î·ÖÅä£¬¾ÍÖØĞÂ´´½¨Ò»¸öPage
         if (m_CurrOffset == InvalidOffset || SizeInBytes + (Align(m_CurrOffset, Alignment) - m_CurrOffset) > m_AvailableSize)
         {
             auto NewPageSize = m_BasePageSize;
-            // è®¡ç®—èƒ½æ»¡è¶³è¿™æ¬¡åˆ†é…çš„Pageå¤§å°
+            // ¼ÆËãÄÜÂú×ãÕâ´Î·ÖÅäµÄPage´óĞ¡
             while (NewPageSize < SizeInBytes)
                 NewPageSize *= 2;
 
@@ -162,7 +162,7 @@ namespace RHI
             m_CurrUsedAlignedSize += AdjustedSize;
             m_PeakAlignedSize = std::max(m_PeakAlignedSize, m_CurrUsedAlignedSize);
 
-            // æ€»æ˜¯ä»æœ€åä¸€ä¸ªPageä¸­è¿›è¡Œåˆ†é…
+            // ×ÜÊÇ´Ó×îºóÒ»¸öPageÖĞ½øĞĞ·ÖÅä
             auto& CurrPage = m_AllocatedPages.back();
             return D3D12DynamicAllocation
             {

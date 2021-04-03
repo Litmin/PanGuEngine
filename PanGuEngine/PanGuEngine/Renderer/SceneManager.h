@@ -2,8 +2,7 @@
 #include "Light.h"
 #include "MeshRenderer.h"
 #include "Camera.h"
-#include "RenderQueue.h"
-#include "RendererStateDesc.h"
+#include "D3D12RHI/CommandContext.h"
 
 class GameObject;
 class SceneManager : public Singleton<SceneManager>
@@ -18,26 +17,21 @@ public:
 	GameObject* CreateGameObject();
 	GameObject* CreateGameObject(GameObject* parent);
 	void DestroyGameObject(GameObject* gameObject);
-	void BuildConstantBuffer();
 	void UpdateCameraMovement(float deltaTime);
-	// 更新每个Renderer的Constant Buffer
-	void UpdateRendererCBs();
-	// 更新Main Pass的Constant Buffer
-	void UpdateMainPassBuffer();
 
 	void AddMeshRenderer(MeshRenderer* meshRenderer);
-	UINT GetRendererCount();
 	void AddCamera(Camera* camera);
-	void Render();
+
+	Camera* GetCamera() { return m_Camera; }
+	const std::vector<MeshRenderer*>& GetDrawList() const { return m_MeshRenderers; }
+
 private:
 	std::unique_ptr<GameObject> m_Root;
 
 	Camera* m_Camera;
 	DirectX::XMINT2 m_LastMousePos;
 
-	RTStateDesc m_RTState;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RendererAndPassCBVHeap;
-	// 按照渲染状态排序
-	std::unordered_map<RendererStateDesc, std::vector<MeshRenderer*>> m_RenderQueue;
+	// TODO:空间分割，按渲染状态排序
+	std::vector<MeshRenderer*> m_MeshRenderers;
 };
 

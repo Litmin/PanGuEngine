@@ -230,7 +230,7 @@ namespace RHI
 			[&]
 			{
 			  ComPtr<ID3D12DescriptorHeap> descriptorHeap;
-			  renderDevice.GetD3D12Device()->CreateDescriptorHeap(&m_HeapDesc, IID_PPV_ARGS(&descriptorHeap));
+			  ThrowIfFailed(renderDevice.GetD3D12Device()->CreateDescriptorHeap(&m_HeapDesc, IID_PPV_ARGS(&descriptorHeap)));
 			  return descriptorHeap;
 			}()
 		},

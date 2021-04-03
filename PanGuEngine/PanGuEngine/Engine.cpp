@@ -20,12 +20,13 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+    // TODO: 释放GPU资源
+
     RHI::CommandListManager::GetSingleton().IdleGPU();
 }
 
 void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 {
-	m_Initialized = true;
 	m_Width = width;
     m_Height = height;
     m_AppInst = hInstance;
@@ -59,6 +60,53 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     // Initilize Managers
     m_ResourceManager = make_unique<ResourceManager>();
     m_SceneManager = make_unique<SceneManager>();
+    m_vertexFactory = make_unique<VertexFactory>();
+
+    m_PerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
+    m_PerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
+
+    RHI::ShaderCreateInfo shaderCI;
+    
+    shaderCI.FilePath = L"Shaders\\Standard.hlsl";
+    shaderCI.entryPoint = "VS";
+    shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
+    m_StandardVS = std::make_shared<RHI::Shader>(shaderCI);
+
+    shaderCI.entryPoint = "PS";
+    shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_PIXEL;
+    m_StandardPS = std::make_shared<RHI::Shader>(shaderCI);
+
+    RHI::PipelineStateDesc PSODesc;
+    PSODesc.PipelineType = RHI::PIPELINE_TYPE_GRAPHIC;
+    PSODesc.GraphicsPipeline.VertexShader = m_StandardVS;
+    PSODesc.GraphicsPipeline.PixelShader = m_StandardPS;
+    PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    PSODesc.GraphicsPipeline.GraphicPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    PSODesc.GraphicsPipeline.GraphicPipelineState.SampleMask = UINT_MAX;
+    PSODesc.GraphicsPipeline.GraphicPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 1;
+    PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+    PSODesc.GraphicsPipeline.GraphicPipelineState.SampleDesc.Count = 1;
+    PSODesc.GraphicsPipeline.GraphicPipelineState.SampleDesc.Quality = 0;
+    // TODO: SwapChain的Depth Buffer格式需要跟这里相同
+    PSODesc.GraphicsPipeline.GraphicPipelineState.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+    // TODO: InputLayout
+    UINT inputLayoutIndex = m_vertexFactory->GetInputLayoutIndex(true, true, true, true, false, false, false);
+    std::vector<D3D12_INPUT_ELEMENT_DESC>* inputLayoutDesc = m_vertexFactory->GetInputElementDesc(inputLayoutIndex);
+    PSODesc.GraphicsPipeline.GraphicPipelineState.InputLayout.NumElements = inputLayoutDesc->size();
+    PSODesc.GraphicsPipeline.GraphicPipelineState.InputLayout.pInputElementDescs = inputLayoutDesc->data();
+
+
+    m_PSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+
+    RHI::ShaderVariable* perDrawVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
+    perDrawVariable->Set(m_PerDrawCB);
+    RHI::ShaderVariable* perPassVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
+    perPassVariable->Set(m_PerPassCB);
+
+    m_Initialized = true;
 }
 
 int Engine::Run()
@@ -96,10 +144,7 @@ void Engine::Update(float deltaTime)
 {
     CalculateFrameStats();
 
-    // 更新Constant Buffer
     m_SceneManager->UpdateCameraMovement(deltaTime);
-    m_SceneManager->UpdateRendererCBs();
-    m_SceneManager->UpdateMainPassBuffer();
     
     Input::Update();
 }
@@ -122,8 +167,20 @@ void Engine::Render()
     graphicContext.ClearDepthAndStencil(*depthStencilBufferDSV);
     graphicContext.SetRenderTargets(1, &backBufferRTV, depthStencilBufferDSV);
 
+    graphicContext.SetPipelineState(m_PSO.get());
+
+    void* pPerPassCB = m_PerPassCB->Map(graphicContext, 256);
+    Camera* camera = m_SceneManager->GetCamera();
+    camera->UpdateCameraCBs(pPerPassCB);
+
 	// 渲染场景
-	m_SceneManager->Render();
+    const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();
+    for (INT32 i = 0; i < drawList.size(); ++i)
+    {
+        void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
+        drawList[i]->Render(graphicContext, pPerDrawCB);
+    }
+
 
     graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
 

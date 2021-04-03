@@ -7,7 +7,6 @@
 
 namespace RHI 
 {
-    class ShaderVariableCollection;
 
     /**
    * 表示Shader中的一个变量，外部可以通过这个变量绑定资源(一个常量或者一张贴图)
@@ -17,10 +16,10 @@ namespace RHI
 		friend class ShaderVariableCollection;
 
     public:
-        ShaderVariable(ShaderVariableCollection& parentManager,
+        ShaderVariable(ShaderResourceCache* cache,
             const ShaderResourceLayout::Resource& resource) :
-            m_ParentManager{ parentManager },
-            m_Resource{ resource }
+            m_ResourceCache(cache),
+            m_Resource(resource)
         {
         }
 
@@ -40,7 +39,7 @@ namespace RHI
         bool IsBound(UINT32 arrayIndex) const;
 
     private:
-        ShaderVariableCollection& m_ParentManager;
+        ShaderResourceCache* m_ResourceCache;
         const ShaderResourceLayout::Resource& m_Resource;
     };
 
@@ -53,11 +52,15 @@ namespace RHI
     {
     public:
         // 为ShaderResourceLayout中的每个Shader资源创建一个ShaderVariable
-        ShaderVariableCollection(ShaderResourceCache& resourceCache,
+        ShaderVariableCollection(ShaderResourceCache* resourceCache,
             const ShaderResourceLayout& srcLayout,
             const SHADER_RESOURCE_VARIABLE_TYPE* allowedVarTypes,
             UINT32 allowedTypeNum);
         
+        ShaderVariableCollection(const ShaderVariableCollection&) = delete;
+        ShaderVariableCollection(ShaderVariableCollection&&) = delete;
+        ShaderVariableCollection& operator=(const ShaderVariableCollection&) = delete;
+        ShaderVariableCollection& operator=(ShaderVariableCollection&&) = delete;
 
         ShaderVariable* GetVariable(const std::string& name);
         ShaderVariable* GetVariable(UINT32 index);
@@ -67,7 +70,7 @@ namespace RHI
     private:
         friend ShaderVariable;
 
-        ShaderResourceCache& m_ResourceCache;
+        ShaderResourceCache* m_ResourceCache;
 
         // 因为ShaderVariable不能拷贝不能移动，所以保存它的指针
         std::vector<std::unique_ptr<ShaderVariable>> m_Variables;

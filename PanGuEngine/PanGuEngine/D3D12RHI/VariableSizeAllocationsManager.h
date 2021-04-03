@@ -96,7 +96,7 @@ namespace RHI
         Allocation Allocate(size_t size, size_t alignment)
         {
             assert(size > 0);
-            assert(IsPowerOfTwo(alignment));
+            assert(IsPowerOfTwoD(alignment));
 
             size = Align(size, alignment);
             if (m_FreeSize < size)
@@ -141,7 +141,7 @@ namespace RHI
 
             if ((size & (m_CurrAlignment - 1)) != 0)
             {
-                if (IsPowerOfTwo(size))
+                if (IsPowerOfTwoD(size))
                 {
                     assert(size >= alignment && size < m_CurrAlignment);
                     m_CurrAlignment = size;

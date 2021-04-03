@@ -16,13 +16,13 @@ namespace RHI
 	// Graphicπ‹œﬂ
 	struct GraphicsPipelineDesc
 	{
-		std::shared_ptr<Shader> VertexShader;
-		std::shared_ptr<Shader> PixelShader;
-		std::shared_ptr<Shader> DomainShader;
-		std::shared_ptr<Shader> HullShader;
-		std::shared_ptr<Shader> GeometryShader;
-		std::shared_ptr<Shader> AmplificationShader;
-		std::shared_ptr<Shader> MeshShader;
+		std::shared_ptr<Shader> VertexShader = nullptr;
+		std::shared_ptr<Shader> PixelShader = nullptr;
+		std::shared_ptr<Shader> DomainShader = nullptr;
+		std::shared_ptr<Shader> HullShader = nullptr;
+		std::shared_ptr<Shader> GeometryShader = nullptr;
+		std::shared_ptr<Shader> AmplificationShader = nullptr;
+		std::shared_ptr<Shader> MeshShader = nullptr;
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC GraphicPipelineState;
 
@@ -97,7 +97,10 @@ namespace RHI
 			}
 		}
 
-		ID3D12PipelineState* GetD3D12PipelineState() const { return m_D3D12PSO.Get(); }
+		ID3D12PipelineState* GetD3D12PipelineState() const 
+		{
+			return m_D3D12PSO.Get(); 
+		}
 		ID3D12RootSignature* GetD3D12RootSignature() const { return m_RootSignature.GetD3D12RootSignature(); }
 		const RootSignature* GetRootSignature() const { return &m_RootSignature; }
 		RenderDevice* GetRenderDevice() const { return m_RenderDevice; }
