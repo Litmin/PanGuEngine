@@ -23,8 +23,10 @@ void MeshRenderer::Render(GraphicsContext& graphicContext, void* perDrawCB) cons
 	graphicContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	PerDrawConstants perDrawData;
-	XMMATRIX world = XMLoadFloat4x4(&m_GameObject->LocalToWorldMatrix());
-	XMStoreFloat4x4(&perDrawData.World, XMMatrixTranspose(world));
+	XMMATRIX objectToWorld = XMLoadFloat4x4(&m_GameObject->LocalToWorldMatrix());
+	XMMATRIX worldToObject = XMMatrixInverse(nullptr, objectToWorld);
+	XMStoreFloat4x4(&perDrawData.ObjectToWorld, XMMatrixTranspose(objectToWorld));
+	XMStoreFloat4x4(&perDrawData.WorldToObject, XMMatrixTranspose(worldToObject));
 	memcpy(perDrawCB, &perDrawData, sizeof(PerDrawConstants));
 
 	graphicContext.DrawIndexedInstanced(m_Mesh->IndexCount(), 1, 0, 0, 0);

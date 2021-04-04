@@ -13,11 +13,13 @@ void GeometryFactory::CreateBox(float width, float height, float depth, std::uin
 	GeometryGenerator::MeshData box = geoGen.CreateBox(width, height, depth, numSubdivisions);
 
 	XMFLOAT4 color[6] = { {1.0f, 0.0f, 0.0f, 1.0f},
-						  {0.0f, 1.0f, 0.0f, 1.0f}, 
-						  {0.0f, 0.0f, 1.0f, 1.0f}, 
+						  {0.0f, 1.0f, 0.0f, 1.0f},
+						  {0.0f, 0.0f, 1.0f, 1.0f},
 						  {1.0f, 1.0f, 0.0f, 1.0f},
-						  {1.0f, 0.0f, 1.0f, 1.0f}, 
+						  {1.0f, 0.0f, 1.0f, 1.0f},
 						  {0.0f, 1.0f, 1.0f, 1.0f} };
+
+	XMFLOAT4 gold = { 0.9843f, 0.73725f, 0.0196f, 1.0f };
 
 
 	auto& boxVertices = box.Vertices;
@@ -26,7 +28,8 @@ void GeometryFactory::CreateBox(float width, float height, float depth, std::uin
 	for (auto& vertex : boxVertices)
 	{
 		positions.push_back(vertex.Position);
-		colors.push_back(color[i % 6]);
+		//colors.push_back(color[i % 6]);
+		colors.push_back(gold);
 		normals.push_back(vertex.Normal);
 		tangents.push_back(DirectX::XMFLOAT4(vertex.TangentU.x, vertex.TangentU.y, vertex.TangentU.z, 1.0f));
 		uvs.push_back(vertex.TexC);

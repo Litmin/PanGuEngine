@@ -85,6 +85,8 @@ private:
 
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerDrawCB;
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerPassCB;
+	std::shared_ptr<RHI::GpuDynamicBuffer> m_LightCB;
+	std::shared_ptr<RHI::GpuDynamicBuffer> m_MaterialCB;
 
 	std::shared_ptr<RHI::Shader> m_StandardVS;
 	std::shared_ptr<RHI::Shader> m_StandardPS;

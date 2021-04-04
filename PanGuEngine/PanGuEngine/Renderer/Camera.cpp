@@ -51,11 +51,11 @@ void Camera::UpdateCameraCBs(void* perPassCB)
 	XMStoreFloat4x4(&m_PerPassCBData.ViewProj, XMMatrixTranspose(viewProj));
 	XMStoreFloat4x4(&m_PerPassCBData.InvViewProj, XMMatrixTranspose(invViewProj));
 
-	//m_MainPassCB.EyePosW = mEyePos;
-	//m_MainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)mClientHeight);
-	//m_MainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);
+	m_PerPassCBData.EyePosW = XMFLOAT3(m_GameObject->WorldPosition().GetX(), m_GameObject->WorldPosition().GetY(), m_GameObject->WorldPosition().GetZ());
 	m_PerPassCBData.NearZ = m_NearPlane;
 	m_PerPassCBData.FarZ = m_FarPlane;
+	//m_MainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)mClientHeight);
+	//m_MainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);
 	//m_MainPassCB.TotalTime = gt.TotalTime();
 	//m_MainPassCB.DeltaTime = gt.DeltaTime();
 

@@ -62,8 +62,6 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     m_SceneManager = make_unique<SceneManager>();
     m_vertexFactory = make_unique<VertexFactory>();
 
-    m_PerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
-    m_PerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
 
     RHI::ShaderCreateInfo shaderCI;
     
@@ -101,10 +99,20 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 
     m_PSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
 
+    m_PerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
+    m_PerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
+    m_LightCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(LightConstants));
+    m_MaterialCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(MaterialConstants));
+
+
     RHI::ShaderVariable* perDrawVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
     perDrawVariable->Set(m_PerDrawCB);
     RHI::ShaderVariable* perPassVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
     perPassVariable->Set(m_PerPassCB);
+    RHI::ShaderVariable* lightVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbLight");
+    lightVariable->Set(m_LightCB);
+    RHI::ShaderVariable* materialVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbMaterial");
+    materialVariable->Set(m_MaterialCB);
 
     m_Initialized = true;
 }
@@ -172,6 +180,18 @@ void Engine::Render()
     void* pPerPassCB = m_PerPassCB->Map(graphicContext, 256);
     Camera* camera = m_SceneManager->GetCamera();
     camera->UpdateCameraCBs(pPerPassCB);
+
+    LightConstants lightData;
+    lightData.LightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+    lightData.LightDir = XMFLOAT3(-1.0f, 1.0f, 0.0f);
+    lightData.LightIntensity = 1.0f;
+    void* pLightCB = m_LightCB->Map(graphicContext, 256);
+    memcpy(pLightCB, &lightData, sizeof(LightConstants));
+
+    MaterialConstants matConstants;
+    matConstants.AmbientStrength = 0.1f;
+    void* pMatCB = m_MaterialCB->Map(graphicContext, 256);
+    memcpy(pMatCB, &matConstants, sizeof(MaterialConstants));
 
 	// 渲染场景
     const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();

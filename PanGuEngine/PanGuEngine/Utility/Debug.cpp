@@ -33,6 +33,7 @@ void Debug::Log(LOG_LEVEL logLevel,
 	m_Message += file;
 	m_Message += "):";
 	m_Message += std::to_string(line);
+	m_Message += "\n";
 
 	OutputDebugStringA(m_Message.c_str());
 

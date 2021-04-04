@@ -71,6 +71,8 @@ namespace RHI
 			// Dynamic Buffer和Dynamic Variable都在Draw之前的CommitDynamic提交
 			if (rootDescriptor.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{
+				assert(rootDescriptor.ConstantBuffer && "No Resource Binding");
+
 				GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptor.ConstantBuffer.get());
 
 				if(dynamicBuffer == nullptr)
@@ -89,9 +91,11 @@ namespace RHI
 
 	void ShaderResourceCache::CommitDynamic(CommandContext& cmdContext)
 	{
-		for (const auto& [rootIndex, rootDescriptors] : m_RootDescriptors)
+		for (const auto& [rootIndex, rootDescriptor] : m_RootDescriptors)
 		{
-			GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptors.ConstantBuffer.get());
+			assert(rootDescriptor.ConstantBuffer && "No Resource Binding");
+
+			GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptor.ConstantBuffer.get());
 
 			if (dynamicBuffer != nullptr)
 				cmdContext.GetGraphicsContext().SetConstantBuffer(rootIndex, dynamicBuffer->GetGpuVirtualAddress());
@@ -107,6 +111,8 @@ namespace RHI
 			{
 				if (rootTable.VariableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 				{
+					assert((rootTable.Descriptors.size() != 0) && "No Resource Binding");
+
 					// 先绑定再Copy，因为要绑定这个Table的起始位置，所以得用Copy前的dynamicTableOffset
 					cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, dynamicAllocation.GetGpuHandle(dynamicTableOffset));
 

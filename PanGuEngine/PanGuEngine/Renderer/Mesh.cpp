@@ -5,6 +5,7 @@
 using namespace RHI;
 
 // TODO:修改传入的顶点布局
+// 使用array of structure,每个顶点个各种属性连续放在一起
 Mesh::Mesh(
 	UINT vertexCount, 
 	DirectX::XMFLOAT3* positions, 
