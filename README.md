@@ -4,10 +4,14 @@ A Rendering Engine based on Direct3D 12 <br>
 
 ### Direct3D Render Hadrware Interface(D3D12RHI)
 - [x] Shader Resource Binding System<br>
-- [ ] Resource State Tracking System<br>
-- [ ] CPU GPU Synchronize<br>
-- [ ] Work Submission
+- [x] Resource State Tracking System<br>
+- [x] Dynamic Resource
 - [ ] Multi thread Rendering<br>
+
+### Shading
+- [ ] PBR<br>
+- [ ] Shadow<br>
+- [ ] Global Illumination
 
 ### Pipeline
 - [ ] Custom Rendering Pipeline(Similar to Unity Scriptable Rendering Pipeline)<br>
@@ -16,12 +20,6 @@ A Rendering Engine based on Direct3D 12 <br>
 - [ ] GPU Driven Pipeline<br>
 - [ ] Frame Graph<br>
 
-### Shading
-- [ ] PBR<br>
-- [ ] Shadow<br>
-- [ ] Bloom<br>
-- [ ] SSAO<br>
-- [ ] SSR<br>
-- [ ] Global Illumination
+
 
 
