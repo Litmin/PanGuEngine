@@ -1,5 +1,6 @@
 # PanGuEngine
 A Rendering Engine based on Direct3D 12 <br>
+Development Log：https://www.zhihu.com/column/c_1159801832779427840
 ## Feature：<br>
 
 ### Direct3D Render Hadrware Interface(D3D12RHI)
