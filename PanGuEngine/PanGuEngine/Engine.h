@@ -79,7 +79,7 @@ private:
 
 
 	std::unique_ptr<SceneManager> m_SceneManager;
-	std::unique_ptr<ResourceManager> m_ResourceManager;
+	std::unique_ptr<Resource::ResourceManager> m_ResourceManager;
 	std::unique_ptr<VertexFactory> m_vertexFactory;
 
 

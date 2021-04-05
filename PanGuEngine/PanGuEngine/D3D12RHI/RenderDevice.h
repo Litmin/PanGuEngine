@@ -49,20 +49,24 @@ namespace RHI
 		// 调用SafeReleaseDeviceObject释放资源时，会把该资源添加到m_StaleResources中，
 		// 当提交一个CommandList时，会把下一个CommandList的编号和m_StaleResources中的资源添加到m_ReleaseQueue中，
 		// 在每帧的末尾，调用PurgeReleaseQueue来释放可以安全释放的资源（也就是记录的Cmd编号比GPU已经完成的CmdList数量小的所有资源）
-		using ReleaseQueueElementType = std::tuple<UINT64/*Graphic Queue Fence*/, UINT64/*Compute Queue Fence*/, UINT64/*Copy Queue Fence*/, StaleResourceWrapper>;
+		using ReleaseQueueElementType = std::tuple<UINT64/*Graphic Queue Fence*/, StaleResourceWrapper>;
 		std::deque<ReleaseQueueElementType> m_ReleaseQueue;
 	};
 
+	// TODO: 还没有实现Compute Queue和Copy Queue中的Release队列
 	template<typename DeviceObjectType>
 	inline void RenderDevice::SafeReleaseDeviceObject(DeviceObjectType&& object)
 	{
 		auto wrapper = StaleResourceWrapper::Create(object);
 
-		uint64_t graphicNextFenceValue = CommandListManager::GetSingleton().GetGraphicsQueue().GetNextFenceValue();
-		uint64_t computeNextFenceValue = CommandListManager::GetSingleton().GetComputeQueue().GetNextFenceValue();
-		uint64_t copyNextFenceValue = CommandListManager::GetSingleton().GetCopyQueue().GetNextFenceValue();
+		// 这样实现不行，如果一个CommandQueue没有在执行，这个资源就会永远不被释放!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//uint64_t graphicNextFenceValue = CommandListManager::GetSingleton().GetGraphicsQueue().GetNextFenceValue();
+		//uint64_t computeNextFenceValue = CommandListManager::GetSingleton().GetComputeQueue().GetNextFenceValue();
+		//uint64_t copyNextFenceValue = CommandListManager::GetSingleton().GetCopyQueue().GetNextFenceValue();
+		//m_ReleaseQueue.emplace_back(graphicNextFenceValue, computeNextFenceValue, copyNextFenceValue, std::move(wrapper));
 
-		m_ReleaseQueue.emplace_back(graphicNextFenceValue, computeNextFenceValue, copyNextFenceValue, std::move(wrapper));
+		uint64_t graphicNextFenceValue = CommandListManager::GetSingleton().GetGraphicsQueue().GetNextFenceValue();
+		m_ReleaseQueue.emplace_back(graphicNextFenceValue, std::move(wrapper));
 	}
 }
 

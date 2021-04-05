@@ -1,14 +1,20 @@
 #pragma once
 #include "Renderer/Mesh.h"
 
-class ResourceManager : public Singleton<ResourceManager>
+namespace Resource
 {
-public:
-    std::shared_ptr<Mesh> LoadMesh(std::string path);
 
-    void UnloadUnusedResources();
+    class ResourceManager : public Singleton<ResourceManager>
+    {
+    public:
+        std::shared_ptr<Mesh> LoadMesh(std::string path);
 
-private:
-    std::unordered_map<std::string, std::shared_ptr<Mesh>> m_Meshes;
-};
+        void UnloadUnusedResources();
+
+    private:
+        std::unordered_map<std::string, std::shared_ptr<Mesh>> m_Meshes;
+    };
+
+}
+
 

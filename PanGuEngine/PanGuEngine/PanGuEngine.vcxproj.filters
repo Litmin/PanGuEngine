@@ -137,12 +137,6 @@
     <ClCompile Include="Renderer\GameObject.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\GeometryFactory.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\GeometryGenerator.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\GraphicContext.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -187,6 +181,18 @@
     </ClCompile>
     <ClCompile Include="Renderer\VertexFactory.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GLTFLoader.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\Image.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\GeometryFactory.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\GeometryGenerator.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -354,12 +360,6 @@
     <ClInclude Include="Renderer\GameObject.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\GeometryFactory.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\GeometryGenerator.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\GraphicContext.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -407,6 +407,30 @@
     </ClInclude>
     <ClInclude Include="Renderer\VertexFactory.h">
       <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GLTFLoader.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\tiny_gltf.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\json.hpp">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\Image.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\stb_image.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\stb_image_write.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\GeometryGenerator.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\GeometryFactory.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

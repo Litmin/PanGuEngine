@@ -44,22 +44,22 @@ namespace RHI
 	{
 
 		UINT64 graphicCompletedFenceValue = CommandListManager::GetSingleton().GetGraphicsQueue().GetCompletedFenceValue();
-		UINT64 computeCompletedFenceValue = CommandListManager::GetSingleton().GetComputeQueue().GetCompletedFenceValue();
-		UINT64 copyCompletedFenceValue = CommandListManager::GetSingleton().GetCopyQueue().GetCompletedFenceValue();
+		//UINT64 computeCompletedFenceValue = CommandListManager::GetSingleton().GetComputeQueue().GetCompletedFenceValue();
+		//UINT64 copyCompletedFenceValue = CommandListManager::GetSingleton().GetCopyQueue().GetCompletedFenceValue();
 
 		if (forceRelease)
 		{
 			graphicCompletedFenceValue = std::numeric_limits<UINT64>::max();
-			computeCompletedFenceValue = std::numeric_limits<UINT64>::max();
-			copyCompletedFenceValue = std::numeric_limits<UINT64>::max();
+			//computeCompletedFenceValue = std::numeric_limits<UINT64>::max();
+			//copyCompletedFenceValue = std::numeric_limits<UINT64>::max();
 		}
  
  		while (!m_ReleaseQueue.empty())
  		{
  			auto& FirstObj = m_ReleaseQueue.front();
- 			if (std::get<0>(FirstObj) <= graphicCompletedFenceValue
-				&& std::get<1>(FirstObj) <= computeCompletedFenceValue
-				&& std::get<2>(FirstObj) <= copyCompletedFenceValue)
+ 			if (std::get<0>(FirstObj) <= graphicCompletedFenceValue)
+				//&& std::get<1>(FirstObj) <= computeCompletedFenceValue
+				//&& std::get<2>(FirstObj) <= copyCompletedFenceValue)
  				m_ReleaseQueue.pop_front();
  			else
  				break;

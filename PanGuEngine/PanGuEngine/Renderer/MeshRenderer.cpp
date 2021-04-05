@@ -8,15 +8,21 @@ using namespace DirectX;
 using namespace RHI;
 
 
-void MeshRenderer::SetMesh(Mesh* mesh)
+void MeshRenderer::SetMesh(std::shared_ptr<Mesh> mesh)
 {
 	m_Mesh = mesh;
+}
+
+void MeshRenderer::SetMaterial(std::shared_ptr<Material> material)
+{
+	m_Material = material;
 }
 
 
 void MeshRenderer::Render(GraphicsContext& graphicContext, void* perDrawCB) const
 {
 	assert(perDrawCB != nullptr);
+	assert(m_Mesh != nullptr);
 
 	graphicContext.SetVertexBuffer(0, m_Mesh->VertexBufferView());
 	graphicContext.SetIndexBuffer(m_Mesh->IndexBufferView());

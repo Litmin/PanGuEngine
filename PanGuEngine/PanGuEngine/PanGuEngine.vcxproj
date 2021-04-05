@@ -195,8 +195,6 @@
     <ClCompile Include="Renderer\ConstantBufferDefinition.cpp" />
     <ClCompile Include="Renderer\FrameResource.cpp" />
     <ClCompile Include="Renderer\GameObject.cpp" />
-    <ClCompile Include="Renderer\GeometryFactory.cpp" />
-    <ClCompile Include="Renderer\GeometryGenerator.cpp" />
     <ClCompile Include="Renderer\GraphicContext.cpp" />
     <ClCompile Include="Renderer\Light.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
@@ -209,10 +207,14 @@
     <ClCompile Include="Renderer\ShaderManager.cpp" />
     <ClCompile Include="Renderer\StandardShader.cpp" />
     <ClCompile Include="Renderer\VertexFactory.cpp" />
+    <ClCompile Include="Resource\GLTFLoader.cpp" />
+    <ClCompile Include="Resource\Image.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
     <ClCompile Include="Utility\Debug.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
+    <ClCompile Include="Utility\GeometryFactory.cpp" />
+    <ClCompile Include="Utility\GeometryGenerator.cpp" />
     <ClCompile Include="Utility\MathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -267,8 +269,6 @@
     <ClInclude Include="Renderer\ConstantBufferDefinition.h" />
     <ClInclude Include="Renderer\FrameResource.h" />
     <ClInclude Include="Renderer\GameObject.h" />
-    <ClInclude Include="Renderer\GeometryFactory.h" />
-    <ClInclude Include="Renderer\GeometryGenerator.h" />
     <ClInclude Include="Renderer\GraphicContext.h" />
     <ClInclude Include="Renderer\Light.h" />
     <ClInclude Include="Renderer\Material.h" />
@@ -283,11 +283,19 @@
     <ClInclude Include="Renderer\UploadBuffer.h" />
     <ClInclude Include="Renderer\VertexFactory.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Resource\GLTFLoader.h" />
+    <ClInclude Include="Resource\Image.h" />
+    <ClInclude Include="Resource\json.hpp" />
     <ClInclude Include="Resource\ResourceManager.h" />
+    <ClInclude Include="Resource\stb_image.h" />
+    <ClInclude Include="Resource\stb_image_write.h" />
+    <ClInclude Include="Resource\tiny_gltf.h" />
     <ClInclude Include="Utility\d3dUtil.h" />
     <ClInclude Include="Utility\d3dx12.h" />
     <ClInclude Include="Utility\Debug.h" />
     <ClInclude Include="Utility\DxException.h" />
+    <ClInclude Include="Utility\GeometryFactory.h" />
+    <ClInclude Include="Utility\GeometryGenerator.h" />
     <ClInclude Include="Utility\HashUtils.hpp" />
     <ClInclude Include="Utility\MathHelper.h" />
     <ClInclude Include="Utility\PathUtil.h" />

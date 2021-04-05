@@ -1,26 +1,41 @@
 #pragma once
-#include "ShaderOld.h"
 #include <unordered_map>
+
+namespace RHI
+{
+    class GpuTexture2D;
+
+    class ShaderResourceBinding;
+}
+
 
 //**********************************************
 // 描述一个表面的属性:
 //		使用的Shader
 //		Shader参数值
 //**********************************************
-class Material
+struct Material
 {
-public:
-	Material(ShaderOld* shader);
-	~Material();
+    enum ALPHA_MODE
+    {
+        ALPHAMODE_OPAQUE,
+        ALPHAMODE_MASK,
+        ALPHAMODE_BLEND
+    };
+    ALPHA_MODE AlphaMode = ALPHAMODE_OPAQUE;
 
-	void SetDescriptorTable(UINT propertyID, CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTable);
-	void SetDescriptorTable(const std::string& property, CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTable);
-	void SetConstantBuffer(UINT propertyID, D3D12_GPU_VIRTUAL_ADDRESS address);
-	void SetConstantBuffer(const std::string& property, D3D12_GPU_VIRTUAL_ADDRESS address);
-	void BindParameters(ID3D12GraphicsCommandList* commandList);
-	ShaderOld* GetShader() { return m_Shader; }
-private:
-	ShaderOld* m_Shader;
-	std::unordered_map<UINT, CD3DX12_GPU_DESCRIPTOR_HANDLE> m_DescriptorTables;
-	std::unordered_map<UINT, D3D12_GPU_VIRTUAL_ADDRESS> m_ConstantBuffers;
+    bool DoubleSided = false;
+
+    float  MetallicFactor = 1.0f;
+    float  RoughnessFactor = 1.0f;
+    DirectX::XMFLOAT4 BaseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    DirectX::XMFLOAT4 EmissiveFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    std::shared_ptr<RHI::GpuTexture2D> pBaseColorTexture;
+    std::shared_ptr<RHI::GpuTexture2D> pMetallicRoughnessTexture;
+    std::shared_ptr<RHI::GpuTexture2D> pNormalTexture;
+    std::shared_ptr<RHI::GpuTexture2D> pOcclusionTexture;
+    std::shared_ptr<RHI::GpuTexture2D> pEmissiveTexture;
+
+    std::unique_ptr<RHI::ShaderResourceBinding> m_SRB;
 };

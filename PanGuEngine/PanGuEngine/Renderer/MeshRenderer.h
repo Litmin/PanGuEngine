@@ -8,11 +8,13 @@
 class MeshRenderer : public Renderer
 {
 public:
-	void SetMesh(Mesh* mesh);
+	void SetMesh(std::shared_ptr<Mesh> mesh);
+	void SetMaterial(std::shared_ptr<Material> material);
 
 	void Render(RHI::GraphicsContext& graphicContext, void* perDrawCB) const;
 
 private:
-	Mesh* m_Mesh;
+	std::shared_ptr<Mesh> m_Mesh = nullptr;
+	std::shared_ptr<Material> m_Material = nullptr;
 };
 

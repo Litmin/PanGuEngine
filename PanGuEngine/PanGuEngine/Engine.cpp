@@ -58,7 +58,7 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 
     
     // Initilize Managers
-    m_ResourceManager = make_unique<ResourceManager>();
+    m_ResourceManager = make_unique<Resource::ResourceManager>();
     m_SceneManager = make_unique<SceneManager>();
     m_vertexFactory = make_unique<VertexFactory>();
 

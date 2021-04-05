@@ -24,7 +24,7 @@ namespace RHI
 		void WaitForIdle(void) { WaitForFence(IncrementFence()); }
 
 		UINT64 GetNextFenceValue() const { return m_NextFenceValue; }
-		UINT64 GetCompletedFenceValue() const { return m_LastCompletedFenceValue; }
+		UINT64 GetCompletedFenceValue() const { return m_pFence->GetCompletedValue(); }
 
 		ID3D12CommandQueue* GetD3D12CommandQueue() { return m_CommandQueue.Get(); }
 
