@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Camera.h"
-#include "GraphicContext.h"
 #include "GameObject.h"
 
 using namespace DirectX;

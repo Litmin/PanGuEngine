@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "SceneManager.h"
 #include "GameObject.h"
-#include "GraphicContext.h"
 #include "Input.h"
 
 using namespace std;

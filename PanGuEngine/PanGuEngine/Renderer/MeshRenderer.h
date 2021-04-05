@@ -2,7 +2,6 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Renderer.h"
-#include "RendererStateDesc.h"
 
 
 class MeshRenderer : public Renderer

@@ -131,13 +131,7 @@
     <ClCompile Include="Renderer\Component.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\FrameResource.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\GameObject.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\GraphicContext.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Light.cpp">
@@ -155,16 +149,7 @@
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RendererStateDesc.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\SceneManager.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\ShaderManager.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\StandardShader.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Core\RingBuffer.cpp">
@@ -172,9 +157,6 @@
     </ClCompile>
     <ClCompile Include="D3D12RHI\DynamicResource.cpp">
       <Filter>D3D12RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\ShaderOld.cpp">
-      <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\ConstantBufferDefinition.cpp">
       <Filter>Renderer</Filter>
@@ -354,13 +336,7 @@
     <ClInclude Include="Renderer\Component.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\FrameResource.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\GameObject.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\GraphicContext.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Light.h">
@@ -378,19 +354,7 @@
     <ClInclude Include="Renderer\Renderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RendererStateDesc.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\SceneManager.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\ShaderManager.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\StandardShader.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\UploadBuffer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Core\RingBuffer.h">
@@ -398,9 +362,6 @@
     </ClInclude>
     <ClInclude Include="D3D12RHI\DynamicResource.h">
       <Filter>D3D12RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\ShaderOld.h">
-      <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\ConstantBufferDefinition.h">
       <Filter>Renderer</Filter>

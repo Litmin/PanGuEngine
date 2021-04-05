@@ -1,6 +1,5 @@
 #pragma once
 #include "Component.h"
-#include "FrameResource.h"
 
 extern const int gNumFrameResources;
 class Camera : public Component

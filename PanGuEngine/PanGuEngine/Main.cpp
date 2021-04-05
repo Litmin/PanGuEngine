@@ -3,7 +3,6 @@
 #include "Renderer/GameObject.h"
 #include "Utility/GeometryFactory.h"
 #include "Renderer/Mesh.h"
-#include "Renderer/StandardShader.h"
 #include "Resource/GLTFLoader.h"
 
 using namespace DirectX;
