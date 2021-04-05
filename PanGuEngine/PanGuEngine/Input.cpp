@@ -82,6 +82,14 @@ void Input::OnKeyUp(int key)
 	case 'D':
 		m_KeyStates[(int)KeyCode::D] = KeyState::KeyUp;
 		break;
+
+	case 'Q':
+		m_KeyStates[(int)KeyCode::Q] = KeyState::KeyUp;
+		break;
+
+	case 'E':
+		m_KeyStates[(int)KeyCode::E] = KeyState::KeyUp;
+		break;
 	}
 }
 
@@ -123,6 +131,14 @@ void Input::OnKeyDown(int key)
 
 	case 'D':
 		m_KeyStates[(int)KeyCode::D] = KeyState::KeyDown;
+		break;
+
+	case 'Q':
+		m_KeyStates[(int)KeyCode::Q] = KeyState::KeyDown;
+		break;
+
+	case 'E':
+		m_KeyStates[(int)KeyCode::E] = KeyState::KeyDown;
 		break;
 	}
 }

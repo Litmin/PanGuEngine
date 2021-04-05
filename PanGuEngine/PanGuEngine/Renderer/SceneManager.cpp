@@ -65,6 +65,16 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 		cameraGo->Translate(moveSpeed * deltaTime, 0.0f, 0.0f, Space::Self);
 	}
 
+	if (Input::GetKey(KeyCode::Q))
+	{
+		cameraGo->Translate(0.0f, -moveSpeed * deltaTime, 0.0f, Space::Self);
+	}
+
+	if (Input::GetKey(KeyCode::E))
+	{
+		cameraGo->Translate(0.0f, moveSpeed * deltaTime, 0.0f, Space::Self);
+	}
+
 	if (Input::GetKeyDown(KeyCode::Mouse0) || Input::GetKeyDown(KeyCode::Mouse2))
 	{
 		m_LastMousePos = Input::GetMousePosition();
