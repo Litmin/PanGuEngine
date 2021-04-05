@@ -40,6 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 		GameObject* boxGo = rootGo->CreateChild();
 		boxGo->Translate(-1.0f, 1.0f, -1.0f);
+		boxGo->Rotate(30.0f, 0.0f, 0.0f, Space::Self);
 		MeshRenderer* meshRenderer = boxGo->AddComponent<MeshRenderer>();
 		meshRenderer->SetMesh(boxMesh);
 
