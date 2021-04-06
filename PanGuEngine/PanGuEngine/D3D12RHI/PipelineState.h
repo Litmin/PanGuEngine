@@ -83,7 +83,7 @@ namespace RHI
 		ShaderVariable* GetStaticVariableByIndex(SHADER_TYPE shaderType, UINT32 index);
 
 		// 创建SRB,应用程序通过SRB绑定Mutable和Dynamic资源,SRB对象由PSO所有
-		ShaderResourceBinding* CreateShaderResourceBinding();
+		std::unique_ptr<ShaderResourceBinding> CreateShaderResourceBinding();
 
 		/*
 		 * 遍历Shader，执行操作
@@ -120,8 +120,6 @@ namespace RHI
 		std::unordered_map<SHADER_TYPE, ShaderResourceLayout> m_ShaderResourceLayouts;
 		// 存储所有Static资源，在切换PSO时，提交Static资源
 		std::unique_ptr<ShaderResourceBinding> m_StaticSRB;
-		// 相当于Material
-		std::vector<std::unique_ptr<ShaderResourceBinding>> m_MutableDynamicSRBs;
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_D3D12PSO;
 	};

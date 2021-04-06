@@ -142,14 +142,13 @@ namespace RHI
 		return m_StaticSRB->GetVariableByIndex(shaderType, index);
 	}
 
-	ShaderResourceBinding* PipelineState::CreateShaderResourceBinding()
+	std::unique_ptr<ShaderResourceBinding> PipelineState::CreateShaderResourceBinding()
 	{
 		const static SHADER_RESOURCE_VARIABLE_TYPE mutableDynamicVarType[] = { SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC };
 
  		std::unique_ptr<ShaderResourceBinding> SRB = std::make_unique<ShaderResourceBinding>(this, mutableDynamicVarType, 2);
- 		m_MutableDynamicSRBs.push_back(std::move(SRB));
- 
- 		return m_MutableDynamicSRBs.back().get();
+
+		return SRB;
 	}
 
 	void PipelineState::CommitSRB(CommandContext& cmdContext, ShaderResourceBinding* SRB)

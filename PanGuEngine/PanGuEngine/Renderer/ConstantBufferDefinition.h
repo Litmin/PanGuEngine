@@ -72,8 +72,16 @@ struct LightConstants
     DirectX::XMFLOAT3 LightColor = { 0.0f, 0.0f, 0.0f };
 };
 
-struct MaterialConstants
+struct PhongMaterialConstants
 {
     float AmbientStrength;
+};
+
+struct PBRMaterialConstants
+{
+	float  MetallicFactor = 1.0f;
+	float  RoughnessFactor = 1.0f;
+	DirectX::XMFLOAT4 BaseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	DirectX::XMFLOAT4 EmissiveFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 

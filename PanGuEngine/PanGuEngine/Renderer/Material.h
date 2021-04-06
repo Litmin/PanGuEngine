@@ -4,8 +4,10 @@
 namespace RHI
 {
     class GpuTexture2D;
-
+    class GpuResourceDescriptor;
     class ShaderResourceBinding;
+    class PipelineState;
+    class GpuDefaultBuffer;
 }
 
 
@@ -14,28 +16,43 @@ namespace RHI
 //		使用的Shader
 //		Shader参数值
 //**********************************************
-struct Material
+class Material
 {
+public:
+    Material(float metallicFactor, float roughnessFactor, DirectX::XMFLOAT4 baseColorFactor, DirectX::XMFLOAT4 emissiveFactor,
+             std::shared_ptr<RHI::GpuTexture2D> baseColorTex, std::shared_ptr<RHI::GpuTexture2D> metallicRoughnessTex,
+             std::shared_ptr<RHI::GpuTexture2D> normalTex, std::shared_ptr<RHI::GpuTexture2D> occlusionTex, std::shared_ptr<RHI::GpuTexture2D> emissiveTex);
+
+	void CreateSRB(RHI::PipelineState* PSO);
+    RHI::ShaderResourceBinding* GetSRB() { assert(m_SRB != nullptr); return m_SRB.get(); }
+
+private:
+
     enum ALPHA_MODE
     {
         ALPHAMODE_OPAQUE,
         ALPHAMODE_MASK,
         ALPHAMODE_BLEND
     };
-    ALPHA_MODE AlphaMode = ALPHAMODE_OPAQUE;
+    ALPHA_MODE m_AlphaMode = ALPHAMODE_OPAQUE;
 
-    bool DoubleSided = false;
+    bool m_DoubleSided = false;
 
-    float  MetallicFactor = 1.0f;
-    float  RoughnessFactor = 1.0f;
-    DirectX::XMFLOAT4 BaseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    DirectX::XMFLOAT4 EmissiveFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    PBRMaterialConstants m_ConstantsData;
 
-    std::shared_ptr<RHI::GpuTexture2D> pBaseColorTexture;
-    std::shared_ptr<RHI::GpuTexture2D> pMetallicRoughnessTexture;
-    std::shared_ptr<RHI::GpuTexture2D> pNormalTexture;
-    std::shared_ptr<RHI::GpuTexture2D> pOcclusionTexture;
-    std::shared_ptr<RHI::GpuTexture2D> pEmissiveTexture;
+    std::shared_ptr<RHI::GpuTexture2D> m_BaseColorTexture;
+    std::shared_ptr<RHI::GpuTexture2D> m_MetallicRoughnessTexture;
+    std::shared_ptr<RHI::GpuTexture2D> m_NormalTexture;
+    std::shared_ptr<RHI::GpuTexture2D> m_OcclusionTexture;
+    std::shared_ptr<RHI::GpuTexture2D> m_EmissiveTexture;
 
-    std::unique_ptr<RHI::ShaderResourceBinding> m_SRB;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_BaseColorTextureDescriptor;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_MetallicRoughnessTextureDescriptor;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_NormalTextureDescriptor;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_OcclusionTextureDescriptor;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_EmissiveTextureDescriptor;
+
+    std::shared_ptr<RHI::GpuDefaultBuffer> m_ConstantBuffer;
+    std::unique_ptr<RHI::ShaderResourceBinding> m_SRB = nullptr;
+
 };

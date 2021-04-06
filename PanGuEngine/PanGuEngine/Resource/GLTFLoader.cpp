@@ -8,6 +8,7 @@
 #include "tiny_gltf.h"
 
 #include "Renderer/GameObject.h"
+#include "Renderer/Material.h"
 #include "D3D12RHI/GpuTexture2D.h"
 
 namespace Resource
@@ -44,6 +45,8 @@ namespace Resource
 
 
         std::vector<std::shared_ptr<RHI::GpuTexture2D>> textures;
+        std::vector<std::shared_ptr<Material>> materials;
+
 
 
         LoadTextures(gltf_model, textures);
