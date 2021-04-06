@@ -13,10 +13,10 @@ namespace RHI
     {
         auto* renderDevice = PSO->GetRenderDevice();
 
-        // åˆå§‹åŒ–Resource Cache
+        // ³õÊ¼»¯Resource Cache
         m_ShaderResourceCache.Initialize(renderDevice, m_PSO->GetRootSignature(), allowedVarTypes, allowedTypeNum);
 
-        // lambdaè¡¨è¾¾å¼
+        // lambda±í´ïÊ½
         m_PSO->ProcessShaders([&](SHADER_TYPE shaderType, const ShaderResourceLayout& layout)
         {
             std::unique_ptr<ShaderVariableCollection> variables = std::make_unique<ShaderVariableCollection>(&m_ShaderResourceCache,
