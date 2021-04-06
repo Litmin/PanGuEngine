@@ -16,7 +16,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	{
 		engine.Initialize(1920, 1080, hInstance);
 
-		//Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
+		Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
 
 		// Create Camera
 		GameObject* rootGo = SceneManager::GetSingleton().GetRootNode();

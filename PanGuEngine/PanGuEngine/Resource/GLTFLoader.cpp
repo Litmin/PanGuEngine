@@ -13,8 +13,10 @@
 
 namespace Resource
 {
-	GameObject* GLTFLoader::LoadGLTF(const std::string& filename, GameObject* root)
+	GameObject* GLTFLoader::LoadGLTF(const std::string& filename, GameObject* sceneRoot)
 	{
+        assert(sceneRoot != nullptr);
+
 		tinygltf::Model    gltf_model;
 		tinygltf::TinyGLTF gltf_context;
 
@@ -43,21 +45,23 @@ namespace Resource
             LOG_WARNING("Loaded gltf file ");
         }
 
-
         std::vector<std::shared_ptr<RHI::GpuTexture2D>> textures;
         std::vector<std::shared_ptr<Material>> materials;
-
-
 
         LoadTextures(gltf_model, textures);
         LoadMaterials(gltf_model, textures, materials);
 
+        GameObject* glTFNode = sceneRoot->CreateChild();
 
-		return nullptr;
+        const tinygltf::Scene& scene = gltf_model.scenes[gltf_model.defaultScene > -1 ? gltf_model.defaultScene : 0];
+        for (size_t i = 0; i < scene.nodes.size(); i++)
+        {
+            const tinygltf::Node node = gltf_model.nodes[scene.nodes[i]];
+            LoadNode(glTFNode, node, scene.nodes[i], gltf_model);
+        }
+
+		return glTFNode;
 	}
-
-
-
 
 
     void GLTFLoader::LoadTextures(const tinygltf::Model& gltf_model, std::vector<std::shared_ptr<RHI::GpuTexture2D>>& textures)
@@ -91,46 +95,46 @@ namespace Resource
 				//Mat.TexCoordSets.BaseColor = static_cast<Uint8>(base_color_tex_it->second.TextureTexCoord());
             }
 
-			std::shared_ptr<RHI::GpuTexture2D> metallicRoughness = nullptr;
+			std::shared_ptr<RHI::GpuTexture2D> metallicRoughnessTex = nullptr;
 			auto metal_rough_tex_it = gltf_mat.values.find("metallicRoughnessTexture");
 			if (metal_rough_tex_it != gltf_mat.values.end())
 			{
-                metallicRoughness = textures[metal_rough_tex_it->second.TextureIndex()];
+                metallicRoughnessTex = textures[metal_rough_tex_it->second.TextureIndex()];
 				//Mat.TexCoordSets.MetallicRoughness = static_cast<Uint8>(metal_rough_tex_it->second.TextureTexCoord());
 			}
 
 			std::shared_ptr<RHI::GpuTexture2D> normalTex = nullptr;
-			auto normal_tex_it = gltf_mat.values.find("normalTexture");
-			if (normal_tex_it != gltf_mat.values.end())
+			auto normal_tex_it = gltf_mat.additionalValues.find("normalTexture");
+			if (normal_tex_it != gltf_mat.additionalValues.end())
 			{
                 normalTex = textures[normal_tex_it->second.TextureIndex()];
 				//Mat.TexCoordSets.Normal = static_cast<Uint8>(normal_tex_it->second.TextureTexCoord());
 			}
 
 			std::shared_ptr<RHI::GpuTexture2D> emissiveTex = nullptr;
-			auto emssive_tex_it = gltf_mat.values.find("emissiveTexture");
-			if (emssive_tex_it != gltf_mat.values.end())
+			auto emssive_tex_it = gltf_mat.additionalValues.find("emissiveTexture");
+			if (emssive_tex_it != gltf_mat.additionalValues.end())
 			{
                 emissiveTex = textures[emssive_tex_it->second.TextureIndex()];
 				//Mat.TexCoordSets.Emissive = static_cast<Uint8>(emssive_tex_it->second.TextureTexCoord());
 			}
 
 			std::shared_ptr<RHI::GpuTexture2D> occlusionTex = nullptr;
-			auto occlusion_tex_it = gltf_mat.values.find("occlusionTexture");
-			if (occlusion_tex_it != gltf_mat.values.end())
+			auto occlusion_tex_it = gltf_mat.additionalValues.find("occlusionTexture");
+			if (occlusion_tex_it != gltf_mat.additionalValues.end())
 			{
                 occlusionTex = textures[occlusion_tex_it->second.TextureIndex()];
 				//Mat.TexCoordSets.Occlusion = static_cast<Uint8>(occlusion_tex_it->second.TextureTexCoord());
 			}
 
-            float roughnessFactor = 0.0f;
+            float roughnessFactor = 1.0f;
 			auto rough_factor_it = gltf_mat.values.find("roughnessFactor");
 			if (rough_factor_it != gltf_mat.values.end())
 			{
 				roughnessFactor = static_cast<float>(rough_factor_it->second.Factor());
 			}
 
-            float metallicFactor = 0.0f;
+            float metallicFactor = 1.0f;
 			auto metal_factor_it = gltf_mat.values.find("metallicFactor");
 			if (metal_factor_it != gltf_mat.values.end())
 			{
@@ -152,6 +156,59 @@ namespace Resource
                 emissiveFactor = { emissive3.x, emissive3.y, emissive3.z, 1.0f };
 				//Mat.EmissiveFactor = float4(0.0f);
 			}
+
+            std::shared_ptr<Material> material = std::make_shared<Material>(metallicFactor, roughnessFactor, baseColorFactor, emissiveFactor,
+                                                                            baseColorTex, metallicRoughnessTex, normalTex, occlusionTex, emissiveTex);
+            materials.push_back(material);
+        }
+    }
+
+    void GLTFLoader::LoadNode(GameObject* parent, const tinygltf::Node& gltf_node, uint32_t nodeIndex, const tinygltf::Model& gltf_model)
+    {
+        assert(parent != nullptr);
+
+        GameObject* gameObject = parent->CreateChild();
+
+        if (gltf_node.translation.size() == 3)
+        {
+            gameObject->SetLocalPosition(MakeVector3(gltf_node.translation.data()));
+        }
+
+        if (gltf_node.rotation.size() == 4)
+        {
+            DirectX::XMFLOAT4 rotation = MakeVector4(gltf_node.rotation.data());
+            gameObject->SetLocalRotation(Math::Quaternion(DirectX::XMLoadFloat4(&rotation)));
+            //NewNode->rotation = glm::mat4(q);
+        }
+
+        if (gltf_node.scale.size() == 3)
+        {
+            gameObject->SetLocalScale(MakeVector3(gltf_node.scale.data()));
+        }
+
+        if (gltf_node.matrix.size() == 16)
+        {
+            LOG_ERROR("Not Supported.");
+        }
+
+        // Node with children
+        if (gltf_node.children.size() > 0)
+        {
+            for (size_t i = 0; i < gltf_node.children.size(); i++)
+            {
+                LoadNode(gameObject, gltf_model.nodes[gltf_node.children[i]], gltf_node.children[i], gltf_model);
+            }
+        }
+
+        if (gltf_node.mesh > -1)
+        {
+            const tinygltf::Mesh& gltf_mesh = gltf_model.meshes[gltf_node.mesh];
+            for (size_t j = 0; j < gltf_mesh.primitives.size(); j++)
+            {
+                const tinygltf::Primitive& primitive = gltf_mesh.primitives[j];
+
+
+            }
         }
     }
 
