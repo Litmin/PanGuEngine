@@ -28,9 +28,9 @@ namespace RHI
 			addShader(m_Desc.GraphicsPipeline.HullShader);
 			addShader(m_Desc.GraphicsPipeline.DomainShader);
 
-			assert(m_Shaders.size() > 0 && "æ²¡å¾—Shader");
+			assert(m_Shaders.size() > 0 && "Ã»µÃShader");
 
-			// éåŽ†æ‰€æœ‰Shaderï¼Œåˆå§‹åŒ–ShaderResourceLayoutå’ŒRootSignature
+			// ±éÀúËùÓÐShader£¬³õÊ¼»¯ShaderResourceLayoutºÍRootSignature
 			for (const auto& [shaderType, shader] : m_Shaders)
 			{
 				m_ShaderResourceLayouts.insert(make_pair(shaderType, ShaderResourceLayout(pd3d12Device,
@@ -40,14 +40,14 @@ namespace RHI
 																						  &m_RootSignature)));
 			}
 
-			// æ ¹ç­¾åå®Œæˆåˆå§‹åŒ–ï¼Œåˆ›å»ºDirect3D 12çš„RootSignature
+			// ¸ùÇ©ÃûÍê³É³õÊ¼»¯£¬´´½¨Direct3D 12µÄRootSignature
 			m_RootSignature.Finalize(pd3d12Device);
 
 
-			// è®¾ç½®Direc3D 12çš„PSO Desc
+			// ÉèÖÃDirec3D 12µÄPSO Desc
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC d3d12PSODesc = {};
 
-			// å¤–éƒ¨è®¾ç½®çš„çŠ¶æ€
+			// Íâ²¿ÉèÖÃµÄ×´Ì¬
 			d3d12PSODesc.InputLayout = m_Desc.GraphicsPipeline.GraphicPipelineState.InputLayout;
 			d3d12PSODesc.RasterizerState = m_Desc.GraphicsPipeline.GraphicPipelineState.RasterizerState;
 			d3d12PSODesc.BlendState = m_Desc.GraphicsPipeline.GraphicPipelineState.BlendState;
@@ -64,7 +64,7 @@ namespace RHI
 			d3d12PSODesc.DSVFormat = m_Desc.GraphicsPipeline.GraphicPipelineState.DSVFormat;
 
 
-			// è®¾ç½®PSOçš„Shader
+			// ÉèÖÃPSOµÄShader
 			for(const auto& [shaderType, shader] : m_Shaders)
 			{
 				switch (shaderType)
@@ -96,7 +96,7 @@ namespace RHI
 			}
 
 
-			// è®¾ç½®RootSignature
+			// ÉèÖÃRootSignature
 			d3d12PSODesc.pRootSignature = m_RootSignature.GetD3D12RootSignature();
 
 			d3d12PSODesc.NodeMask = 0;
@@ -104,10 +104,10 @@ namespace RHI
 			d3d12PSODesc.CachedPSO.CachedBlobSizeInBytes = 0;
 			d3d12PSODesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-			// åˆ›å»ºD3D12 PSO
+			// ´´½¨D3D12 PSO
 			ThrowIfFailed(pd3d12Device->CreateGraphicsPipelineState(&d3d12PSODesc, IID_PPV_ARGS(&m_D3D12PSO)));
 
-			// è®¾ç½®åå­—
+			// ÉèÖÃÃû×Ö
 			m_D3D12PSO->SetName(m_Desc.Name.c_str());
 			std::wstring rootSignatureName(L"RootSignature For PSO ");
 			rootSignatureName.append(m_Desc.Name);
