@@ -102,7 +102,7 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     m_PerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
     m_PerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
     m_LightCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(LightConstants));
-    m_MaterialCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(MaterialConstants));
+    m_MaterialCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PhongMaterialConstants));
 
 
     RHI::ShaderVariable* perDrawVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
@@ -188,10 +188,10 @@ void Engine::Render()
     void* pLightCB = m_LightCB->Map(graphicContext, 256);
     memcpy(pLightCB, &lightData, sizeof(LightConstants));
 
-    MaterialConstants matConstants;
+    PhongMaterialConstants matConstants;
     matConstants.AmbientStrength = 0.1f;
     void* pMatCB = m_MaterialCB->Map(graphicContext, 256);
-    memcpy(pMatCB, &matConstants, sizeof(MaterialConstants));
+    memcpy(pMatCB, &matConstants, sizeof(PhongMaterialConstants));
 
 	// 渲染场景
     const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();
