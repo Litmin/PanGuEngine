@@ -25,8 +25,6 @@ namespace RHI
                 allowedTypeNum);
             m_ShaderVariableManagers.emplace(shaderType, std::move(variables));
         });
-
-        int i = 0;
     }
 
     ShaderResourceBinding::~ShaderResourceBinding()

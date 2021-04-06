@@ -50,6 +50,7 @@ namespace Resource
 
 
         LoadTextures(gltf_model, textures);
+        LoadMaterials(gltf_model, textures, materials);
 
 
 		return nullptr;
@@ -77,11 +78,80 @@ namespace Resource
         }
     }
 
-    void GLTFLoader::LoadMaterials(const tinygltf::Model& gltf_model, std::vector<std::shared_ptr<RHI::GpuTexture2D>>& textures)
+    void GLTFLoader::LoadMaterials(const tinygltf::Model& gltf_model, std::vector<std::shared_ptr<RHI::GpuTexture2D>>& textures, 
+                                   std::vector<std::shared_ptr<Material>>& materials)
     {
         for (const tinygltf::Material& gltf_mat : gltf_model.materials)
         {
+            std::shared_ptr<RHI::GpuTexture2D> baseColorTex = nullptr;
+			auto base_color_tex_it = gltf_mat.values.find("baseColorTexture");
+            if (base_color_tex_it != gltf_mat.values.end())
+            {
+				baseColorTex = textures[base_color_tex_it->second.TextureIndex()];
+				//Mat.TexCoordSets.BaseColor = static_cast<Uint8>(base_color_tex_it->second.TextureTexCoord());
+            }
 
+			std::shared_ptr<RHI::GpuTexture2D> metallicRoughness = nullptr;
+			auto metal_rough_tex_it = gltf_mat.values.find("metallicRoughnessTexture");
+			if (metal_rough_tex_it != gltf_mat.values.end())
+			{
+                metallicRoughness = textures[metal_rough_tex_it->second.TextureIndex()];
+				//Mat.TexCoordSets.MetallicRoughness = static_cast<Uint8>(metal_rough_tex_it->second.TextureTexCoord());
+			}
+
+			std::shared_ptr<RHI::GpuTexture2D> normalTex = nullptr;
+			auto normal_tex_it = gltf_mat.values.find("normalTexture");
+			if (normal_tex_it != gltf_mat.values.end())
+			{
+                normalTex = textures[normal_tex_it->second.TextureIndex()];
+				//Mat.TexCoordSets.Normal = static_cast<Uint8>(normal_tex_it->second.TextureTexCoord());
+			}
+
+			std::shared_ptr<RHI::GpuTexture2D> emissiveTex = nullptr;
+			auto emssive_tex_it = gltf_mat.values.find("emissiveTexture");
+			if (emssive_tex_it != gltf_mat.values.end())
+			{
+                emissiveTex = textures[emssive_tex_it->second.TextureIndex()];
+				//Mat.TexCoordSets.Emissive = static_cast<Uint8>(emssive_tex_it->second.TextureTexCoord());
+			}
+
+			std::shared_ptr<RHI::GpuTexture2D> occlusionTex = nullptr;
+			auto occlusion_tex_it = gltf_mat.values.find("occlusionTexture");
+			if (occlusion_tex_it != gltf_mat.values.end())
+			{
+                occlusionTex = textures[occlusion_tex_it->second.TextureIndex()];
+				//Mat.TexCoordSets.Occlusion = static_cast<Uint8>(occlusion_tex_it->second.TextureTexCoord());
+			}
+
+            float roughnessFactor = 0.0f;
+			auto rough_factor_it = gltf_mat.values.find("roughnessFactor");
+			if (rough_factor_it != gltf_mat.values.end())
+			{
+				roughnessFactor = static_cast<float>(rough_factor_it->second.Factor());
+			}
+
+            float metallicFactor = 0.0f;
+			auto metal_factor_it = gltf_mat.values.find("metallicFactor");
+			if (metal_factor_it != gltf_mat.values.end())
+			{
+				metallicFactor = static_cast<float>(metal_factor_it->second.Factor());
+			}
+
+            DirectX::XMFLOAT4 baseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			auto base_col_factor_it = gltf_mat.values.find("baseColorFactor");
+			if (base_col_factor_it != gltf_mat.values.end())
+			{
+                baseColorFactor = MakeVector4(base_col_factor_it->second.ColorFactor().data());
+			}
+
+            DirectX::XMFLOAT4 emissiveFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			auto emissive_fctr_it = gltf_mat.additionalValues.find("emissiveFactor");
+			if (emissive_fctr_it != gltf_mat.additionalValues.end())
+			{
+                DirectX::XMFLOAT3 emissive3 = MakeVector3(emissive_fctr_it->second.ColorFactor().data());
+                emissiveFactor = { emissive3.x, emissive3.y, emissive3.z, 1.0f };
+				//Mat.EmissiveFactor = float4(0.0f);
+			}
         }
     }
 
