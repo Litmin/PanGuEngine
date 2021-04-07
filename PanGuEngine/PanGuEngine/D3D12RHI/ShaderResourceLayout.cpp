@@ -2,6 +2,7 @@
 #include "ShaderResourceLayout.h"
 #include "ShaderResourceBindingUtility.h"
 #include "RootSignature.h"
+#include "RenderDevice.h"
 
 namespace RHI
 {
@@ -30,7 +31,7 @@ namespace RHI
 			// 按照ShaderResource中的顺序添加到RootSignature中，并分配RootIndex和Offset
 			rootSignature->AllocateResourceSlot(shaderType, pipelineType, Attribs, VarType, DescriptorRangeType, RootIndex, Offset);
 
-			std::unique_ptr<Resource> resource = std::make_unique<Resource>(*this, Attribs, VarType, ResType, RootIndex, Offset);
+			std::unique_ptr<Resource> resource = std::make_unique<Resource>(Attribs, VarType, ResType, RootIndex, Offset);
 			m_SrvCbvUavs[VarType].push_back(std::move(resource));
 		};
 
@@ -124,7 +125,8 @@ namespace RHI
 
 		if (shaderVisibleHeapCPUDescriptorHandle.ptr != 0)
 		{
-			ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
+			//ID3D12Device* d3d12Device = ParentResLayout.m_D3D12Device;
+			ID3D12Device* d3d12Device = RenderDevice::GetSingleton().GetD3D12Device();
 			d3d12Device->CopyDescriptorsSimple(1,
 				shaderVisibleHeapCPUDescriptorHandle,
 				descriptor->GetCpuHandle(),

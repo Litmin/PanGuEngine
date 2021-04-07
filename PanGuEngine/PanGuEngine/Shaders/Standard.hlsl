@@ -109,5 +109,8 @@ float4 PS(VertexOut IN) : SV_Target
 
     col.rgb = (ambient + diffuse + specular) * baseColor.rgb;
 
+    //col = float4(IN.uv.x, IN.uv.x, IN.uv.x, 1.0f);
+    //col = float4(IN.uv.y, IN.uv.y, IN.uv.y, 1.0f);
+
     return col;
 }

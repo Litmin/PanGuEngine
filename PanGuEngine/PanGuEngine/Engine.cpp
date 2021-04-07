@@ -113,7 +113,8 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     RHI::ShaderVariable* perPassVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
     perPassVariable->Set(m_PerPassCB);
     RHI::ShaderVariable* lightVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbLight");
-    lightVariable->Set(m_LightCB);
+    if(lightVariable != nullptr)
+        lightVariable->Set(m_LightCB);
     //RHI::ShaderVariable* materialVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbMaterial");
     //materialVariable->Set(m_MaterialCB);
 
@@ -177,6 +178,10 @@ void Engine::Render()
     graphicContext.ClearColor(*backBufferRTV, Colors::LightSteelBlue);
     graphicContext.ClearDepthAndStencil(*depthStencilBufferDSV);
     graphicContext.SetRenderTargets(1, &backBufferRTV, depthStencilBufferDSV);
+
+    ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
+    ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
+    graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
 
     graphicContext.SetPipelineState(m_PSO.get());
 

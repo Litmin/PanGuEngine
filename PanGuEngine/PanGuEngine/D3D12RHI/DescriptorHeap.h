@@ -362,6 +362,8 @@ namespace RHI
         UINT32                            GetMaxStaticDescriptors() const { return m_HeapAllocationManager.GetMaxDescriptors(); }
         UINT32                            GetMaxDynamicDescriptors() const { return m_DynamicAllocationsManager.GetMaxDescriptors(); }
 
+        ID3D12DescriptorHeap* GetD3D12DescriptorHeap() { return m_DescriptorHeap.Get(); }
+
     private:
 
 		DescriptorHeapAllocation AllocateDynamic(UINT32 count)

@@ -36,20 +36,20 @@ namespace RHI
             static constexpr UINT32 InvalidRootIndex = -1;
             static constexpr UINT32 InvalidOffset = -1;
 
-            const ShaderResourceLayout& ParentResLayout;
+            //const ShaderResourceLayout& ParentResLayout; // ShaderResourceLayout对象存储在unorderedmap中，该引用可能失效
             const ShaderResourceAttribs& Attribs;   // 对应ShaderResource中的一个资源
             const UINT32 OffsetFromTableStart;
             const BindingResourceType ResourceType;   // CBV、TexSRV、BufSRV、TexUAV、BufUAV、Sampler
             const SHADER_RESOURCE_VARIABLE_TYPE VariableType;   // Static、Mutable、Dynamic
             const UINT32 RootIndex;
 
-            Resource(const ShaderResourceLayout&      _ParentLayout,
+            Resource(//const ShaderResourceLayout&      _ParentLayout,
                           const ShaderResourceAttribs&     _Attribs,
                           SHADER_RESOURCE_VARIABLE_TYPE    _VariableType,
                           BindingResourceType               _ResType,
                           UINT32                           _RootIndex,
                           UINT32                           _OffsetFromTableStart) noexcept :
-                ParentResLayout{ _ParentLayout },
+                //ParentResLayout{ _ParentLayout },
                 Attribs{ _Attribs },
                 ResourceType{ _ResType },
                 VariableType{ _VariableType },
