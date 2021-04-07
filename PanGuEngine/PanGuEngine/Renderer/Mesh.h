@@ -6,16 +6,16 @@ class Mesh
 public:
 	Mesh(
 		UINT vertexCount,
-		DirectX::XMFLOAT3* positions,
-		DirectX::XMFLOAT4* colors,
-		DirectX::XMFLOAT3* normals,
-		DirectX::XMFLOAT4* tangents,
-		DirectX::XMFLOAT2* uv0,
-		DirectX::XMFLOAT2* uv1,
-		DirectX::XMFLOAT2* uv2,
-		DirectX::XMFLOAT2* uv3,
+		const float* positions,
+		const float* colors,
+		const float* normals,
+		const float* tangents,
+		const float* uv0,
+		const float* uv1,
+		const float* uv2,
+		const float* uv3,
 		UINT indexCount,
-		uint16_t* indices);
+		UINT32* indices);
 	~Mesh();
 
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const { return m_VertexBufferView; }
@@ -31,7 +31,7 @@ private:
 
 	UINT m_VertexByteStride = 0;
 	ULONG m_VertexBufferByteSize = 0;
-	DXGI_FORMAT m_IndexFormat = DXGI_FORMAT_R16_UINT;
+	DXGI_FORMAT m_IndexFormat = DXGI_FORMAT_R32_UINT;
 	UINT m_IndexBufferByteSize = 0;
 	D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;

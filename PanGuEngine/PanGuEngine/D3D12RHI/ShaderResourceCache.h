@@ -51,7 +51,10 @@ namespace RHI
             // TODO: RootTable没有默认构造函数会报错：
             // Error C2512	'RHI::ShaderResourceCache::RootTable::RootTable': no appropriate default constructor available	
             // PanGuEngine	F:\Tools\VS2019\VC\Tools\MSVC\14.28.29333\include\tuple	980	
-            RootTable(SHADER_RESOURCE_VARIABLE_TYPE _VariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC, UINT32 tableSize = 0) : Descriptors(tableSize){}
+            RootTable(SHADER_RESOURCE_VARIABLE_TYPE _VariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC, UINT32 tableSize = 0) 
+                : Descriptors(tableSize, nullptr)
+            {
+            }
 
 			SHADER_RESOURCE_VARIABLE_TYPE VariableType;
 

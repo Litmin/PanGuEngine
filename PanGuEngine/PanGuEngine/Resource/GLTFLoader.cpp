@@ -57,7 +57,7 @@ namespace Resource
         for (size_t i = 0; i < scene.nodes.size(); i++)
         {
             const tinygltf::Node node = gltf_model.nodes[scene.nodes[i]];
-            LoadNode(glTFNode, node, scene.nodes[i], gltf_model);
+            LoadNode(glTFNode, node, scene.nodes[i], gltf_model, materials);
         }
 
 		return glTFNode;
@@ -163,7 +163,8 @@ namespace Resource
         }
     }
 
-    void GLTFLoader::LoadNode(GameObject* parent, const tinygltf::Node& gltf_node, uint32_t nodeIndex, const tinygltf::Model& gltf_model)
+    void GLTFLoader::LoadNode(GameObject* parent, const tinygltf::Node& gltf_node, uint32_t nodeIndex, const tinygltf::Model& gltf_model, 
+                              std::vector<std::shared_ptr<Material>>& materials)
     {
         assert(parent != nullptr);
 
@@ -196,7 +197,7 @@ namespace Resource
         {
             for (size_t i = 0; i < gltf_node.children.size(); i++)
             {
-                LoadNode(gameObject, gltf_model.nodes[gltf_node.children[i]], gltf_node.children[i], gltf_model);
+                LoadNode(gameObject, gltf_model.nodes[gltf_node.children[i]], gltf_node.children[i], gltf_model, materials);
             }
         }
 
@@ -207,7 +208,137 @@ namespace Resource
             {
                 const tinygltf::Primitive& primitive = gltf_mesh.primitives[j];
 
+                GameObject* rendererGO = parent->CreateChild();
 
+				uint32_t indexCount = 0;
+				uint32_t vertexCount = 0;
+
+				const float* bufferPos = nullptr;
+				const float* bufferTexCoordSet0 = nullptr;
+				const float* bufferNormals = nullptr;
+				const float* bufferTangents = nullptr;
+
+				int posStride = -1;
+				int texCoordSet0Stride = -1;
+				int normalsStride = -1;
+                int tangentsStride = -1;
+
+				auto position_it = primitive.attributes.find("POSITION");
+				assert(position_it != primitive.attributes.end() && "Position attribute is required");
+
+				const tinygltf::Accessor& posAccessor = gltf_model.accessors[position_it->second];
+				const tinygltf::BufferView& posView = gltf_model.bufferViews[posAccessor.bufferView];
+				assert(posAccessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && "Position component type is expected to be float");
+				assert(posAccessor.type == TINYGLTF_TYPE_VEC3 && "Position type is expected to be vec3");
+
+				bufferPos = reinterpret_cast<const float*>(&(gltf_model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset]));
+
+                // 应该是3
+				posStride = posAccessor.ByteStride(posView) / tinygltf::GetComponentSizeInBytes(posAccessor.componentType);
+				assert(posStride > 0 && "Position stride is invalid");
+
+				vertexCount = static_cast<uint32_t>(posAccessor.count);
+
+				if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end())
+				{
+					const tinygltf::Accessor& uvAccessor = gltf_model.accessors[primitive.attributes.find("TEXCOORD_0")->second];
+					const tinygltf::BufferView& uvView = gltf_model.bufferViews[uvAccessor.bufferView];
+					assert(uvAccessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && "UV0 component type is expected to be float");
+					assert(uvAccessor.type == TINYGLTF_TYPE_VEC2 && "UV0 type is expected to be vec2");
+
+					bufferTexCoordSet0 = reinterpret_cast<const float*>(&(gltf_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+					texCoordSet0Stride = uvAccessor.ByteStride(uvView) / tinygltf::GetComponentSizeInBytes(uvAccessor.componentType);
+					assert(texCoordSet0Stride > 0 && "Texcoord0 stride is invalid");
+				}
+
+				if (primitive.attributes.find("NORMAL") != primitive.attributes.end())
+				{
+					const tinygltf::Accessor& normAccessor = gltf_model.accessors[primitive.attributes.find("NORMAL")->second];
+					const tinygltf::BufferView& normView = gltf_model.bufferViews[normAccessor.bufferView];
+					assert(normAccessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && "Normal component type is expected to be float");
+					assert(normAccessor.type == TINYGLTF_TYPE_VEC3 && "Normal type is expected to be vec3");
+
+					bufferNormals = reinterpret_cast<const float*>(&(gltf_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
+					normalsStride = normAccessor.ByteStride(normView) / tinygltf::GetComponentSizeInBytes(normAccessor.componentType);
+					assert(normalsStride > 0 && "Normal stride is invalid");
+				}
+
+				if (primitive.attributes.find("TANGENT") != primitive.attributes.end())
+				{
+					const tinygltf::Accessor& tangentAccessor = gltf_model.accessors[primitive.attributes.find("TANGENT")->second];
+					const tinygltf::BufferView& tangentView = gltf_model.bufferViews[tangentAccessor.bufferView];
+					assert(tangentAccessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && "Tangent component type is expected to be float");
+					assert(tangentAccessor.type == TINYGLTF_TYPE_VEC4 && "Tangent type is expected to be vec4");
+
+					bufferTangents = reinterpret_cast<const float*>(&(gltf_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
+					tangentsStride = tangentAccessor.ByteStride(tangentView) / tinygltf::GetComponentSizeInBytes(tangentAccessor.componentType);
+					assert(tangentsStride > 0 && "Tangent stride is invalid");
+				}
+                else
+                {
+                    // TODO: 计算切线 http://www.mikktspace.com/
+                }
+
+				bool     hasIndices = primitive.indices > -1;
+                std::vector<UINT32> indexBuffer;
+                if (hasIndices)
+                {
+					const tinygltf::Accessor& accessor = gltf_model.accessors[primitive.indices > -1 ? primitive.indices : 0];
+					const tinygltf::BufferView& bufferView = gltf_model.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltf_model.buffers[bufferView.buffer];
+
+					indexCount = static_cast<UINT32>(accessor.count);
+
+					const void* dataPtr = &(buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+
+					switch (accessor.componentType)
+					{
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
+					{
+						const UINT32* buf = static_cast<const UINT32*>(dataPtr);
+						for (size_t index = 0; index < accessor.count; index++)
+						{
+							indexBuffer.push_back(buf[index]);
+						}
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+					{
+						const uint16_t* buf = static_cast<const uint16_t*>(dataPtr);
+						for (size_t index = 0; index < accessor.count; index++)
+						{
+							indexBuffer.push_back(buf[index]);
+						}
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+					{
+						const uint8_t* buf = static_cast<const uint8_t*>(dataPtr);
+						for (size_t index = 0; index < accessor.count; index++)
+						{
+							indexBuffer.push_back(buf[index]);
+						}
+						break;
+					}
+					default:
+						std::cerr << "Index component type " << accessor.componentType << " not supported!" << std::endl;
+						return;
+					}
+
+					MeshRenderer* meshRenderer = rendererGO->AddComponent<MeshRenderer>();
+					std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(vertexCount, bufferPos, nullptr, bufferNormals, nullptr, bufferTexCoordSet0,
+						nullptr, nullptr, nullptr, indexCount, indexBuffer.data());
+                    meshRenderer->SetMesh(mesh);
+                    meshRenderer->SetMaterial(primitive.material > -1 ? materials[primitive.material] : materials.back());
+
+                    // TODO: 在Component的Add回调中处理
+					SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
+                }
+                else
+                {
+                    assert(0 && "Not support only vertex mesh.");
+                }
+                
             }
         }
     }

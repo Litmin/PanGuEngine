@@ -11,7 +11,7 @@ using namespace RHI;
 Material::Material(float metallicFactor, float roughnessFactor, DirectX::XMFLOAT4 baseColorFactor, DirectX::XMFLOAT4 emissiveFactor, 
 				   std::shared_ptr<RHI::GpuTexture2D> baseColorTex, std::shared_ptr<RHI::GpuTexture2D> metallicRoughnessTex, 
 				   std::shared_ptr<RHI::GpuTexture2D> normalTex, std::shared_ptr<RHI::GpuTexture2D> occlusionTex, std::shared_ptr<RHI::GpuTexture2D> emissiveTex) :
-	m_ConstantsData{metallicFactor, roughnessFactor, baseColorFactor, emissiveFactor},
+	m_ConstantsData{ baseColorFactor, emissiveFactor, metallicFactor, roughnessFactor },
 	m_BaseColorTexture(baseColorTex),
 	m_MetallicRoughnessTexture(metallicRoughnessTex),
 	m_NormalTexture(normalTex),

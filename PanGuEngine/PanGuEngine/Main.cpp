@@ -26,35 +26,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 
 		//// Mesh
-		UINT boxVertexCount, boxIndicesCount;
-		std::vector<XMFLOAT3> boxPositions;
-		std::vector<XMFLOAT4> boxColors;
-		std::vector<XMFLOAT3> normals;
-		std::vector<XMFLOAT4> tangents;
-		std::vector<XMFLOAT2> uvs;
-		std::vector<uint16_t> boxIndices;
-		GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 0, boxVertexCount, boxPositions, boxColors, normals, tangents, uvs, boxIndicesCount, boxIndices);
-		std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(boxVertexCount, boxPositions.data(), boxColors.data(),
-			normals.data(), tangents.data(), uvs.data(), nullptr, nullptr, nullptr,
-			boxIndicesCount, boxIndices.data());
+		//UINT boxVertexCount, boxIndicesCount;
+		//std::vector<XMFLOAT3> boxPositions;
+		//std::vector<XMFLOAT4> boxColors;
+		//std::vector<XMFLOAT3> normals;
+		//std::vector<XMFLOAT4> tangents;
+		//std::vector<XMFLOAT2> uvs;
+		//std::vector<UINT32> boxIndices;
+		//GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 0, boxVertexCount, boxPositions, boxColors, normals, tangents, uvs, boxIndicesCount, boxIndices);
+		//std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(boxVertexCount, (const float*)boxPositions.data(), (const float*)boxColors.data(),
+		//	(const float*)normals.data(), (const float*)tangents.data(), (const float*)uvs.data(), nullptr, nullptr, nullptr,
+		//	boxIndicesCount, boxIndices.data());
 
-		GameObject* boxGo = rootGo->CreateChild();
-		boxGo->Translate(-1.0f, 1.0f, -1.0f);
-		boxGo->Rotate(30.0f, 0.0f, 0.0f, Space::Self);
-		MeshRenderer* meshRenderer = boxGo->AddComponent<MeshRenderer>();
-		meshRenderer->SetMesh(boxMesh);
+		//GameObject* boxGo = rootGo->CreateChild();
+		//boxGo->Translate(-1.0f, 1.0f, -1.0f);
+		//boxGo->Rotate(30.0f, 0.0f, 0.0f, Space::Self);
+		//MeshRenderer* meshRenderer = boxGo->AddComponent<MeshRenderer>();
+		//meshRenderer->SetMesh(boxMesh);
 
-		GameObject* boxGo2 = rootGo->CreateChild();
-		boxGo2->Translate(1.0f, 0.0f, 0.0f);
-		MeshRenderer* meshRenderer2 = boxGo2->AddComponent<MeshRenderer>();
-		meshRenderer2->SetMesh(boxMesh);
+		//GameObject* boxGo2 = rootGo->CreateChild();
+		//boxGo2->Translate(1.0f, 0.0f, 0.0f);
+		//MeshRenderer* meshRenderer2 = boxGo2->AddComponent<MeshRenderer>();
+		//meshRenderer2->SetMesh(boxMesh);
 
 
-		// TODO: 在Component的Add回调中处理
+		//// TODO: 在Component的Add回调中处理
+		//SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
+		//SceneManager::GetSingleton().AddMeshRenderer(meshRenderer2);
+
 		SceneManager::GetSingleton().AddCamera(camera);
-		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
-		SceneManager::GetSingleton().AddMeshRenderer(meshRenderer2);
-
 
 		return engine.Run();
 	}

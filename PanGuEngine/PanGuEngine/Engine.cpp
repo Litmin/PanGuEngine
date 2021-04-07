@@ -91,11 +91,14 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     PSODesc.GraphicsPipeline.GraphicPipelineState.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     // TODO: InputLayout
-    UINT inputLayoutIndex = m_vertexFactory->GetInputLayoutIndex(true, true, true, true, false, false, false);
+	//UINT inputLayoutIndex = m_vertexFactory->GetInputLayoutIndex(true, true, true, true, false, false, false);
+	UINT inputLayoutIndex = m_vertexFactory->GetInputLayoutIndex(false, true, false, true, false, false, false);
     std::vector<D3D12_INPUT_ELEMENT_DESC>* inputLayoutDesc = m_vertexFactory->GetInputElementDesc(inputLayoutIndex);
     PSODesc.GraphicsPipeline.GraphicPipelineState.InputLayout.NumElements = inputLayoutDesc->size();
     PSODesc.GraphicsPipeline.GraphicPipelineState.InputLayout.pInputElementDescs = inputLayoutDesc->data();
 
+    // shader变量更新频率
+    PSODesc.VariableConfig.Variables.push_back(RHI::ShaderResourceVariableDesc{ RHI::SHADER_TYPE_PIXEL, "BaseColorTex", RHI::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE });
 
     m_PSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
 
@@ -111,8 +114,8 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     perPassVariable->Set(m_PerPassCB);
     RHI::ShaderVariable* lightVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbLight");
     lightVariable->Set(m_LightCB);
-    RHI::ShaderVariable* materialVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbMaterial");
-    materialVariable->Set(m_MaterialCB);
+    //RHI::ShaderVariable* materialVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbMaterial");
+    //materialVariable->Set(m_MaterialCB);
 
     m_Initialized = true;
 }
@@ -197,6 +200,9 @@ void Engine::Render()
     const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();
     for (INT32 i = 0; i < drawList.size(); ++i)
     {
+        // TODO: 优化代码结构
+        drawList[i]->GetMaterial()->CreateSRB(m_PSO.get());
+
         void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
         drawList[i]->Render(graphicContext, pPerDrawCB);
     }

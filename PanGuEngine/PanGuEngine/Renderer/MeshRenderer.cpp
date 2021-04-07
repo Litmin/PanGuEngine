@@ -23,10 +23,12 @@ void MeshRenderer::Render(GraphicsContext& graphicContext, void* perDrawCB) cons
 {
 	assert(perDrawCB != nullptr);
 	assert(m_Mesh != nullptr);
+	assert(m_Material != nullptr);
 
 	graphicContext.SetVertexBuffer(0, m_Mesh->VertexBufferView());
 	graphicContext.SetIndexBuffer(m_Mesh->IndexBufferView());
 	graphicContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	graphicContext.SetShaderResourceBinding(m_Material->GetSRB());
 
 	PerDrawConstants perDrawData;
 	XMMATRIX objectToWorld = XMLoadFloat4x4(&m_GameObject->LocalToWorldMatrix());

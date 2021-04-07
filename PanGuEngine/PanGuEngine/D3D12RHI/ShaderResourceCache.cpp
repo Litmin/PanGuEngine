@@ -42,14 +42,18 @@ namespace RHI
 
 
 			if (IsAllowedType(variableType, allowedTypeBits))
+			{
 				m_RootTables.insert({ rootIndex, RootTable(variableType, rootTableSize) });
 
-			if (variableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
-			{
-				// 设置每个Root Table在Heap中的起始位置，因为Root Table是紧密排列的，所以起始位置就是当前的总数
-				m_RootTables[rootIndex].TableStartOffset = descriptorNum;
-				descriptorNum += rootTableSize;
-				m_NumDynamicDescriptor += rootTableSize;
+				if (variableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
+				{
+					// 设置每个Root Table在Heap中的起始位置，因为Root Table是紧密排列的，所以起始位置就是当前的总数
+					m_RootTables[rootIndex].TableStartOffset = descriptorNum;
+					descriptorNum += rootTableSize;
+				}
+
+				if(variableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
+					m_NumDynamicDescriptor += rootTableSize;
 			}
 		});
 
@@ -83,6 +87,11 @@ namespace RHI
 		// Static、Mutable的资源的Descriptor已经Copy到了ShaderResourceCache的Heap中，直接提交
 		for (const auto& [rootIndex, rootTable] : m_RootTables)
 		{
+			for (INT32 i = 0; i < rootTable.Descriptors.size(); ++i)
+			{
+				assert(rootTable.Descriptors[i] && "No Resource Binding");
+			}
+
 			if(rootTable.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 				cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, GetShaderVisibleTableGPUDescriptorHandle
 				<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>(rootIndex, 0));
@@ -111,7 +120,10 @@ namespace RHI
 			{
 				if (rootTable.VariableType == SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 				{
-					assert((rootTable.Descriptors.size() != 0) && "No Resource Binding");
+					for (INT32 i = 0; i < rootTable.Descriptors.size(); ++i)
+					{
+						assert(rootTable.Descriptors[i] && "No Resource Binding");
+					}
 
 					// 先绑定再Copy，因为要绑定这个Table的起始位置，所以得用Copy前的dynamicTableOffset
 					cmdContext.GetGraphicsContext().SetDescriptorTable(rootIndex, dynamicAllocation.GetGpuHandle(dynamicTableOffset));

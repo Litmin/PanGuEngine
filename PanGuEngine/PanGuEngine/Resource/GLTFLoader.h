@@ -30,7 +30,8 @@ namespace Resource
 		static void LoadMaterials(const tinygltf::Model& gltf_model, std::vector<std::shared_ptr<RHI::GpuTexture2D>>& textures, 
 								  std::vector<std::shared_ptr<Material>>& materials);
 
-		static void LoadNode(GameObject* parent, const tinygltf::Node& gltf_node, uint32_t nodeIndex, const tinygltf::Model& gltf_model);
+		static void LoadNode(GameObject* parent, const tinygltf::Node& gltf_node, uint32_t nodeIndex, const tinygltf::Model& gltf_model,
+							 std::vector<std::shared_ptr<Material>>& materials);
 			
 		static std::shared_ptr<RHI::GpuTexture2D> TextureFromGLTFImage(const tinygltf::Image& gltfimage);
 

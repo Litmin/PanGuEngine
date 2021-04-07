@@ -98,7 +98,7 @@ namespace RHI
             auto& table = m_RootParam.DescriptorTable;
             assert(RangeIndex < table.NumDescriptorRanges && "Invalid descriptor range index");
             D3D12_DESCRIPTOR_RANGE& range = const_cast<D3D12_DESCRIPTOR_RANGE&>(table.pDescriptorRanges[RangeIndex]);
-            assert(range.RangeType == static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(-1) && "Descriptor range has already been initialized. m_DescriptorTableSize may be updated incorrectly");
+            //assert(range.RangeType == static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(-1) && "Descriptor range has already been initialized. m_DescriptorTableSize may be updated incorrectly");
             range.RangeType = Type;
             range.NumDescriptors = Count;
             range.BaseShaderRegister = Register;
@@ -283,6 +283,9 @@ namespace RHI
 		
 
 	private:
+
+        std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
+
         // 内部嵌套类，帮助管理RootParam
         class RootParamsManager
         {
