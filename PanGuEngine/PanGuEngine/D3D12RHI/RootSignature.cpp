@@ -161,9 +161,9 @@ namespace RHI
 											 UINT32& RootIndex,				// 输出参数
 											 UINT32& OffsetFromTableStart)	// 输出参数
 	{
-		const auto shaderVisibility = GetShaderVisibility(ShaderType);
+		const D3D12_SHADER_VISIBILITY shaderVisibility = GetShaderVisibility(ShaderType);
 
-		// 分配一个CBV，当作一个Root View
+		// 分配一个CBV，当作一个Root Descriptor
 		if (RangeType == D3D12_DESCRIPTOR_RANGE_TYPE_CBV && ShaderResAttribs.BindCount == 1)
 		{
 			RootIndex = m_RootParams.GetRootTableNum() + m_RootParams.GetRootDescriptorNum();
@@ -213,9 +213,9 @@ namespace RHI
 			UINT32 NewDescriptorRangeIndex = d3d12RootParam.DescriptorTable.NumDescriptorRanges - 1;
 			RootTable.SetDescriptorRange(NewDescriptorRangeIndex, 
 										 RangeType, 
-								  ShaderResAttribs.BindPoint, 
+										 ShaderResAttribs.BindPoint, 
 										 ShaderResAttribs.BindCount, 
-									0, 
+										 0, 
 										 OffsetFromTableStart);
 		}
 	}

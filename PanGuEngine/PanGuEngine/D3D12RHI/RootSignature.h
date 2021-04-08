@@ -10,10 +10,10 @@ namespace RHI
 	class RootParameter
 	{
 	public:
-		// 三个构造函数,对应DX12中RootParamater三种类型：Root Constant、Root View、Root Table
+		// 三个构造函数,对应DX12中RootParamater三种类型：Root Constant、Root Descriptor、Root Table
         // 最好不存储Root Constant，Root Parameter的总大小有限制，Root Constant会占用大量空间
         // Root Table稍微复杂一点,一个Root Table可以有多个Descriptor Range，一个Descriptor Range其实就是一个相同类型(CBV、SRV、UAV)的Descriptor数组
-        // Root View
+        // Root Descriptor
         RootParameter(D3D12_ROOT_PARAMETER_TYPE     ParameterType,
                       UINT32                        RootIndex,
                       UINT                          Register,
@@ -68,9 +68,13 @@ namespace RHI
             m_RootParam{ RP.m_RootParam },
             m_DescriptorTableSize{ RP.m_DescriptorTableSize },
             m_ShaderVarType{ RP.m_ShaderVarType },
-            m_RootIndex{ RP.m_RootIndex }
+            m_RootIndex{ RP.m_RootIndex },
+            m_DescriptorRanges(RP.m_DescriptorRanges)
         {
-            assert(m_RootParam.ParameterType != D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE && "Use another constructor to copy descriptor table");
+            // 拷贝后，需要重新设置指向m_descriptorRanges的指针
+            if(m_RootParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE && m_DescriptorRanges.size() > 0)
+			    m_RootParam.DescriptorTable.pDescriptorRanges = &m_DescriptorRanges[0];
+            //assert(m_RootParam.ParameterType != D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE && "Use another constructor to copy descriptor table");
         }
 
         RootParameter& operator=(const RootParameter&) = delete;
