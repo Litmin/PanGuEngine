@@ -4,6 +4,7 @@
 #include "D3D12RHI/Shader.h"
 #include "D3D12RHI/PipelineState.h"
 #include "D3D12RHI/RenderDevice.h"
+#include "D3D12RHI/SwapChain.h"
 
 using namespace RHI;
 
@@ -63,5 +64,51 @@ void ForwardRenderer::Initialize()
 
 void ForwardRenderer::Render(SwapChain& swapChain)
 {
+	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"ForwardRenderer");
 
+	graphicContext.SetViewport(m_Viewport);
+	graphicContext.SetScissor(m_ScissorRect);
+
+	RHI::GpuResource* backBuffer = m_SwapChain->GetCurBackBuffer();
+	RHI::GpuResourceDescriptor* backBufferRTV = m_SwapChain->GetCurBackBufferRTV();
+	RHI::GpuResource* depthStencilBuffer = m_SwapChain->GetDepthStencilBuffer();
+	RHI::GpuResourceDescriptor* depthStencilBufferDSV = m_SwapChain->GetDepthStencilDSV();
+
+	graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	graphicContext.TransitionResource(*depthStencilBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	graphicContext.ClearColor(*backBufferRTV, Colors::LightSteelBlue);
+	graphicContext.ClearDepthAndStencil(*depthStencilBufferDSV);
+	graphicContext.SetRenderTargets(1, &backBufferRTV, depthStencilBufferDSV);
+
+	// TODO: 测试是否只需要绑定一次Descriptor Heap
+	ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
+	ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
+	graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
+
+	graphicContext.SetPipelineState(m_PSO.get());
+
+	void* pPerPassCB = m_PerPassCB->Map(graphicContext, 256);
+	Camera* camera = m_SceneManager->GetCamera();
+	camera->UpdateCameraCBs(pPerPassCB);
+
+	LightConstants lightData;
+	lightData.LightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	lightData.LightDir = XMFLOAT3(-1.0f, 1.0f, 0.0f);
+	lightData.LightIntensity = 1.0f;
+	void* pLightCB = m_LightCB->Map(graphicContext, 256);
+	memcpy(pLightCB, &lightData, sizeof(LightConstants));
+
+	PhongMaterialConstants matConstants;
+	matConstants.AmbientStrength = 0.1f;
+
+	// 渲染场景
+	const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();
+	for (INT32 i = 0; i < drawList.size(); ++i)
+	{
+		// TODO: 优化代码结构
+		drawList[i]->GetMaterial()->CreateSRB(m_PSO.get());
+
+		void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
+		drawList[i]->Render(graphicContext, pPerDrawCB);
+	}
 }

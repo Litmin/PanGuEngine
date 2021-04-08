@@ -25,6 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		GameObject* rootGo = SceneManager::GetSingleton().GetRootNode();
 		GameObject* cameraGo = rootGo->CreateChild();
 		Camera* camera = cameraGo->AddComponent<Camera>();
+		camera->SetProjection(1920.0f / 1080.0f, 1.0f, 1000.0f, MathHelper::Pi / 3.0f);
 		cameraGo->Translate(0.0f, 0.0f, -5.0f, Space::Self);
 
 

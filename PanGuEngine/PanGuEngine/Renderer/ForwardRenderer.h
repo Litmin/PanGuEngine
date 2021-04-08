@@ -14,7 +14,7 @@ class ForwardRenderer
 {
 public:
 	void Initialize();
-	void Render(SwapChain& swapChain);
+	void Render(RHI::SwapChain& swapChain);
 
 private:
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerDrawCB = nullptr;

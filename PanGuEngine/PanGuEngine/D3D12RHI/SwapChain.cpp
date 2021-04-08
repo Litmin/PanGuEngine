@@ -77,6 +77,9 @@ namespace RHI
 		m_DepthStencilBufferDSV = m_DepthStencilBuffer->CreateDSV();
 
 		CommandListManager::GetSingleton().IdleGPU();
+
+		m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
+		m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 	}
 
 	// Present之前需要把Back Buffer过度到Present状态

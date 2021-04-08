@@ -18,6 +18,9 @@ namespace RHI
 		// Present之前需要把Back Buffer过度到Present状态
 		void Present();
 
+		const CD3DX12_VIEWPORT& GetViewport() const { return m_Viewport; }
+		const CD3DX12_RECT& GetScissorRect() const { return m_ScissorRect; }
+
 		// 在SetRenderTarget时，需要过度到Render Target和Depth Write状态
 		GpuRenderTextureColor* GetCurBackBuffer() { return m_BackColorBuffers[m_CurrBackBuffer].get(); }
 		GpuRenderTextureDepth* GetDepthStencilBuffer() { return m_DepthStencilBuffer.get(); }
@@ -29,8 +32,10 @@ namespace RHI
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_SwapChain;
 
-		UINT32 m_CurrBackBuffer = 0;
+		CD3DX12_VIEWPORT m_Viewport;
+		CD3DX12_RECT m_ScissorRect;
 
+		UINT32 m_CurrBackBuffer = 0;
 		std::shared_ptr<GpuRenderTextureColor> m_BackColorBuffers[SwapChainBufferCount] = {nullptr};
 		std::shared_ptr<GpuRenderTextureDepth> m_DepthStencilBuffer = nullptr;
 		std::shared_ptr<GpuResourceDescriptor> m_BackColorBufferRTVs[SwapChainBufferCount] = {nullptr};
