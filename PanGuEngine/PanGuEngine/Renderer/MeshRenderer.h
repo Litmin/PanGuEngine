@@ -10,6 +10,8 @@ public:
 	void SetMesh(std::shared_ptr<Mesh> mesh);
 	void SetMaterial(std::shared_ptr<Material> material);
 
+	Material* GetMaterial() { return m_Material.get(); }
+
 	void Render(RHI::GraphicsContext& graphicContext, void* perDrawCB) const;
 
 private:

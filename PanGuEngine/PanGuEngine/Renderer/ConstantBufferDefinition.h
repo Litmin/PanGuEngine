@@ -79,9 +79,9 @@ struct PhongMaterialConstants
 
 struct PBRMaterialConstants
 {
-	float  MetallicFactor = 1.0f;
-	float  RoughnessFactor = 1.0f;
 	DirectX::XMFLOAT4 BaseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT4 EmissiveFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float  MetallicFactor = 1.0f;
+	float  RoughnessFactor = 1.0f;
 };
 

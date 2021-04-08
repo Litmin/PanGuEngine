@@ -303,6 +303,12 @@ namespace RHI
 		}
 	}
 
+	void CommandContext::SetDescriptorHeap(ID3D12DescriptorHeap* cbvsrvuavHeap, ID3D12DescriptorHeap* samplerHeap)
+	{
+		ID3D12DescriptorHeap* descriptorHeaps[] = { cbvsrvuavHeap, samplerHeap };
+		m_CommandList->SetDescriptorHeaps(2, descriptorHeaps);
+	}
+
 	// TODO: Remove dynamic_cast
 	void GraphicsContext::ClearColor(GpuResourceDescriptor& RTV, D3D12_RECT* Rect /*= nullptr*/)
 	{

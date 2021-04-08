@@ -8,16 +8,16 @@ using namespace RHI;
 // 使用array of structure,每个顶点个各种属性连续放在一起
 Mesh::Mesh(
 	UINT vertexCount, 
-	DirectX::XMFLOAT3* positions, 
-	DirectX::XMFLOAT4* colors, 
-	DirectX::XMFLOAT3* normals, 
-	DirectX::XMFLOAT4* tangents, 
-	DirectX::XMFLOAT2* uv0, 
-	DirectX::XMFLOAT2* uv1, 
-	DirectX::XMFLOAT2* uv2, 
-	DirectX::XMFLOAT2* uv3,
+	const float* positions, 
+	const float* colors, 
+	const float* normals, 
+	const float* tangents, 
+	const float* uv0, 
+	const float* uv1, 
+	const float* uv2, 
+	const float* uv3,
 	UINT indexCount,
-	uint16_t* indices) :
+	UINT32* indices) :
 	m_VertexCount(vertexCount),
 	m_IndexCount(indexCount)
 {
@@ -43,14 +43,14 @@ Mesh::Mesh(
 
 	m_VertexBufferByteSize = m_VertexByteStride * vertexCount;
 	
-	m_IndexBufferByteSize = indexCount * sizeof(std::uint16_t);
+	m_IndexBufferByteSize = indexCount * sizeof(UINT32);
 
 	ULONGLONG bufferSize = (ULONGLONG)m_VertexBufferByteSize + m_IndexBufferByteSize;
 	char* buffer = new char[bufferSize];
 	std::unique_ptr<char> dataPtrGuard(buffer);	// 用来释放buffer的内存
 
 	UINT offset = 0;
-	auto vertBufferCopy = [&](char* buffer, char* ptr, UINT size, UINT& offset) -> void
+	auto vertBufferCopy = [&](char* buffer, const char* ptr, UINT size, UINT& offset) -> void
 	{
 		if (ptr)
 		{
@@ -61,20 +61,20 @@ Mesh::Mesh(
 			offset += size;
 		}
 	};
-	vertBufferCopy(buffer, reinterpret_cast<char*>(positions), 12, offset);
-	vertBufferCopy(buffer, reinterpret_cast<char*>(colors), 16, offset);
-	vertBufferCopy(buffer, reinterpret_cast<char*>(normals), 12, offset);
-	vertBufferCopy(buffer, reinterpret_cast<char*>(tangents), 16, offset);
-	vertBufferCopy(buffer, reinterpret_cast<char*>(uv0), 8, offset);
-	vertBufferCopy(buffer, reinterpret_cast<char*>(uv1), 8, offset);
-	vertBufferCopy(buffer, reinterpret_cast<char*>(uv2), 8, offset);
-	vertBufferCopy(buffer, reinterpret_cast<char*>(uv3), 8, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(positions), 12, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(colors), 16, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(normals), 12, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(tangents), 16, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(uv0), 8, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(uv1), 8, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(uv2), 8, offset);
+	vertBufferCopy(buffer, reinterpret_cast<const char*>(uv3), 8, offset);
 
 	char* indexBufferStart = buffer + m_VertexBufferByteSize;
-	memcpy(indexBufferStart, indices, indexCount * sizeof(std::uint16_t));
+	memcpy(indexBufferStart, indices, indexCount * sizeof(UINT32));
 
 	m_VertexBuffer = std::make_shared<GpuDefaultBuffer>(vertexCount, m_VertexByteStride, buffer);
-	m_IndexBuffer = std::make_shared<GpuDefaultBuffer>(indexCount, sizeof(std::uint16_t), indexBufferStart);
+	m_IndexBuffer = std::make_shared<GpuDefaultBuffer>(indexCount, sizeof(UINT32), indexBufferStart);
 	m_VertexBufferView = m_VertexBuffer->CreateVBV();
 	m_IndexBufferView = m_IndexBuffer->CreateIBV();
 }

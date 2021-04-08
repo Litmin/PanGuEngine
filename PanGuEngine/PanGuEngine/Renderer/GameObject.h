@@ -31,6 +31,10 @@ public:
 	void Rotate(float xAngle, float yAngle, float zAngle, Space relativeTo = Space::Self);
 	void Rotate(DirectX::XMFLOAT3 axis, float angle, Space relativeTo = Space::Self);
 
+	void SetLocalPosition(Math::Vector3 localPosition) { m_TransformDirty = true; m_Position = localPosition; }
+	void SetLocalRotation(Math::Quaternion localRotation) { m_TransformDirty = true; m_Rotation = localRotation; }
+	void SetLocalScale(Math::Vector3 localScale) { m_TransformDirty = true; m_Scale = localScale; }
+
 	Math::Vector3 LocalPosition() const { return m_Position; }
 	Math::Vector3 WorldPosition() const { return m_DerivedPosition; }
 	Math::Quaternion LocalRotation() const { return m_Rotation; }

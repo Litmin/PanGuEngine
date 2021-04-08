@@ -23,6 +23,7 @@
 
 // Direct3d12
 #include <d3d12.h>
+#include <D3d12SDKLayers.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>

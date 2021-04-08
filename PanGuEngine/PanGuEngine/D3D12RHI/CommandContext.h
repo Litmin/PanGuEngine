@@ -117,6 +117,7 @@ namespace RHI
 		void SetShaderResourceBinding(ShaderResourceBinding* SRB);
 		void CommitDynamic();	// TODO: Make private
 
+		void SetDescriptorHeap(ID3D12DescriptorHeap* cbvsrvuavHeap, ID3D12DescriptorHeap* samplerHeap);
 
 	protected:
 		void SetID(const std::wstring& ID) { m_ID = ID; }
@@ -139,6 +140,7 @@ namespace RHI
 		// ×ÊÔ´°ó¶¨
 		PipelineState* m_CurPSO = nullptr;
 		ShaderResourceBinding* m_CurSRB = nullptr;
+
 
 		std::wstring m_ID;
     };
