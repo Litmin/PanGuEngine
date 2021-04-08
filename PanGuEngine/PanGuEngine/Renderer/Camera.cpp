@@ -16,6 +16,11 @@ Camera::~Camera()
 {
 }
 
+void Camera::OnAddToGameObject()
+{
+	SceneManager::GetSingleton().AddCamera(this);
+}
+
 void Camera::SetProjection(float aspect, float nearPlane, float farPlane, float fieldOfView)
 {
 	m_Aspect = aspect;

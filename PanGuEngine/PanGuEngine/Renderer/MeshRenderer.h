@@ -7,6 +7,8 @@
 class MeshRenderer : public Renderer
 {
 public:
+	virtual void OnAddToGameObject() override;
+
 	void SetMesh(std::shared_ptr<Mesh> mesh);
 	void SetMaterial(std::shared_ptr<Material> material);
 

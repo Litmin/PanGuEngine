@@ -12,6 +12,7 @@ public:
 	GameObject* GetGameObject() { return m_GameObject; }
 
 	//virtual void _OnTransformUpdate();
+	virtual void OnAddToGameObject() {}
 
 protected:
 	GameObject* m_GameObject = nullptr;

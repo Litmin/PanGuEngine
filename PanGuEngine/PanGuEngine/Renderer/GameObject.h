@@ -88,6 +88,9 @@ inline T* GameObject::AddComponent()
 	component = new T();
 	component->SetGameObject(this);
 	m_Components.push_back(std::unique_ptr<T>(component));
+
+	component->OnAddToGameObject();
+
 	return component;
 }
 

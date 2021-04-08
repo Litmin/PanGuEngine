@@ -10,10 +10,13 @@ using namespace DirectX;
 _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	Engine engine;
-
 	try
 	{
+		Engine engine;
+		EngineCreateInfo engineCI;
+		engineCI.Width = 1920;
+		engineCI.Height = 1080;
+
 		engine.Initialize(1920, 1080, hInstance);
 
 		Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
@@ -34,27 +37,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		//std::vector<XMFLOAT2> uvs;
 		//std::vector<UINT32> boxIndices;
 		//GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 0, boxVertexCount, boxPositions, boxColors, normals, tangents, uvs, boxIndicesCount, boxIndices);
-		//std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(boxVertexCount, (const float*)boxPositions.data(), (const float*)boxColors.data(),
-		//	(const float*)normals.data(), (const float*)tangents.data(), (const float*)uvs.data(), nullptr, nullptr, nullptr,
+		//std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(boxVertexCount, (const float*)boxPositions.data(), nullptr,
+		//	(const float*)normals.data(), nullptr, (const float*)uvs.data(), nullptr, nullptr, nullptr,
 		//	boxIndicesCount, boxIndices.data());
 
 		//GameObject* boxGo = rootGo->CreateChild();
-		//boxGo->Translate(-1.0f, 1.0f, -1.0f);
-		//boxGo->Rotate(30.0f, 0.0f, 0.0f, Space::Self);
+		//boxGo->Translate(0.0f, -10.0f, 0.0f);
 		//MeshRenderer* meshRenderer = boxGo->AddComponent<MeshRenderer>();
 		//meshRenderer->SetMesh(boxMesh);
-
-		//GameObject* boxGo2 = rootGo->CreateChild();
-		//boxGo2->Translate(1.0f, 0.0f, 0.0f);
-		//MeshRenderer* meshRenderer2 = boxGo2->AddComponent<MeshRenderer>();
-		//meshRenderer2->SetMesh(boxMesh);
-
-
-		//// TODO: 在Component的Add回调中处理
-		//SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
-		//SceneManager::GetSingleton().AddMeshRenderer(meshRenderer2);
-
-		SceneManager::GetSingleton().AddCamera(camera);
 
 		return engine.Run();
 	}

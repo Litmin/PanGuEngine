@@ -27,11 +27,11 @@ void Material::CreateSRB(RHI::PipelineState* PSO)
 	if (m_SRB == nullptr)
 	{
 		m_ConstantBuffer = std::make_shared<RHI::GpuDefaultBuffer>(1, sizeof(PBRMaterialConstants), &m_ConstantsData);
-		m_BaseColorTextureDescriptor = m_BaseColorTexture->CreateSRV();
-		m_MetallicRoughnessTextureDescriptor = m_MetallicRoughnessTexture->CreateSRV();
-		m_NormalTextureDescriptor = m_NormalTexture->CreateSRV();
-		m_OcclusionTextureDescriptor = m_OcclusionTexture->CreateSRV();
-		m_EmissiveTextureDescriptor = m_EmissiveTexture->CreateSRV();
+		m_BaseColorTextureDescriptor = m_BaseColorTexture != nullptr ? m_BaseColorTexture->CreateSRV() : nullptr;
+		m_MetallicRoughnessTextureDescriptor = m_MetallicRoughnessTexture != nullptr ? m_MetallicRoughnessTexture->CreateSRV() : nullptr;
+		m_NormalTextureDescriptor = m_NormalTexture != nullptr ? m_NormalTexture->CreateSRV() : nullptr;
+		m_OcclusionTextureDescriptor = m_OcclusionTexture != nullptr ? m_OcclusionTexture->CreateSRV() : nullptr;
+		m_EmissiveTextureDescriptor = m_EmissiveTexture != nullptr ? m_EmissiveTexture->CreateSRV() : nullptr;
 
 
 		m_SRB = PSO->CreateShaderResourceBinding();

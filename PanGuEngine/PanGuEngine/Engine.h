@@ -14,7 +14,13 @@
 #include "D3D12RHI/ShaderResourceBinding.h"
 #include "D3D12RHI/Shader.h"
 #include "Renderer/VertexFactory.h"
+#include "Renderer/ForwardRenderer.h"
 
+struct EngineCreateInfo
+{
+	UINT Width;
+	UINT Height;
+};
 
 class Engine
 {
@@ -45,7 +51,6 @@ private:
 	static Engine* m_Engine;
 
 	bool m_Initialized = false;
-	//wstring m_Title;
 
 	//<--------------------------------Windows------------------------------------------>
 	HINSTANCE m_AppInst;
@@ -75,14 +80,13 @@ private:
 
 
 	std::unique_ptr<SceneManager> m_SceneManager;
-	std::unique_ptr<Resource::ResourceManager> m_ResourceManager;
 	std::unique_ptr<VertexFactory> m_vertexFactory;
 
+	std::unique_ptr<ForwardRenderer> m_ForwardRenderer;
 
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerDrawCB;
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerPassCB;
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_LightCB;
-	std::shared_ptr<RHI::GpuDynamicBuffer> m_MaterialCB;
 
 	std::shared_ptr<RHI::Shader> m_StandardVS;
 	std::shared_ptr<RHI::Shader> m_StandardPS;

@@ -58,7 +58,6 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
 
     
     // Initilize Managers
-    m_ResourceManager = make_unique<Resource::ResourceManager>();
     m_SceneManager = make_unique<SceneManager>();
     m_vertexFactory = make_unique<VertexFactory>();
 
@@ -106,8 +105,6 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     m_PerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
     m_PerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
     m_LightCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(LightConstants));
-    m_MaterialCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PhongMaterialConstants));
-
 
     RHI::ShaderVariable* perDrawVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
     perDrawVariable->Set(m_PerDrawCB);
@@ -116,8 +113,6 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     RHI::ShaderVariable* lightVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbLight");
     if(lightVariable != nullptr)
         lightVariable->Set(m_LightCB);
-    //RHI::ShaderVariable* materialVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbMaterial");
-    //materialVariable->Set(m_MaterialCB);
 
     m_Initialized = true;
 }
@@ -180,6 +175,7 @@ void Engine::Render()
     graphicContext.ClearDepthAndStencil(*depthStencilBufferDSV);
     graphicContext.SetRenderTargets(1, &backBufferRTV, depthStencilBufferDSV);
 
+    // TODO: 测试是否只需要绑定一次Descriptor Heap
     ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
     ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
     graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
@@ -199,8 +195,6 @@ void Engine::Render()
 
     PhongMaterialConstants matConstants;
     matConstants.AmbientStrength = 0.1f;
-    void* pMatCB = m_MaterialCB->Map(graphicContext, 256);
-    memcpy(pMatCB, &matConstants, sizeof(PhongMaterialConstants));
 
 	// 渲染场景
     const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();
@@ -212,7 +206,6 @@ void Engine::Render()
         void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
         drawList[i]->Render(graphicContext, pPerDrawCB);
     }
-
 
     graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
 

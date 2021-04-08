@@ -176,6 +176,9 @@
     <ClCompile Include="Utility\GeometryGenerator.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\ForwardRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -392,6 +395,9 @@
     </ClInclude>
     <ClInclude Include="Utility\GeometryFactory.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ForwardRenderer.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
