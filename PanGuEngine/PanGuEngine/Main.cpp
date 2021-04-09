@@ -12,22 +12,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
 	try
 	{
-		Engine engine;
+		Engine engine(hInstance);
+
 		EngineCreateInfo engineCI;
 		engineCI.Width = 1920;
 		engineCI.Height = 1080;
 
-		engine.Initialize(1920, 1080, hInstance);
+		auto setup = []()
+		{
+			//Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
+			////Resource::GLTFLoader::LoadGLTF("Resources/SciFiHelmet/SciFiHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
+			Resource::GLTFLoader::LoadGLTF("Resources/Sponza/Sponza.gltf", SceneManager::GetSingleton().GetRootNode());
 
-		Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
+			GameObject* rootGo = SceneManager::GetSingleton().GetRootNode();
+			GameObject* cameraGo = rootGo->CreateChild();
+			Camera* camera = cameraGo->AddComponent<Camera>();
+			camera->SetProjection(1920.0f / 1080.0f, 1.0f, 10000.0f, MathHelper::Pi / 3.0f);
+			cameraGo->Translate(0.0f, 0.0f, -5.0f, Space::Self);
+		};
 
-		// Create Camera
-		GameObject* rootGo = SceneManager::GetSingleton().GetRootNode();
-		GameObject* cameraGo = rootGo->CreateChild();
-		Camera* camera = cameraGo->AddComponent<Camera>();
-		camera->SetProjection(1920.0f / 1080.0f, 1.0f, 1000.0f, MathHelper::Pi / 3.0f);
-		cameraGo->Translate(0.0f, 0.0f, -5.0f, Space::Self);
-
+		return engine.RunN(engineCI, setup);
 
 		//// Mesh
 		//UINT boxVertexCount, boxIndicesCount;
@@ -47,7 +51,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		//MeshRenderer* meshRenderer = boxGo->AddComponent<MeshRenderer>();
 		//meshRenderer->SetMesh(boxMesh);
 
-		return engine.Run();
 	}
 	catch (DxException& e)
 	{

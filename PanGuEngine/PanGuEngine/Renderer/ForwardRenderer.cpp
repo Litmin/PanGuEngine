@@ -5,6 +5,8 @@
 #include "D3D12RHI/PipelineState.h"
 #include "D3D12RHI/RenderDevice.h"
 #include "D3D12RHI/SwapChain.h"
+#include "D3D12RHI/CommandContext.h"
+#include "SceneManager.h"
 
 using namespace RHI;
 
@@ -66,13 +68,13 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 {
 	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"ForwardRenderer");
 
-	graphicContext.SetViewport(m_Viewport);
-	graphicContext.SetScissor(m_ScissorRect);
+	graphicContext.SetViewport(swapChain.GetViewport());
+	graphicContext.SetScissor(swapChain.GetScissorRect());
 
-	RHI::GpuResource* backBuffer = m_SwapChain->GetCurBackBuffer();
-	RHI::GpuResourceDescriptor* backBufferRTV = m_SwapChain->GetCurBackBufferRTV();
-	RHI::GpuResource* depthStencilBuffer = m_SwapChain->GetDepthStencilBuffer();
-	RHI::GpuResourceDescriptor* depthStencilBufferDSV = m_SwapChain->GetDepthStencilDSV();
+	RHI::GpuResource* backBuffer = swapChain.GetCurBackBuffer();
+	RHI::GpuResourceDescriptor* backBufferRTV = swapChain.GetCurBackBufferRTV();
+	RHI::GpuResource* depthStencilBuffer = swapChain.GetDepthStencilBuffer();
+	RHI::GpuResourceDescriptor* depthStencilBufferDSV = swapChain.GetDepthStencilDSV();
 
 	graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	graphicContext.TransitionResource(*depthStencilBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -88,7 +90,7 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 	graphicContext.SetPipelineState(m_PSO.get());
 
 	void* pPerPassCB = m_PerPassCB->Map(graphicContext, 256);
-	Camera* camera = m_SceneManager->GetCamera();
+	Camera* camera = SceneManager::GetSingleton().GetCamera();
 	camera->UpdateCameraCBs(pPerPassCB);
 
 	LightConstants lightData;
@@ -102,7 +104,7 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 	matConstants.AmbientStrength = 0.1f;
 
 	// 渲染场景
-	const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();
+	const std::vector<MeshRenderer*>& drawList = SceneManager::GetSingleton().GetDrawList();
 	for (INT32 i = 0; i < drawList.size(); ++i)
 	{
 		// TODO: 优化代码结构
@@ -111,4 +113,6 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 		void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
 		drawList[i]->Render(graphicContext, pPerDrawCB);
 	}
+
+	graphicContext.Finish();
 }

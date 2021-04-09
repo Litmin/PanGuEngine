@@ -85,6 +85,11 @@ namespace RHI
 	// Present之前需要把Back Buffer过度到Present状态
 	void SwapChain::Present()
 	{
+		RHI::GpuResource* backBuffer = GetCurBackBuffer();
+		RHI::GraphicsContext& presentContext = RHI::GraphicsContext::Begin(L"Present");
+		presentContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
+		presentContext.Finish();
+
 		ThrowIfFailed(m_SwapChain->Present(1, 0));
 
 		m_CurrBackBuffer = (m_CurrBackBuffer + 1) % SwapChainBufferCount;

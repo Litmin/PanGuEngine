@@ -64,10 +64,15 @@ void Material::CreateSRB(RHI::PipelineState* PSO)
 			}
 		};
 
-		bindTex(baseColorTexVar, m_BaseColorTextureDescriptor);
-		bindTex(metallicRoughnessTexVar, m_MetallicRoughnessTextureDescriptor);
-		bindTex(normalTexVar, m_NormalTextureDescriptor);
-		bindTex(occlusionTexVar, m_OcclusionTextureDescriptor);
-		bindTex(emissiveTexVar, m_EmissiveTextureDescriptor);
+		if(m_BaseColorTextureDescriptor != nullptr)
+			bindTex(baseColorTexVar, m_BaseColorTextureDescriptor);
+		if(m_MetallicRoughnessTextureDescriptor != nullptr)
+			bindTex(metallicRoughnessTexVar, m_MetallicRoughnessTextureDescriptor);
+		if(m_NormalTextureDescriptor != nullptr)
+			bindTex(normalTexVar, m_NormalTextureDescriptor);
+		if(m_OcclusionTextureDescriptor != nullptr)
+			bindTex(occlusionTexVar, m_OcclusionTextureDescriptor);
+		if(m_EmissiveTextureDescriptor != nullptr)
+			bindTex(emissiveTexVar, m_EmissiveTextureDescriptor);
 	}
 }
