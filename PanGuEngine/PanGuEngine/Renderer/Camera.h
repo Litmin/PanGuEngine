@@ -8,6 +8,8 @@ public:
 	Camera();
 	virtual ~Camera();
 
+	virtual void OnAddToGameObject();
+
 	void SetProjection(float aspect, float nearPlane, float farPlane, float fieldOfView);
 
 	void UpdateCameraCBs(void* perPassCB);

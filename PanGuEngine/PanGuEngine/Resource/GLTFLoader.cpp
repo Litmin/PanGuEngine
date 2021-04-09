@@ -330,9 +330,6 @@ namespace Resource
 						nullptr, nullptr, nullptr, indexCount, indexBuffer.data());
                     meshRenderer->SetMesh(mesh);
                     meshRenderer->SetMaterial(primitive.material > -1 ? materials[primitive.material] : materials.back());
-
-                    // TODO: 在Component的Add回调中处理
-					SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
                 }
                 else
                 {

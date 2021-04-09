@@ -14,21 +14,29 @@
 #include "D3D12RHI/ShaderResourceBinding.h"
 #include "D3D12RHI/Shader.h"
 #include "Renderer/VertexFactory.h"
+#include "Renderer/ForwardRenderer.h"
 
+struct EngineCreateInfo
+{
+	UINT Width;
+	UINT Height;
+};
 
 class Engine
 {
 public:
-	Engine();
+	Engine(HINSTANCE hInstance);
 	virtual ~Engine();
 	static Engine* Get() { return m_Engine; }
 
-	void Initialize(UINT width, UINT height, HINSTANCE hInstance);
+	template<typename TSetup>
+	int RunN(const EngineCreateInfo& engineCI, TSetup setup);
+
 	bool IsInitialized() { return m_Initialized; }
-	int Run();
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
+	void Initialize(const EngineCreateInfo& engineCI);
 	void Tick();
 	void Update(float deltaTime);
 	void Render();
@@ -45,7 +53,6 @@ private:
 	static Engine* m_Engine;
 
 	bool m_Initialized = false;
-	//wstring m_Title;
 
 	//<--------------------------------Windows------------------------------------------>
 	HINSTANCE m_AppInst;
@@ -62,8 +69,6 @@ private:
 	bool m_minimized = false;
 	bool m_maximized = false;
 
-	CD3DX12_VIEWPORT m_Viewport;
-	CD3DX12_RECT m_ScissorRect;
 
 	Microsoft::WRL::ComPtr< IDXGIFactory4> m_DXGIFactory;
 
@@ -75,16 +80,32 @@ private:
 
 
 	std::unique_ptr<SceneManager> m_SceneManager;
-	std::unique_ptr<Resource::ResourceManager> m_ResourceManager;
 	std::unique_ptr<VertexFactory> m_vertexFactory;
 
-
-	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerDrawCB;
-	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerPassCB;
-	std::shared_ptr<RHI::GpuDynamicBuffer> m_LightCB;
-	std::shared_ptr<RHI::GpuDynamicBuffer> m_MaterialCB;
-
-	std::shared_ptr<RHI::Shader> m_StandardVS;
-	std::shared_ptr<RHI::Shader> m_StandardPS;
-	std::unique_ptr<RHI::PipelineState> m_PSO;
+	std::unique_ptr<ForwardRenderer> m_ForwardRenderer;
 };
+
+template<typename TSetup>
+int Engine::RunN(const EngineCreateInfo& engineCI, TSetup setup)
+{
+	Initialize(engineCI);
+	setup();
+
+
+	m_Timer.Reset();
+	MSG msg = {};
+	while (msg.message != WM_QUIT)
+	{
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		m_Timer.Tick();
+		Tick();
+	}
+
+	Destroy();
+	return (int)msg.wParam;
+}

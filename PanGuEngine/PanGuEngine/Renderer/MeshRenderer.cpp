@@ -8,6 +8,11 @@ using namespace DirectX;
 using namespace RHI;
 
 
+void MeshRenderer::OnAddToGameObject()
+{
+	SceneManager::GetSingleton().AddMeshRenderer(this);
+}
+
 void MeshRenderer::SetMesh(std::shared_ptr<Mesh> mesh)
 {
 	m_Mesh = mesh;

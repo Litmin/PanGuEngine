@@ -193,6 +193,7 @@
     <ClCompile Include="Renderer\Camera.cpp" />
     <ClCompile Include="Renderer\Component.cpp" />
     <ClCompile Include="Renderer\ConstantBufferDefinition.cpp" />
+    <ClCompile Include="Renderer\ForwardRenderer.cpp" />
     <ClCompile Include="Renderer\GameObject.cpp" />
     <ClCompile Include="Renderer\Light.cpp" />
     <ClCompile Include="Renderer\Material.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Renderer\Camera.h" />
     <ClInclude Include="Renderer\Component.h" />
     <ClInclude Include="Renderer\ConstantBufferDefinition.h" />
+    <ClInclude Include="Renderer\ForwardRenderer.h" />
     <ClInclude Include="Renderer\GameObject.h" />
     <ClInclude Include="Renderer\Light.h" />
     <ClInclude Include="Renderer\Material.h" />

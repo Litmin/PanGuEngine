@@ -12,10 +12,11 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     return Engine::Get()->MsgProc(hWnd, message, wParam, lParam);
 }
 
-Engine::Engine()
+Engine::Engine(HINSTANCE hInstance)
 {
     assert(m_Engine == nullptr);
-    m_Engine = this;
+	m_AppInst = hInstance;
+	m_Engine = this;
 }
 
 Engine::~Engine()
@@ -25,14 +26,11 @@ Engine::~Engine()
     RHI::CommandListManager::GetSingleton().IdleGPU();
 }
 
-void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
+void Engine::Initialize(const EngineCreateInfo& engineCI)
 {
-	m_Width = width;
-    m_Height = height;
-    m_AppInst = hInstance;
-    m_Aspect = static_cast<float>(width) / static_cast<float>(height);
-    m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
-    m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
+	m_Width = engineCI.Width;
+    m_Height = engineCI.Height;
+    m_Aspect = static_cast<float>(m_Width) / static_cast<float>(m_Height);
     InitialMainWindow();
 
 	// 开启调试
@@ -56,92 +54,14 @@ void Engine::Initialize(UINT width, UINT height, HINSTANCE hInstance)
     m_SwapChain = make_unique<RHI::SwapChain>(m_Width, m_Height, m_MainWnd, m_DXGIFactory.Get(), 
         RHI::CommandListManager::GetSingleton().GetGraphicsQueue().GetD3D12CommandQueue());
 
-    
     // Initilize Managers
-    m_ResourceManager = make_unique<Resource::ResourceManager>();
     m_SceneManager = make_unique<SceneManager>();
     m_vertexFactory = make_unique<VertexFactory>();
 
+	m_Initialized = true;
 
-    RHI::ShaderCreateInfo shaderCI;
-    
-    shaderCI.FilePath = L"Shaders\\Standard.hlsl";
-    shaderCI.entryPoint = "VS";
-    shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
-    m_StandardVS = std::make_shared<RHI::Shader>(shaderCI);
-
-    shaderCI.entryPoint = "PS";
-    shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_PIXEL;
-    m_StandardPS = std::make_shared<RHI::Shader>(shaderCI);
-
-    RHI::PipelineStateDesc PSODesc;
-    PSODesc.PipelineType = RHI::PIPELINE_TYPE_GRAPHIC;
-    PSODesc.GraphicsPipeline.VertexShader = m_StandardVS;
-    PSODesc.GraphicsPipeline.PixelShader = m_StandardPS;
-    PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    PSODesc.GraphicsPipeline.GraphicPipelineState.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    PSODesc.GraphicsPipeline.GraphicPipelineState.SampleMask = UINT_MAX;
-    PSODesc.GraphicsPipeline.GraphicPipelineState.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 1;
-    PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-    PSODesc.GraphicsPipeline.GraphicPipelineState.SampleDesc.Count = 1;
-    PSODesc.GraphicsPipeline.GraphicPipelineState.SampleDesc.Quality = 0;
-    // TODO: SwapChain的Depth Buffer格式需要跟这里相同
-    PSODesc.GraphicsPipeline.GraphicPipelineState.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-    // TODO: InputLayout
-	//UINT inputLayoutIndex = m_vertexFactory->GetInputLayoutIndex(true, true, true, true, false, false, false);
-	UINT inputLayoutIndex = m_vertexFactory->GetInputLayoutIndex(false, true, false, true, false, false, false);
-    std::vector<D3D12_INPUT_ELEMENT_DESC>* inputLayoutDesc = m_vertexFactory->GetInputElementDesc(inputLayoutIndex);
-    PSODesc.GraphicsPipeline.GraphicPipelineState.InputLayout.NumElements = inputLayoutDesc->size();
-    PSODesc.GraphicsPipeline.GraphicPipelineState.InputLayout.pInputElementDescs = inputLayoutDesc->data();
-
-    // shader变量更新频率
-	PSODesc.VariableConfig.Variables.push_back(RHI::ShaderResourceVariableDesc{ RHI::SHADER_TYPE_PIXEL, "BaseColorTex", RHI::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE });
-	PSODesc.VariableConfig.Variables.push_back(RHI::ShaderResourceVariableDesc{ RHI::SHADER_TYPE_PIXEL, "EmissiveTex", RHI::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE });
-
-    m_PSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
-
-    m_PerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
-    m_PerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
-    m_LightCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(LightConstants));
-    m_MaterialCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PhongMaterialConstants));
-
-
-    RHI::ShaderVariable* perDrawVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
-    perDrawVariable->Set(m_PerDrawCB);
-    RHI::ShaderVariable* perPassVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
-    perPassVariable->Set(m_PerPassCB);
-    RHI::ShaderVariable* lightVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbLight");
-    if(lightVariable != nullptr)
-        lightVariable->Set(m_LightCB);
-    //RHI::ShaderVariable* materialVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbMaterial");
-    //materialVariable->Set(m_MaterialCB);
-
-    m_Initialized = true;
-}
-
-int Engine::Run()
-{
-    m_Timer.Reset();
-
-    MSG msg = {};
-    while (msg.message != WM_QUIT)
-    {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        m_Timer.Tick();
-        Tick();
-    }
-
-    Destroy();
-
-    return (int)msg.wParam;
+    m_ForwardRenderer = std::make_unique<ForwardRenderer>();
+    m_ForwardRenderer->Initialize();
 }
 
 void Engine::Tick()
@@ -164,61 +84,8 @@ void Engine::Update(float deltaTime)
 
 void Engine::Render()
 {
-	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"ForwardRenderer");
+    m_ForwardRenderer->Render(*m_SwapChain);
 
-    graphicContext.SetViewport(m_Viewport);
-    graphicContext.SetScissor(m_ScissorRect);
-
-    RHI::GpuResource* backBuffer = m_SwapChain->GetCurBackBuffer();
-    RHI::GpuResourceDescriptor* backBufferRTV = m_SwapChain->GetCurBackBufferRTV();
-    RHI::GpuResource* depthStencilBuffer = m_SwapChain->GetDepthStencilBuffer();
-    RHI::GpuResourceDescriptor* depthStencilBufferDSV = m_SwapChain->GetDepthStencilDSV();
-
-    graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    graphicContext.TransitionResource(*depthStencilBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    graphicContext.ClearColor(*backBufferRTV, Colors::LightSteelBlue);
-    graphicContext.ClearDepthAndStencil(*depthStencilBufferDSV);
-    graphicContext.SetRenderTargets(1, &backBufferRTV, depthStencilBufferDSV);
-
-    ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
-    ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
-    graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
-
-    graphicContext.SetPipelineState(m_PSO.get());
-
-    void* pPerPassCB = m_PerPassCB->Map(graphicContext, 256);
-    Camera* camera = m_SceneManager->GetCamera();
-    camera->UpdateCameraCBs(pPerPassCB);
-
-    LightConstants lightData;
-    lightData.LightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-    lightData.LightDir = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-    lightData.LightIntensity = 1.0f;
-    void* pLightCB = m_LightCB->Map(graphicContext, 256);
-    memcpy(pLightCB, &lightData, sizeof(LightConstants));
-
-    PhongMaterialConstants matConstants;
-    matConstants.AmbientStrength = 0.1f;
-    void* pMatCB = m_MaterialCB->Map(graphicContext, 256);
-    memcpy(pMatCB, &matConstants, sizeof(PhongMaterialConstants));
-
-	// 渲染场景
-    const std::vector<MeshRenderer*>& drawList = m_SceneManager->GetDrawList();
-    for (INT32 i = 0; i < drawList.size(); ++i)
-    {
-        // TODO: 优化代码结构
-        drawList[i]->GetMaterial()->CreateSRB(m_PSO.get());
-
-        void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
-        drawList[i]->Render(graphicContext, pPerDrawCB);
-    }
-
-
-    graphicContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
-
-    graphicContext.Finish();
-
-    // TODO: 可以把过度到Present状态封装到Present函数中，函数内部再开始一个GraphicContext
     m_SwapChain->Present();
 }
 
@@ -405,8 +272,6 @@ void Engine::SetScreenSize(UINT width, UINT height)
     m_Width = width;
     m_Height = height;
     m_Aspect = static_cast<float>(width) / static_cast<float>(height);
-    m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
-    m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 }
 
 void Engine::CalculateFrameStats()
@@ -441,13 +306,4 @@ void Engine::CalculateFrameStats()
 void Engine::OnResize()
 {
     m_SwapChain->Resize(m_Width, m_Height);
-
-    m_Viewport.TopLeftX = 0;
-    m_Viewport.TopLeftY = 0;
-    m_Viewport.Width = static_cast<float>(m_Width);
-    m_Viewport.Height = static_cast<float>(m_Height);
-    m_Viewport.MinDepth = 0.0f;
-    m_Viewport.MaxDepth = 1.0f;
-
-    m_ScissorRect = CD3DX12_RECT(0, 0, m_Width, m_Height);
 }

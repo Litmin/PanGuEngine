@@ -77,11 +77,19 @@ namespace RHI
 		m_DepthStencilBufferDSV = m_DepthStencilBuffer->CreateDSV();
 
 		CommandListManager::GetSingleton().IdleGPU();
+
+		m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
+		m_ScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 	}
 
 	// Present之前需要把Back Buffer过度到Present状态
 	void SwapChain::Present()
 	{
+		RHI::GpuResource* backBuffer = GetCurBackBuffer();
+		RHI::GraphicsContext& presentContext = RHI::GraphicsContext::Begin(L"Present");
+		presentContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
+		presentContext.Finish();
+
 		ThrowIfFailed(m_SwapChain->Present(1, 0));
 
 		m_CurrBackBuffer = (m_CurrBackBuffer + 1) % SwapChainBufferCount;

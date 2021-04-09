@@ -75,7 +75,8 @@ namespace RHI
 			// Dynamic Buffer和Dynamic Variable都在Draw之前的CommitDynamic提交
 			if (rootDescriptor.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
 			{
-				assert(rootDescriptor.ConstantBuffer && "No Resource Binding");
+				if(rootDescriptor.ConstantBuffer == nullptr)
+					LOG_ERROR("No Resource Binding");
 
 				GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptor.ConstantBuffer.get());
 
@@ -89,7 +90,8 @@ namespace RHI
 		{
 			for (INT32 i = 0; i < rootTable.Descriptors.size(); ++i)
 			{
-				assert(rootTable.Descriptors[i] && "No Resource Binding");
+				if(rootTable.Descriptors[i] == nullptr)
+					LOG_ERROR("No Resource Binding");
 			}
 
 			if(rootTable.VariableType != SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC)
@@ -102,7 +104,8 @@ namespace RHI
 	{
 		for (const auto& [rootIndex, rootDescriptor] : m_RootDescriptors)
 		{
-			assert(rootDescriptor.ConstantBuffer && "No Resource Binding");
+			if (rootDescriptor.ConstantBuffer == nullptr)
+				LOG_ERROR("No Resource Binding");
 
 			GpuDynamicBuffer* dynamicBuffer = dynamic_cast<GpuDynamicBuffer*>(rootDescriptor.ConstantBuffer.get());
 
@@ -122,7 +125,8 @@ namespace RHI
 				{
 					for (INT32 i = 0; i < rootTable.Descriptors.size(); ++i)
 					{
-						assert(rootTable.Descriptors[i] && "No Resource Binding");
+						if(rootTable.Descriptors[i] == nullptr)
+							LOG_ERROR("No Resource Binding");
 					}
 
 					// 先绑定再Copy，因为要绑定这个Table的起始位置，所以得用Copy前的dynamicTableOffset

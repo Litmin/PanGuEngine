@@ -10,20 +10,28 @@ using namespace DirectX;
 _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	Engine engine;
-
 	try
 	{
-		engine.Initialize(1920, 1080, hInstance);
+		Engine engine(hInstance);
 
-		Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
+		EngineCreateInfo engineCI;
+		engineCI.Width = 1920;
+		engineCI.Height = 1080;
 
-		// Create Camera
-		GameObject* rootGo = SceneManager::GetSingleton().GetRootNode();
-		GameObject* cameraGo = rootGo->CreateChild();
-		Camera* camera = cameraGo->AddComponent<Camera>();
-		cameraGo->Translate(0.0f, 0.0f, -5.0f, Space::Self);
+		auto setup = []()
+		{
+			//Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
+			////Resource::GLTFLoader::LoadGLTF("Resources/SciFiHelmet/SciFiHelmet.gltf", SceneManager::GetSingleton().GetRootNode());
+			Resource::GLTFLoader::LoadGLTF("Resources/Sponza/Sponza.gltf", SceneManager::GetSingleton().GetRootNode());
 
+			GameObject* rootGo = SceneManager::GetSingleton().GetRootNode();
+			GameObject* cameraGo = rootGo->CreateChild();
+			Camera* camera = cameraGo->AddComponent<Camera>();
+			camera->SetProjection(1920.0f / 1080.0f, 1.0f, 10000.0f, MathHelper::Pi / 3.0f);
+			cameraGo->Translate(0.0f, 0.0f, -5.0f, Space::Self);
+		};
+
+		return engine.RunN(engineCI, setup);
 
 		//// Mesh
 		//UINT boxVertexCount, boxIndicesCount;
@@ -34,29 +42,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		//std::vector<XMFLOAT2> uvs;
 		//std::vector<UINT32> boxIndices;
 		//GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 0, boxVertexCount, boxPositions, boxColors, normals, tangents, uvs, boxIndicesCount, boxIndices);
-		//std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(boxVertexCount, (const float*)boxPositions.data(), (const float*)boxColors.data(),
-		//	(const float*)normals.data(), (const float*)tangents.data(), (const float*)uvs.data(), nullptr, nullptr, nullptr,
+		//std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(boxVertexCount, (const float*)boxPositions.data(), nullptr,
+		//	(const float*)normals.data(), nullptr, (const float*)uvs.data(), nullptr, nullptr, nullptr,
 		//	boxIndicesCount, boxIndices.data());
 
 		//GameObject* boxGo = rootGo->CreateChild();
-		//boxGo->Translate(-1.0f, 1.0f, -1.0f);
-		//boxGo->Rotate(30.0f, 0.0f, 0.0f, Space::Self);
+		//boxGo->Translate(0.0f, -10.0f, 0.0f);
 		//MeshRenderer* meshRenderer = boxGo->AddComponent<MeshRenderer>();
 		//meshRenderer->SetMesh(boxMesh);
 
-		//GameObject* boxGo2 = rootGo->CreateChild();
-		//boxGo2->Translate(1.0f, 0.0f, 0.0f);
-		//MeshRenderer* meshRenderer2 = boxGo2->AddComponent<MeshRenderer>();
-		//meshRenderer2->SetMesh(boxMesh);
-
-
-		//// TODO: 在Component的Add回调中处理
-		//SceneManager::GetSingleton().AddMeshRenderer(meshRenderer);
-		//SceneManager::GetSingleton().AddMeshRenderer(meshRenderer2);
-
-		SceneManager::GetSingleton().AddCamera(camera);
-
-		return engine.Run();
 	}
 	catch (DxException& e)
 	{
