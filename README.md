@@ -10,20 +10,21 @@ Development Log：https://www.zhihu.com/column/c_1159801832779427840
 - [x] Shader Resource Binding System<br>
 - [x] Resource State Tracking System<br>
 - [x] Dynamic Resource
+- [ ] Async Compute
 - [ ] Multi thread Rendering<br>
 
 ### Shading
-- [ ] PBR<br>
-- [ ] Shadow<br>
+- [ ] Physically Based Shading<br>
+- [ ] Soft Shadow<br>
 - [ ] Global Illumination
 
 ### Pipeline
-- [ ] Custom Rendering Pipeline(Similar to Unity Scriptable Rendering Pipeline)<br>
 - [ ] Forward Renderer<br>
 - [ ] Deferred Renderer<br>
 - [ ] GPU Driven Pipeline<br>
 - [ ] Frame Graph<br>
 
+![image](screenshot0.png)
 
 
 
