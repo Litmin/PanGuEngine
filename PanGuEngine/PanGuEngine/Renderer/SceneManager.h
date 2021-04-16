@@ -30,6 +30,7 @@ private:
 
 	Camera* m_Camera;
 	DirectX::XMINT2 m_LastMousePos;
+	DirectX::XMFLOAT2 m_LastRotation;
 
 	// TODO:ø’º‰∑÷∏Ó£¨∞¥‰÷»æ◊¥Ã¨≈≈–Ú
 	std::vector<MeshRenderer*> m_MeshRenderers;
