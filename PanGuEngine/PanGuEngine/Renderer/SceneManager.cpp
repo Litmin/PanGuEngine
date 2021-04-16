@@ -84,8 +84,11 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 	{
 		XMINT2 curMousePos = Input::GetMousePosition();
 
-		cameraGo->Rotate((float)(curMousePos.y - m_LastMousePos.y) * deltaTime * rotateSpeed, 
-			(float)(curMousePos.x - m_LastMousePos.x) * deltaTime * rotateSpeed, 0.0f, Space::Self);
+		m_LastRotation.x += XMConvertToRadians((float)(curMousePos.y - m_LastMousePos.y) * deltaTime * rotateSpeed);
+		m_LastRotation.y += XMConvertToRadians((float)(curMousePos.x - m_LastMousePos.x) * deltaTime * rotateSpeed);
+
+		Math::Quaternion newRotation(m_LastRotation.x, m_LastRotation.y, 0.0f);
+		cameraGo->SetLocalRotation(newRotation);
 
 		m_LastMousePos = curMousePos;
 	}
