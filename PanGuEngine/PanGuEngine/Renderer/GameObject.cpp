@@ -79,6 +79,11 @@ void GameObject::_UpdateFromParent()
 	{
 		m_TransformDirty = false;
 
+		for (auto& component : m_Components)
+		{
+			component->OnTransformUpdate();
+		}
+
 		Vector3 parentScale(1.0f, 1.0f, 1.0f);
 		Quaternion parentRotation;
 		Vector3 parentPosition(0.0f, 0.0f, 0.0f);

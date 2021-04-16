@@ -1,18 +1,19 @@
 #include "pch.h"
 #include "ResourceManager.h"
+#include "D3D12RHI/GpuTexture2D.h"
 
-namespace Resource
+ResourceManager::ResourceManager()
 {
+	std::vector<UINT8> whiteTexData = { 255, 255, 255, 255,
+									   255, 255, 255, 255,
+									   255, 255, 255, 255,
+									   255, 255, 255, 255 };
+	m_DefaultWhiteTex = std::make_shared<RHI::GpuTexture2D>(2, 2, DXGI_FORMAT_R8G8B8A8_UNORM, 4 * 2, whiteTexData.data());
 
-	std::shared_ptr<Mesh> ResourceManager::LoadMesh(std::string path)
-	{
-		return std::shared_ptr<Mesh>();
-	}
-
-	void ResourceManager::UnloadUnusedResources()
-	{
-		// 引用计数大于1的为在使用的资源
-	}
-
+	std::vector<UINT8> blackTexData = { 0, 0, 0, 255,
+										0, 0, 0, 255,
+										0, 0, 0, 255,
+										0, 0, 0, 255 };
+	m_BlackWhiteTex = std::make_shared<RHI::GpuTexture2D>(2, 2, DXGI_FORMAT_R8G8B8A8_UNORM, 4 * 2, blackTexData.data());
 }
 

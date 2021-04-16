@@ -104,3 +104,8 @@ void SceneManager::AddCamera(Camera* camera)
 {
 	m_Camera = camera;
 }
+
+void SceneManager::AddLight(Light* light)
+{
+	m_Lights.push_back(light);
+}

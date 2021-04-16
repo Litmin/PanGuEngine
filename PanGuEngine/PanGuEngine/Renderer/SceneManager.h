@@ -21,6 +21,7 @@ public:
 
 	void AddMeshRenderer(MeshRenderer* meshRenderer);
 	void AddCamera(Camera* camera);
+	void AddLight(Light* light);
 
 	Camera* GetCamera() { return m_Camera; }
 	const std::vector<MeshRenderer*>& GetDrawList() const { return m_MeshRenderers; }
@@ -34,5 +35,7 @@ private:
 
 	// TODO:ø’º‰∑÷∏Ó£¨∞¥‰÷»æ◊¥Ã¨≈≈–Ú
 	std::vector<MeshRenderer*> m_MeshRenderers;
+
+	std::vector<Light*> m_Lights;
 };
 

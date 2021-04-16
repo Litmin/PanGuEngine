@@ -24,11 +24,5 @@ private:
 	std::shared_ptr<RHI::Shader> m_StandardVS = nullptr;
 	std::shared_ptr<RHI::Shader> m_StandardPS = nullptr;
 	std::unique_ptr<RHI::PipelineState> m_PSO = nullptr;
-
-
-	// Default Texture
-	std::shared_ptr<RHI::GpuTexture2D> m_DefaultWhiteTex = nullptr;
-	std::shared_ptr<RHI::GpuTexture2D> m_BlackWhiteTex = nullptr;
-
 };
 
