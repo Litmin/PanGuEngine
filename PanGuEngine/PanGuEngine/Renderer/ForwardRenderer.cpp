@@ -6,7 +6,9 @@
 #include "D3D12RHI/RenderDevice.h"
 #include "D3D12RHI/SwapChain.h"
 #include "D3D12RHI/CommandContext.h"
+#include "D3D12RHI/GpuRenderTextureDepth.h"
 #include "SceneManager.h"
+#include "GameObject.h"
 
 using namespace RHI;
 
@@ -49,25 +51,83 @@ void ForwardRenderer::Initialize()
 	PSODesc.VariableConfig.Variables.push_back(RHI::ShaderResourceVariableDesc{ RHI::SHADER_TYPE_PIXEL, "BaseColorTex", RHI::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE });
 	PSODesc.VariableConfig.Variables.push_back(RHI::ShaderResourceVariableDesc{ RHI::SHADER_TYPE_PIXEL, "EmissiveTex", RHI::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE });
 
-	m_PSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+	m_MainPassPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
 
 	m_PerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
 	m_PerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
 	m_LightCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(LightConstants));
 
-	RHI::ShaderVariable* perDrawVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
+	RHI::ShaderVariable* perDrawVariable = m_MainPassPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
 	perDrawVariable->Set(m_PerDrawCB);
-	RHI::ShaderVariable* perPassVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
+	RHI::ShaderVariable* perPassVariable = m_MainPassPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
 	perPassVariable->Set(m_PerPassCB);
-	RHI::ShaderVariable* lightVariable = m_PSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbLight");
+	RHI::ShaderVariable* lightVariable = m_MainPassPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbLight");
 	if (lightVariable != nullptr)
 		lightVariable->Set(m_LightCB);
+
+	// ShadowMap
+	shaderCI.FilePath = L"Shaders\\ShadowMap.hlsl";
+	shaderCI.entryPoint = "VS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
+	m_ShadowMapVS = std::make_shared<RHI::Shader>(shaderCI);
+
+	shaderCI.entryPoint = "PS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_PIXEL;
+	m_ShadowMapPS = std::make_shared<RHI::Shader>(shaderCI);
+
+	PSODesc.GraphicsPipeline.VertexShader = m_ShadowMapVS;
+	PSODesc.GraphicsPipeline.PixelShader = m_ShadowMapPS;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 0;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	PSODesc.VariableConfig.Variables.clear();
+	
+	m_ShadowMapPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+
+	m_ShadowMap = std::make_shared<RHI::GpuRenderTextureDepth>(2048, 2048, DXGI_FORMAT_R24G8_TYPELESS);
+	m_ShadowMapDSV = m_ShadowMap->CreateDSV();
+	m_ShadowMapSRV = m_ShadowMap->CreateDepthSRV();
+
+	m_ShadowMapViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(2048), static_cast<float>(2048));
+	m_ShadowMapScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(2048), static_cast<LONG>(2048));
 }
 
 void ForwardRenderer::Render(SwapChain& swapChain)
 {
 	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"ForwardRenderer");
 
+	Camera* camera = SceneManager::GetSingleton().GetCamera();
+	Light* light = SceneManager::GetSingleton().GetLight();
+	const std::vector<MeshRenderer*>& drawList = SceneManager::GetSingleton().GetDrawList();
+
+	// TODO: 测试是否只需要绑定一次Descriptor Heap
+	ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
+	ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
+	graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
+
+
+	// <----------------------------------ShadowMap Pass------------------------------------------->
+	graphicContext.SetViewport(m_ShadowMapViewport);
+	graphicContext.SetScissor(m_ShadowMapScissorRect);
+
+	graphicContext.TransitionResource(*m_ShadowMap, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	graphicContext.ClearDepthAndStencil(*m_ShadowMapDSV);
+	graphicContext.SetRenderTargets(0, nullptr, m_ShadowMapDSV.get());
+
+
+
+	graphicContext.SetPipelineState(m_ShadowMapPSO.get());
+
+	//Wrong  这是MainPassPSO的变量      void* pShadowPerPassCB = m_PerPassCB->Map(graphicContext, 256);
+
+	XMMATRIX shadowCameraView = XMMatrixMultiply(XMMatrixRotationQuaternion(light->GetGameObject()->WorldRotation()),
+		XMMatrixTranslation(m_ShadowCameraPos.x, m_ShadowCameraPos.y, m_ShadowCameraPos.z));
+	XMMATRIX shadowCameraproj = XMMatrixOrthographicLH(m_ShadowCameraWidth, m_ShadowCameraHeight, m_ShadowCameraNear, m_ShadowCameraFar);
+
+
+	graphicContext.TransitionResource(*m_ShadowMap, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+
+	// <------------------------------------Main Pass---------------------------------------------->
 	graphicContext.SetViewport(swapChain.GetViewport());
 	graphicContext.SetScissor(swapChain.GetScissorRect());
 
@@ -82,33 +142,19 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 	graphicContext.ClearDepthAndStencil(*depthStencilBufferDSV);
 	graphicContext.SetRenderTargets(1, &backBufferRTV, depthStencilBufferDSV);
 
-	// TODO: 测试是否只需要绑定一次Descriptor Heap
-	ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
-	ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
-	graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
-
-	graphicContext.SetPipelineState(m_PSO.get());
+	graphicContext.SetPipelineState(m_MainPassPSO.get());
 
 	void* pPerPassCB = m_PerPassCB->Map(graphicContext, 256);
-	Camera* camera = SceneManager::GetSingleton().GetCamera();
 	camera->UpdateCameraCBs(pPerPassCB);
 
-	LightConstants lightData;
-	lightData.LightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	lightData.LightDir = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-	lightData.LightIntensity = 1.0f;
 	void* pLightCB = m_LightCB->Map(graphicContext, 256);
-	memcpy(pLightCB, &lightData, sizeof(LightConstants));
-
-	PhongMaterialConstants matConstants;
-	matConstants.AmbientStrength = 0.1f;
+	light->UpdateLightCB(pLightCB);
 
 	// 渲染场景
-	const std::vector<MeshRenderer*>& drawList = SceneManager::GetSingleton().GetDrawList();
 	for (INT32 i = 0; i < drawList.size(); ++i)
 	{
 		// TODO: 优化代码结构
-		drawList[i]->GetMaterial()->CreateSRB(m_PSO.get());
+		drawList[i]->GetMaterial()->CreateSRB(m_MainPassPSO.get());
 
 		void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
 		drawList[i]->Render(graphicContext, pPerDrawCB);

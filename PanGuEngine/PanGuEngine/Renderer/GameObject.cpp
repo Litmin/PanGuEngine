@@ -48,6 +48,11 @@ void GameObject::Translate(float x, float y, float z, Space relativeTo)
 			m_Position += Vector3(x, y, z);
 		}
 	}
+
+	for (auto& component : m_Components)
+	{
+		component->OnTransformUpdate();
+	}
 }
 
 void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relativeTo)
@@ -64,6 +69,11 @@ void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relative
 
 		m_Rotation = m_Rotation * ~m_DerivedRotation * Quaternion(XMConvertToRadians(xAngle), XMConvertToRadians(yAngle), XMConvertToRadians(zAngle)) * m_DerivedRotation;
 	}
+
+	for (auto& component : m_Components)
+	{
+		component->OnTransformUpdate();
+	}
 }
 
 DirectX::XMFLOAT4X4 GameObject::LocalToWorldMatrix()
@@ -78,11 +88,6 @@ void GameObject::_UpdateFromParent()
 	if (m_TransformDirty)
 	{
 		m_TransformDirty = false;
-
-		for (auto& component : m_Components)
-		{
-			component->OnTransformUpdate();
-		}
 
 		Vector3 parentScale(1.0f, 1.0f, 1.0f);
 		Quaternion parentRotation;

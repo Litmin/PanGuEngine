@@ -14,6 +14,6 @@ ResourceManager::ResourceManager()
 										0, 0, 0, 255,
 										0, 0, 0, 255,
 										0, 0, 0, 255 };
-	m_BlackWhiteTex = std::make_shared<RHI::GpuTexture2D>(2, 2, DXGI_FORMAT_R8G8B8A8_UNORM, 4 * 2, blackTexData.data());
+	m_DefaultBlackTex = std::make_shared<RHI::GpuTexture2D>(2, 2, DXGI_FORMAT_R8G8B8A8_UNORM, 4 * 2, blackTexData.data());
 }
 

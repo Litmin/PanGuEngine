@@ -26,26 +26,6 @@ cbuffer cbPass
     float gDeltaTime;
 };
 
-// Static
-cbuffer cbLight
-{
-    float3 LightDir;
-    float LightIntensity;
-    float3 LightColor;
-}
-
-// Mutable
-cbuffer cbMaterial
-{
-    float4 BaseColorFactor;
-    float4 EmissiveFactor;
-    float  MetallicFactor;
-    float  RoughnessFactor;
-}
-
-Texture2D BaseColorTex;
-Texture2D EmissiveTex;
-
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
 SamplerState gsamLinearWrap       : register(s2);

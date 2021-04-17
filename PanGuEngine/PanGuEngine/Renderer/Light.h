@@ -16,9 +16,12 @@ public:
 	virtual void OnAddToGameObject() override;
 	virtual void OnTransformUpdate() override;
 
+	void SetLightColor(DirectX::XMFLOAT3 color);
+	void SetLightIntensity(float intensity);
+
+	void UpdateLightCB(void* lightCB);
+
 private:
-	DirectX::XMFLOAT3 m_LightDir = { 0.0f, 0.0f, 0.0f };
-	float m_LightIntensity = 1.0f;
-	DirectX::XMFLOAT3 m_LightColor = { 0.0f, 0.0f, 0.0f };
+	LightConstants m_LightConstants;
 };
 
