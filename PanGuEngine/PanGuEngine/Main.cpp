@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			Light* light = lightGo->AddComponent<Light>();
 			light->SetLightColor(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
 			light->SetLightIntensity(1.0f);
-			lightGo->Rotate(45.0f, 30.0f, 0.0f, Space::Self);
+			lightGo->Rotate(45.0f, 0.0f, 0.0f, Space::Self);
 
 			// Plane
 			UINT boxVertexCount, boxIndicesCount;

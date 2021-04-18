@@ -62,12 +62,15 @@ namespace RHI
 		m_CommandList->Reset(m_CurrentAllocator, nullptr);
 
 		// TODO:ÖØÖÃäÖÈ¾×´Ì¬
+		m_CurSRB = nullptr;
+		m_CurPSO = nullptr;
 	}
 
 	CommandContext& CommandContext::Begin(const std::wstring ID /*= L""*/)
 	{
 		CommandContext* NewContext = ContextManager::GetSingleton().AllocateContext(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		NewContext->SetID(ID);
+
 		return *NewContext;
 	}
 
@@ -296,6 +299,8 @@ namespace RHI
 		}
 		else
 		{
+			if (m_CurSRB->m_PSO != m_CurPSO)
+				LOG("aaa");
 			assert(m_CurSRB != nullptr);
 			assert(m_CurSRB->m_PSO == m_CurPSO);
 

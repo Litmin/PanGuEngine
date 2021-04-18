@@ -36,7 +36,6 @@ SamplerState gsamAnisotropicClamp : register(s5);
 struct VertexIn
 {
     float3 Position  : POSITION;
-    //float4 Color : COLOR;
     float3 Normal : NORMAL;
     float4 Tangent : TANGENT;
     float2 uv : TEXCOORD0;
@@ -45,17 +44,8 @@ struct VertexIn
 struct VertexOut
 {
     float4 Position  : SV_POSITION;
-    //float4 Color : COLOR;
-    float3 WorldNormal : NORMAL;
-    float3 ViewDir : VIEW;
-    float2 uv : TEXCOORD0;
 };
 
-// 变换法线要使用逆转置矩阵
-float3 ObjectToWorldNormal(float3 normal)
-{
-    return normalize(mul((float3x3)WorldToObject, normal));
-}
 
 VertexOut VS(VertexIn IN)
 {
@@ -63,32 +53,11 @@ VertexOut VS(VertexIn IN)
 
     float4 worldPos = mul(float4(IN.Position, 1.0f), ObjectToWorld);
     o.Position = mul(worldPos, gViewProj);
-    //o.Color = IN.Color;
-    o.WorldNormal = ObjectToWorldNormal(IN.Normal);
-    o.ViewDir = gEyePosW - worldPos.xyz;
-    o.uv = IN.uv;
 
     return o;
 }
 
-float4 PS(VertexOut IN) : SV_Target
+void PS(VertexOut IN)
 {
-    float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
-    float4 emissiveColor = EmissiveTex.Sample(gsamLinearWrap, IN.uv);
 
-
-    float4 col = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    
-    float3 lightDir = -normalize(LightDir);
-
-    // 环境光
-    float3 ambient = 0.05f * LightColor;
-    // 漫反射
-    float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f) * LightColor;
-    // 高光
-    float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f) * LightColor;
-
-    col.rgb = (ambient + diffuse + specular) * baseColor.rgb + emissiveColor.rgb;
-
-    return col;
 }

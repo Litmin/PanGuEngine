@@ -24,7 +24,7 @@ void MeshRenderer::SetMaterial(std::shared_ptr<Material> material)
 }
 
 
-void MeshRenderer::Render(GraphicsContext& graphicContext, void* perDrawCB) const
+void MeshRenderer::Render(GraphicsContext& graphicContext, void* perDrawCB, bool useMaterial) const
 {
 	assert(perDrawCB != nullptr);
 	assert(m_Mesh != nullptr);
@@ -33,7 +33,8 @@ void MeshRenderer::Render(GraphicsContext& graphicContext, void* perDrawCB) cons
 	graphicContext.SetVertexBuffer(0, m_Mesh->VertexBufferView());
 	graphicContext.SetIndexBuffer(m_Mesh->IndexBufferView());
 	graphicContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	graphicContext.SetShaderResourceBinding(m_Material->GetSRB());
+	if(useMaterial)
+		graphicContext.SetShaderResourceBinding(m_Material->GetSRB());
 
 	PerDrawConstants perDrawData;
 	XMMATRIX objectToWorld = XMLoadFloat4x4(&m_GameObject->LocalToWorldMatrix());

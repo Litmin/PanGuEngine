@@ -12,6 +12,8 @@ namespace RHI
 	class SwapChain;
 }
 
+class Light;
+
 class ForwardRenderer
 {
 public:
@@ -19,6 +21,8 @@ public:
 	void Render(RHI::SwapChain& swapChain);
 
 private:
+	void UpdateShadowPerPassCB(Light* light, void* shadowPerPassCB);
+
 	// Main Pass
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerDrawCB = nullptr;
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerPassCB = nullptr;
@@ -28,7 +32,10 @@ private:
 	std::shared_ptr<RHI::Shader> m_StandardPS = nullptr;
 	std::unique_ptr<RHI::PipelineState> m_MainPassPSO = nullptr;
 
-	// ShadowMap
+	// ShadowMap Pass
+	std::shared_ptr<RHI::GpuDynamicBuffer> m_ShadowMapPerDrawCB = nullptr;
+	std::shared_ptr<RHI::GpuDynamicBuffer> m_ShadowMapPerPassCB = nullptr;
+
 	std::shared_ptr<RHI::Shader> m_ShadowMapVS = nullptr;
 	std::shared_ptr<RHI::Shader> m_ShadowMapPS = nullptr;
 	std::unique_ptr<RHI::PipelineState> m_ShadowMapPSO = nullptr;
@@ -38,11 +45,11 @@ private:
 	std::shared_ptr<RHI::GpuResourceDescriptor> m_ShadowMapSRV = nullptr;
 
 	// TODO:根据相机的视锥体计算光源相机的位置和视锥体大小， 暂时固定光源相机的位置和视锥体大小
-	DirectX::XMFLOAT3 m_ShadowCameraPos = { 0.0f, 10.0f, 0.0f };
+	DirectX::XMFLOAT3 m_ShadowCameraPos = { 0.0f, 100.0f, -100.0f };
 	float m_ShadowCameraWidth = 30.0f;
 	float m_ShadowCameraHeight = 30.0f;
 	float m_ShadowCameraNear = 1.0f;
-	float m_ShadowCameraFar = 10000.0f;
+	float m_ShadowCameraFar = 500.0f;
 	PerPassConstants m_ShadowMapPassCBData;
 
 	CD3DX12_VIEWPORT m_ShadowMapViewport;
