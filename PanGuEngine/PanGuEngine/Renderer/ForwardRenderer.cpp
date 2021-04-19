@@ -98,6 +98,11 @@ void ForwardRenderer::Initialize()
 	shadowMapPerDrawVariable->Set(m_ShadowMapPerDrawCB);
 	RHI::ShaderVariable* shadowMapPerPassVariable = m_ShadowMapPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
 	shadowMapPerPassVariable->Set(m_ShadowMapPerPassCB);
+
+	// 绑定ShadowMap
+	RHI::ShaderVariable* shadowMapVariable = m_MainPassPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "ShadowMap");
+	if (shadowMapVariable != nullptr)
+		shadowMapVariable->Set(m_ShadowMapSRV);
 }
 
 void ForwardRenderer::Render(SwapChain& swapChain)
@@ -134,6 +139,7 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 		drawList[i]->Render(graphicContext, pShadowMapPerDrawCB, false);
 	}
 
+	// Shadow Map过度到Read状态
 	graphicContext.TransitionResource(*m_ShadowMap, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 
@@ -155,7 +161,7 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 	graphicContext.SetPipelineState(m_MainPassPSO.get());
 
 	void* pPerPassCB = m_PerPassCB->Map(graphicContext, 256);
-	camera->UpdateCameraCBs(pPerPassCB);
+	camera->UpdateCameraCBs(pPerPassCB, m_ShadowMapPassCBData.ViewProj);
 
 	void* pLightCB = m_LightCB->Map(graphicContext, 256);
 	light->UpdateLightCB(pLightCB);

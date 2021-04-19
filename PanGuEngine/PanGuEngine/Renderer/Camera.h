@@ -12,7 +12,7 @@ public:
 
 	void SetProjection(float aspect, float nearPlane, float farPlane, float fieldOfView);
 
-	void UpdateCameraCBs(void* perPassCB);
+	void UpdateCameraCBs(void* perPassCB, const DirectX::XMFLOAT4X4& shadowViewProj);
 
 protected:
 	float m_Aspect;

@@ -30,7 +30,7 @@ void Camera::SetProjection(float aspect, float nearPlane, float farPlane, float 
 	XMStoreFloat4x4(&m_Proj, projectionMatrix);
 }
 
-void Camera::UpdateCameraCBs(void* perPassCB)
+void Camera::UpdateCameraCBs(void* perPassCB, const DirectX::XMFLOAT4X4& shadowViewProj)
 {
 	assert(perPassCB);
 
@@ -52,6 +52,7 @@ void Camera::UpdateCameraCBs(void* perPassCB)
 	XMStoreFloat4x4(&m_PerPassCBData.InvProj, XMMatrixTranspose(invProj));
 	XMStoreFloat4x4(&m_PerPassCBData.ViewProj, XMMatrixTranspose(viewProj));
 	XMStoreFloat4x4(&m_PerPassCBData.InvViewProj, XMMatrixTranspose(invViewProj));
+	m_PerPassCBData.ShadowViewProj = shadowViewProj;
 
 	m_PerPassCBData.EyePosW = XMFLOAT3(m_GameObject->WorldPosition().GetX(), m_GameObject->WorldPosition().GetY(), m_GameObject->WorldPosition().GetZ());
 	m_PerPassCBData.NearZ = m_NearPlane;

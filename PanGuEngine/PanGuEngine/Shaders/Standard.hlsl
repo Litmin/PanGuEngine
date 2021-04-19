@@ -16,6 +16,7 @@ cbuffer cbPass
     float4x4 gInvProj;
     float4x4 gViewProj;
     float4x4 gInvViewProj;
+    float4x4 gShadowViewProj;
     float3 gEyePosW;
     float cbPerObjectPad1;
     float2 gRenderTargetSize;
@@ -46,6 +47,9 @@ cbuffer cbMaterial
 Texture2D BaseColorTex;
 Texture2D EmissiveTex;
 
+Texture2D ShadowMap;
+
+
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
 SamplerState gsamLinearWrap       : register(s2);
@@ -55,20 +59,19 @@ SamplerState gsamAnisotropicClamp : register(s5);
 
 struct VertexIn
 {
-    float3 Position  : POSITION;
-    //float4 Color : COLOR;
-    float3 Normal : NORMAL;
-    float4 Tangent : TANGENT;
-    float2 uv : TEXCOORD0;
+    float3 Position : POSITION;
+    float3 Normal   : NORMAL;
+    float4 Tangent  : TANGENT;
+    float2 uv       : TEXCOORD0;
 };
 
 struct VertexOut
 {
-    float4 Position  : SV_POSITION;
-    //float4 Color : COLOR;
-    float3 WorldNormal : NORMAL;
-    float3 ViewDir : VIEW;
-    float2 uv : TEXCOORD0;
+    float4 Position     : SV_POSITION;
+    float3 WorldNormal  : NORMAL;
+    float3 ViewDir      : VIEW;
+    float2 uv           : TEXCOORD0;
+    float4 ShadowPos    : TEXCOORD1;
 };
 
 // 变换法线要使用逆转置矩阵
@@ -83,10 +86,11 @@ VertexOut VS(VertexIn IN)
 
     float4 worldPos = mul(float4(IN.Position, 1.0f), ObjectToWorld);
     o.Position = mul(worldPos, gViewProj);
-    //o.Color = IN.Color;
     o.WorldNormal = ObjectToWorldNormal(IN.Normal);
     o.ViewDir = gEyePosW - worldPos.xyz;
     o.uv = IN.uv;
+
+    o.ShadowPos = mul(worldPos, gShadowViewProj);
 
     return o;
 }
@@ -95,7 +99,6 @@ float4 PS(VertexOut IN) : SV_Target
 {
     float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
     float4 emissiveColor = EmissiveTex.Sample(gsamLinearWrap, IN.uv);
-
 
     float4 col = float4(0.0f, 0.0f, 0.0f, 1.0f);
     
@@ -109,6 +112,19 @@ float4 PS(VertexOut IN) : SV_Target
     float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f) * LightColor;
 
     col.rgb = (ambient + diffuse + specular) * baseColor.rgb + emissiveColor.rgb;
+
+    // Shadow Map
+    float3 shadowPos = IN.ShadowPos.xyz / IN.ShadowPos.w;
+    float2 shadowMapUV = shadowPos.xy * 0.5 + 0.5;
+    shadowMapUV.y = 1 - shadowMapUV.y;
+    float curDepth = shadowPos.z;
+
+    float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
+
+    float shadowFactor = 1.0f;
+    if (curDepth > depthInShadowMap)
+        shadowFactor = 0.0f;
+    col.rgb *= shadowFactor;
 
     return col;
 }

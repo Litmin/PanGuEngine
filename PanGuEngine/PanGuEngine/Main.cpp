@@ -22,9 +22,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		{
 			GameObject* rootNode = SceneManager::GetSingleton().GetRootNode();
 
-			Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", rootNode);
+			//Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", rootNode);
 			//Resource::GLTFLoader::LoadGLTF("Resources/SciFiHelmet/SciFiHelmet.gltf", rootNode);
 			//Resource::GLTFLoader::LoadGLTF("Resources/Sponza/Sponza.gltf", rootNode);
+			GameObject* fish = Resource::GLTFLoader::LoadGLTF("Resources/BarramundiFish.glb", rootNode);
+			fish->Rotate(90.0f, 0.0f, 0.0f);
+			fish->SetLocalScale(Math::Vector3(10.0f, 10.0f, 10.0f));
 
 			GameObject* cameraGo = rootNode->CreateChild();
 			Camera* camera = cameraGo->AddComponent<Camera>();
@@ -38,18 +41,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			lightGo->Rotate(45.0f, 0.0f, 0.0f, Space::Self);
 
 			// Plane
-			UINT boxVertexCount, boxIndicesCount;
-			std::vector<XMFLOAT3> boxPositions;
-			std::vector<XMFLOAT4> boxColors;
-			std::vector<XMFLOAT3> normals;
-			std::vector<XMFLOAT4> tangents;
-			std::vector<XMFLOAT2> uvs;
-			std::vector<UINT32> boxIndices;
-			GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 0, boxVertexCount, boxPositions, boxColors, normals, tangents, uvs, boxIndicesCount, boxIndices);
-			std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(boxVertexCount, (const float*)boxPositions.data(), nullptr,
-				(const float*)normals.data(), nullptr, (const float*)uvs.data(), nullptr, nullptr, nullptr,
-				boxIndicesCount, boxIndices.data());
-
+			std::shared_ptr<Mesh> boxMesh = GeometryFactory::CreateBox(1.0f, 1.0f, 1.0f, 0);
 			GameObject* boxGo = rootNode->CreateChild();
 			boxGo->Translate(0.0f, -3.0f, 0.0f);
 			boxGo->SetLocalScale(Math::Vector3(30.0f, 1.0f, 30.0f));
@@ -57,7 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 			meshRenderer->SetMesh(boxMesh);
 			DirectX::XMFLOAT4 oneVector = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			std::shared_ptr<Material> material = std::make_shared<Material>(0.5f, 0.5f, oneVector, oneVector, ResourceManager::GetSingleton().GetDefaultWhiteTex(),
-				nullptr, nullptr, nullptr, nullptr);
+				nullptr, nullptr, nullptr, ResourceManager::GetSingleton().GetDefaultBlackTex());
 			meshRenderer->SetMaterial(material);
 		};
 
