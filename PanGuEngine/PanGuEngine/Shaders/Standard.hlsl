@@ -111,8 +111,6 @@ float4 PS(VertexOut IN) : SV_Target
     // ธ฿นโ
     float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f) * LightColor;
 
-    col.rgb = (ambient + diffuse + specular) * baseColor.rgb + emissiveColor.rgb;
-
     // Shadow Map
     float3 shadowPos = IN.ShadowPos.xyz / IN.ShadowPos.w;
     float2 shadowMapUV = shadowPos.xy * 0.5 + 0.5;
@@ -120,11 +118,15 @@ float4 PS(VertexOut IN) : SV_Target
     float curDepth = shadowPos.z;
 
     float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
+    // Bias 
+    depthInShadowMap += 0.1;
 
     float shadowFactor = 1.0f;
     if (curDepth > depthInShadowMap)
         shadowFactor = 0.0f;
-    col.rgb *= shadowFactor;
+
+
+    col.rgb = (ambient + (diffuse + specular) * shadowFactor) * baseColor.rgb + emissiveColor.rgb;
 
     return col;
 }

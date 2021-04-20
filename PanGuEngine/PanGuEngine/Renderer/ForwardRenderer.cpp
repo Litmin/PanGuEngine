@@ -83,13 +83,14 @@ void ForwardRenderer::Initialize()
 	
 	m_ShadowMapPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
 
-	m_ShadowMap = std::make_shared<RHI::GpuRenderTextureDepth>(2048, 2048, DXGI_FORMAT_R24G8_TYPELESS);
+	float shadowMapSize = 512.0f;
+	m_ShadowMap = std::make_shared<RHI::GpuRenderTextureDepth>(shadowMapSize, shadowMapSize, DXGI_FORMAT_R24G8_TYPELESS);
 	m_ShadowMap->SetName(L"ShadowMap");
 	m_ShadowMapDSV = m_ShadowMap->CreateDSV();
 	m_ShadowMapSRV = m_ShadowMap->CreateDepthSRV();
 
-	m_ShadowMapViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(2048), static_cast<float>(2048));
-	m_ShadowMapScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(2048), static_cast<LONG>(2048));
+	m_ShadowMapViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(shadowMapSize), static_cast<float>(shadowMapSize));
+	m_ShadowMapScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(shadowMapSize), static_cast<LONG>(2048));
 
 	m_ShadowMapPerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
 	m_ShadowMapPerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
