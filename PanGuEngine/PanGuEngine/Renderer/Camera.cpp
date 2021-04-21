@@ -30,6 +30,42 @@ void Camera::SetProjection(float aspect, float nearPlane, float farPlane, float 
 	XMStoreFloat4x4(&m_Proj, projectionMatrix);
 }
 
+std::array<DirectX::XMVECTOR, 8> Camera::GetFrustumCorners(float overrideFarPlane)
+{
+	std::array<DirectX::XMVECTOR, 8> corners;
+
+	float nearPlaneHalfHeight = m_NearPlane * Math::Tan(m_FieldOfView / 2.0f);
+	float nearPlaneHalfWidth = nearPlaneHalfHeight * m_Aspect;
+
+	float farPlaneHalfHeight = overrideFarPlane == 0.0f ? m_FarPlane / m_NearPlane * nearPlaneHalfHeight : overrideFarPlane / m_NearPlane * nearPlaneHalfHeight;
+	float farPlaneHalfWidth = farPlaneHalfHeight * m_Aspect;
+
+	DirectX::XMVECTOR nearPlaneCorner0 = XMVectorSet(-nearPlaneHalfWidth, -nearPlaneHalfHeight, m_NearPlane, 1.0f);
+	DirectX::XMVECTOR nearPlaneCorner1 = XMVectorSet(nearPlaneHalfWidth, -nearPlaneHalfHeight, m_NearPlane, 1.0f);
+	DirectX::XMVECTOR nearPlaneCorner2 = XMVectorSet(-nearPlaneHalfWidth, nearPlaneHalfHeight, m_NearPlane, 1.0f);
+	DirectX::XMVECTOR nearPlaneCorner3 = XMVectorSet(nearPlaneHalfWidth, nearPlaneHalfHeight, m_NearPlane, 1.0f);
+
+	DirectX::XMVECTOR farPlaneCorner0 = XMVectorSet(-farPlaneHalfWidth, -farPlaneHalfHeight, m_FarPlane, 1.0f);
+	DirectX::XMVECTOR farPlaneCorner1 = XMVectorSet(farPlaneHalfWidth, -farPlaneHalfHeight, m_FarPlane, 1.0f);
+	DirectX::XMVECTOR farPlaneCorner2 = XMVectorSet(-farPlaneHalfWidth, farPlaneHalfHeight, m_FarPlane, 1.0f);
+	DirectX::XMVECTOR farPlaneCorner3 = XMVectorSet(farPlaneHalfWidth, farPlaneHalfHeight, m_FarPlane, 1.0f);
+
+	DirectX::XMMATRIX inverseView = XMLoadFloat4x4(&m_GameObject->LocalToWorldMatrix());
+
+	// 变换到世界空间
+	corners[0] = XMVector4Transform(nearPlaneCorner0, inverseView);
+	corners[1] = XMVector4Transform(nearPlaneCorner1, inverseView);
+	corners[2] = XMVector4Transform(nearPlaneCorner2, inverseView);
+	corners[3] = XMVector4Transform(nearPlaneCorner3, inverseView);
+
+	corners[4] = XMVector4Transform(farPlaneCorner0, inverseView);
+	corners[5] = XMVector4Transform(farPlaneCorner1, inverseView);
+	corners[6] = XMVector4Transform(farPlaneCorner2, inverseView);
+	corners[7] = XMVector4Transform(farPlaneCorner3, inverseView);
+
+	return corners;
+}
+
 void Camera::UpdateCameraCBs(void* perPassCB, const DirectX::XMFLOAT4X4& shadowViewProj)
 {
 	assert(perPassCB);
@@ -37,9 +73,9 @@ void Camera::UpdateCameraCBs(void* perPassCB, const DirectX::XMFLOAT4X4& shadowV
 	m_View = m_GameObject->LocalToWorldMatrix();
 
 	XMMATRIX view = XMLoadFloat4x4(&m_View);
+	view = XMMatrixInverse(&XMMatrixDeterminant(view), view);
 	XMMATRIX proj = XMLoadFloat4x4(&m_Proj);
 
-	view = XMMatrixInverse(&XMMatrixDeterminant(view), view);
 
 	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);

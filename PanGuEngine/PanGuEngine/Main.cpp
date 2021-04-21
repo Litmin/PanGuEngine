@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 			GameObject* cameraGo = rootNode->CreateChild();
 			Camera* camera = cameraGo->AddComponent<Camera>();
-			camera->SetProjection(1920.0f / 1080.0f, 1.0f, 10000.0f, MathHelper::Pi / 3.0f);
+			camera->SetProjection(1920.0f / 1080.0f, 0.1f, 100.0f, MathHelper::Pi / 3.0f);
 			cameraGo->Translate(0.0f, 0.0f, -5.0f, Space::Self);
 
 			GameObject* lightGo = rootNode->CreateChild();

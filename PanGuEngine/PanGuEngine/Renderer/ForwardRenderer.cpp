@@ -83,14 +83,14 @@ void ForwardRenderer::Initialize()
 	
 	m_ShadowMapPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
 
-	float shadowMapSize = 512.0f;
+	float shadowMapSize = 2048.0f;
 	m_ShadowMap = std::make_shared<RHI::GpuRenderTextureDepth>(shadowMapSize, shadowMapSize, DXGI_FORMAT_R24G8_TYPELESS);
 	m_ShadowMap->SetName(L"ShadowMap");
 	m_ShadowMapDSV = m_ShadowMap->CreateDSV();
 	m_ShadowMapSRV = m_ShadowMap->CreateDepthSRV();
 
 	m_ShadowMapViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(shadowMapSize), static_cast<float>(shadowMapSize));
-	m_ShadowMapScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(shadowMapSize), static_cast<LONG>(2048));
+	m_ShadowMapScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(shadowMapSize), static_cast<LONG>(shadowMapSize));
 
 	m_ShadowMapPerDrawCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerDrawConstants));
 	m_ShadowMapPerPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
@@ -131,7 +131,7 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 	graphicContext.SetPipelineState(m_ShadowMapPSO.get());
 
 	void* pShadowPerPassCB = m_ShadowMapPerPassCB->Map(graphicContext, 256);
-	UpdateShadowPerPassCB(light, pShadowPerPassCB);
+	UpdateShadowPerPassCB(light, camera, pShadowPerPassCB);
 
 	// 渲染场景
 	for (INT32 i = 0; i < drawList.size(); ++i)
@@ -180,12 +180,52 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 	graphicContext.Finish();
 }
 
-void ForwardRenderer::UpdateShadowPerPassCB(Light* light, void* shadowPerPassCB)
+void ForwardRenderer::UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, void* shadowPerPassCB)
 {
+	// 首先假设光源相机在原点
+	XMMATRIX lightToWorld = XMMatrixRotationQuaternion(light->GetGameObject()->WorldRotation());
+	XMMATRIX worldToLight = DirectX::XMMatrixInverse(&XMMatrixDeterminant(lightToWorld), lightToWorld);
+
+	// 场景相机视锥体的八个顶点
+	std::array<DirectX::XMVECTOR, 8> sceneCameraCorners = sceneCamera->GetFrustumCorners(50.0f);
+	std::array<DirectX::XMFLOAT3, 8> sceneCameraCornersFloat3;
+	// 变换到位于原点的光源相机空间
+	for (INT32 i = 0; i < sceneCameraCorners.size(); ++i)
+	{
+		sceneCameraCorners[i] = DirectX::XMVector4Transform(sceneCameraCorners[i], worldToLight);
+		DirectX::XMStoreFloat3(&sceneCameraCornersFloat3[i], sceneCameraCorners[i]);
+	}
+	// 求出光源相机视锥体的包围盒
+	float minX, maxX, minY, maxY, minZ, maxZ;
+	minX = maxX = sceneCameraCornersFloat3[0].x;
+	minY = maxY = sceneCameraCornersFloat3[0].y;
+	minZ = maxZ = sceneCameraCornersFloat3[0].z;
+	for (INT32 i = 0; i < sceneCameraCornersFloat3.size(); ++i)
+	{
+		minX = Math::Min(minX, sceneCameraCornersFloat3[i].x);
+		minY = Math::Min(minY, sceneCameraCornersFloat3[i].y);
+		minZ = Math::Min(minZ, sceneCameraCornersFloat3[i].z);
+		maxX = Math::Max(maxX, sceneCameraCornersFloat3[i].x);
+		maxY = Math::Max(maxY, sceneCameraCornersFloat3[i].y);
+		maxZ = Math::Max(maxZ, sceneCameraCornersFloat3[i].z);
+	}
+
+	// 计算出视锥体，由此构造光源相机的投影矩阵
+	float size = Math::Max(maxX - minX, maxY - minY);
+	float orthoWidth = size;
+	float orthoHeight = size;
+	float nearPlane = 0.0f;
+	float farPlane = maxZ - minZ;
+
+	// 计算出近平面的中心点，变换到世界空间就是光源相机的位置
+	DirectX::XMFLOAT3 nearPlaneCenter = { (minX + maxX) * 0.5f, (minY + maxY) * 0.5f, minZ };
+	DirectX::XMFLOAT3 lightCameraPos;
+	DirectX::XMStoreFloat3(&lightCameraPos, DirectX::XMVector4Transform(DirectX::XMLoadFloat3(&nearPlaneCenter), lightToWorld));
+
 	XMMATRIX shadowCameraView = XMMatrixMultiply(XMMatrixRotationQuaternion(light->GetGameObject()->WorldRotation()),
-		XMMatrixTranslation(m_ShadowCameraPos.x, m_ShadowCameraPos.y, m_ShadowCameraPos.z));
+		XMMatrixTranslation(lightCameraPos.x, lightCameraPos.y, lightCameraPos.z));
 	shadowCameraView = DirectX::XMMatrixInverse(&XMMatrixDeterminant(shadowCameraView), shadowCameraView);
-	XMMATRIX shadowCameraproj = XMMatrixOrthographicLH(m_ShadowCameraWidth, m_ShadowCameraHeight, m_ShadowCameraNear, m_ShadowCameraFar);
+	XMMATRIX shadowCameraproj = XMMatrixOrthographicLH(orthoWidth, orthoHeight, nearPlane, farPlane);
 
 	XMMATRIX viewProj = XMMatrixMultiply(shadowCameraView, shadowCameraproj);
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(shadowCameraView), shadowCameraView);
@@ -199,9 +239,9 @@ void ForwardRenderer::UpdateShadowPerPassCB(Light* light, void* shadowPerPassCB)
 	XMStoreFloat4x4(&m_ShadowMapPassCBData.ViewProj, XMMatrixTranspose(viewProj));
 	XMStoreFloat4x4(&m_ShadowMapPassCBData.InvViewProj, XMMatrixTranspose(invViewProj));
 
-	m_ShadowMapPassCBData.EyePosW = m_ShadowCameraPos;
-	m_ShadowMapPassCBData.NearZ = m_ShadowCameraNear;
-	m_ShadowMapPassCBData.FarZ = m_ShadowCameraFar;
+	m_ShadowMapPassCBData.EyePosW = nearPlaneCenter;
+	m_ShadowMapPassCBData.NearZ = nearPlane;
+	m_ShadowMapPassCBData.FarZ = farPlane;
 
 	memcpy(shadowPerPassCB, &m_ShadowMapPassCBData, sizeof(PerPassConstants));
 }

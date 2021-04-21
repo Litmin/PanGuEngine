@@ -105,7 +105,7 @@ float4 PS(VertexOut IN) : SV_Target
     float3 lightDir = -normalize(LightDir);
 
     // 环境光
-    float3 ambient = 0.05f * LightColor;
+    float3 ambient = 0.1f * LightColor;
     // 漫反射
     float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f) * LightColor;
     // 高光
@@ -119,14 +119,12 @@ float4 PS(VertexOut IN) : SV_Target
 
     float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
     // Bias 
-    depthInShadowMap += 0.1;
+    depthInShadowMap += 0.01f;
 
     float shadowFactor = 1.0f;
     if (curDepth > depthInShadowMap)
         shadowFactor = 0.0f;
 
-
     col.rgb = (ambient + (diffuse + specular) * shadowFactor) * baseColor.rgb + emissiveColor.rgb;
-
     return col;
 }
