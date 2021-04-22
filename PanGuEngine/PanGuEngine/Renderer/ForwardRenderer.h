@@ -47,6 +47,7 @@ private:
 
 	PerPassConstants m_ShadowMapPassCBData;
 
+	const float m_ShadowMapSize = 4096.0f;
 	CD3DX12_VIEWPORT m_ShadowMapViewport;
 	CD3DX12_RECT m_ShadowMapScissorRect;
 };

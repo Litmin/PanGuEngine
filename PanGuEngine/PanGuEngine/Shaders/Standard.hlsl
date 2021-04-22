@@ -56,6 +56,7 @@ SamplerState gsamLinearWrap       : register(s2);
 SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
+SamplerComparisonState gsamShadow : register(s6);
 
 struct VertexIn
 {
@@ -95,6 +96,9 @@ VertexOut VS(VertexIn IN)
     return o;
 }
 
+#define NumSample 25
+
+
 float4 PS(VertexOut IN) : SV_Target
 {
     float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
@@ -105,7 +109,7 @@ float4 PS(VertexOut IN) : SV_Target
     float3 lightDir = -normalize(LightDir);
 
     // 环境光
-    float3 ambient = 0.1f * LightColor;
+    float3 ambient = 0.2f * LightColor;
     // 漫反射
     float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f) * LightColor;
     // 高光
@@ -117,14 +121,62 @@ float4 PS(VertexOut IN) : SV_Target
     shadowMapUV.y = 1 - shadowMapUV.y;
     float curDepth = shadowPos.z;
 
-    float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
-    // Bias 
-    depthInShadowMap += 0.01f;
 
-    float shadowFactor = 1.0f;
-    if (curDepth > depthInShadowMap)
-        shadowFactor = 0.0f;
+    // 使用硬件支持的PCF
+    //float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
+    // Bias,使用硬件Bias
+    //depthInShadowMap += 0.01f;
+    //float shadowFactor = 1.0f;
+    //if (curDepth > depthInShadowMap)
+    //    shadowFactor = 0.0f;
+
+
+    // PCSS
+    float shadowFactor = 1.0;
+    const float lightSize = 10.0;
+    uint width, height, numMips;
+    ShadowMap.GetDimensions(0, width, height, numMips);
+    float dx = 1.0f / (float)width;
+
+    // 1.Blocker Search 计算Blocker的平均深度
+    float blockerDepth = 0.0;
+    float blockerNum = 0;
+    for (int i = -3; i <= 3; ++i)
+    {
+        for (int j = -3; j <= 3; ++j)
+        {
+            float shadowMapDepth = ShadowMap.Sample(gsamLinearWrap, shadowMapUV + dx * 5 * float2(i, j)).r;
+            if (curDepth > shadowMapDepth)
+            {
+                blockerDepth += shadowMapDepth;
+                blockerNum += 1.0;
+            }
+        }
+    }
+
+    if (blockerNum >= 1.0)
+    {
+        blockerDepth /= blockerNum;
+
+        // 2.计算Filter大小
+        float penumbra = (curDepth - blockerDepth) * lightSize / blockerDepth;
+
+        // 3.PCF
+        shadowFactor = 0.0;
+        for (int i = -3; i <= 3; ++i)
+        {
+            for (int j = -3; j <= 3; ++j)
+            {
+                // 使用硬件支持的PCF, LevelZero表示mip0
+                shadowFactor += ShadowMap.SampleCmpLevelZero(gsamShadow, shadowMapUV + dx * penumbra * float2(i, j), curDepth).r;
+            }
+        }
+        shadowFactor /= 49.0;
+    }
+    
+    //shadowFactor = ShadowMap.SampleCmpLevelZero(gsamShadow, shadowMapUV, curDepth).r;
 
     col.rgb = (ambient + (diffuse + specular) * shadowFactor) * baseColor.rgb + emissiveColor.rgb;
+    //col.rgb = float3(shadowFactor, shadowFactor, shadowFactor);
     return col;
 }
