@@ -85,6 +85,8 @@ namespace RHI
 	{
 		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
 
+		// TODO: Implete UAV
+
 		return descriptor;
 	}
 

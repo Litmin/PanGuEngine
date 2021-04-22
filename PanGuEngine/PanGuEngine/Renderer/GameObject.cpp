@@ -48,6 +48,11 @@ void GameObject::Translate(float x, float y, float z, Space relativeTo)
 			m_Position += Vector3(x, y, z);
 		}
 	}
+
+	for (auto& component : m_Components)
+	{
+		component->OnTransformUpdate();
+	}
 }
 
 void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relativeTo)
@@ -63,6 +68,11 @@ void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relative
 		_UpdateFromParent();
 
 		m_Rotation = m_Rotation * ~m_DerivedRotation * Quaternion(XMConvertToRadians(xAngle), XMConvertToRadians(yAngle), XMConvertToRadians(zAngle)) * m_DerivedRotation;
+	}
+
+	for (auto& component : m_Components)
+	{
+		component->OnTransformUpdate();
 	}
 }
 

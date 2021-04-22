@@ -4,7 +4,6 @@
 class Light : public Component
 {
 public:
-
 	enum class LightTypes
 	{
 		Direction,
@@ -14,8 +13,15 @@ public:
 		NUM_LIGHT_TYPEs
 	};
 
-	DirectX::XMFLOAT3 direction;
-	float intensity;
-	DirectX::XMFLOAT3 color;
+	virtual void OnAddToGameObject() override;
+	virtual void OnTransformUpdate() override;
+
+	void SetLightColor(DirectX::XMFLOAT3 color);
+	void SetLightIntensity(float intensity);
+
+	void UpdateLightCB(void* lightCB);
+
+private:
+	LightConstants m_LightConstants;
 };
 

@@ -41,6 +41,7 @@ public:
 	Math::Quaternion WorldRotation() const { return m_DerivedRotation; }
 	Math::Vector3 LocalScale() const { return m_Scale; }
 	Math::Vector3 WorldScale() const { return m_DerivedScale; }
+	Math::Vector3 ForwardDir() { _UpdateFromParent(); return m_DerivedRotation * Math::Vector3(0.0f, 0.0f, 1.0f); }
 
 	DirectX::XMFLOAT4X4 LocalToWorldMatrix();
 

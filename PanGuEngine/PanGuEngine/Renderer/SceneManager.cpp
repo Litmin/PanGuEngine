@@ -42,7 +42,7 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 
 	GameObject* cameraGo = m_Camera->GetGameObject();
 
-	static float moveSpeed = 50.0f;
+	static float moveSpeed = 10.0f;
 	static float rotateSpeed = 10.0f;
 
 	if (Input::GetKey(KeyCode::W))
@@ -103,4 +103,9 @@ void SceneManager::AddMeshRenderer(MeshRenderer* meshRenderer)
 void SceneManager::AddCamera(Camera* camera)
 {
 	m_Camera = camera;
+}
+
+void SceneManager::AddLight(Light* light)
+{
+	m_Light = light;
 }

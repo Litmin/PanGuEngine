@@ -14,7 +14,7 @@ public:
 
 	Material* GetMaterial() { return m_Material.get(); }
 
-	void Render(RHI::GraphicsContext& graphicContext, void* perDrawCB) const;
+	void Render(RHI::GraphicsContext& graphicContext, void* perDrawCB, bool useMaterial = true) const;
 
 private:
 	std::shared_ptr<Mesh> m_Mesh = nullptr;

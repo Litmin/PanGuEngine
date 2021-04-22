@@ -1,14 +1,21 @@
 #include "pch.h"
 #include "GeometryFactory.h"
 #include "GeometryGenerator.h"
+#include "Renderer/Mesh.h"
 
 using namespace DirectX;
 
-void GeometryFactory::CreateBox(float width, float height, float depth, std::uint32_t numSubdivisions, 
-	UINT& vertexCount, std::vector<DirectX::XMFLOAT3>& positions, std::vector<DirectX::XMFLOAT4>& colors, 
-	std::vector<DirectX::XMFLOAT3>& normals, std::vector<DirectX::XMFLOAT4>& tangents, std::vector<DirectX::XMFLOAT2>& uvs,
-	UINT& indexCount, std::vector<UINT32>& indices)
+
+std::shared_ptr<Mesh> GeometryFactory::CreateBox(float width, float height, float depth, std::uint32_t numSubdivisions)
 {
+	UINT vertexCount, indexCount;
+	std::vector<XMFLOAT3> positions;
+	std::vector<XMFLOAT4> colors;
+	std::vector<XMFLOAT3> normals;
+	std::vector<XMFLOAT4> tangents;
+	std::vector<XMFLOAT2> uvs;
+	std::vector<UINT32> indices;
+
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(width, height, depth, numSubdivisions);
 
@@ -38,9 +45,15 @@ void GeometryFactory::CreateBox(float width, float height, float depth, std::uin
 
 
 	indexCount = box.Indices32.size();
-	auto& boxIndices = box.GetIndices16();
+	auto& boxIndices = box.Indices32;
 	for (auto& index : boxIndices)
 	{
 		indices.push_back(index);
 	}
+
+	std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(vertexCount, (const float*)positions.data(), nullptr,
+		(const float*)normals.data(), nullptr, (const float*)uvs.data(), nullptr, nullptr, nullptr,
+		indexCount, boxIndices.data());
+
+	return boxMesh;
 }

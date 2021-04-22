@@ -13,6 +13,7 @@ public:
 
 	//virtual void _OnTransformUpdate();
 	virtual void OnAddToGameObject() {}
+	virtual void OnTransformUpdate() {}
 
 protected:
 	GameObject* m_GameObject = nullptr;

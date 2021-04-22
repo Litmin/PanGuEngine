@@ -78,8 +78,8 @@ private:
 
 	std::unique_ptr<RHI::SwapChain> m_SwapChain;
 
-
 	std::unique_ptr<SceneManager> m_SceneManager;
+	std::unique_ptr<ResourceManager> m_ResourceManager;
 	std::unique_ptr<VertexFactory> m_vertexFactory;
 
 	std::unique_ptr<ForwardRenderer> m_ForwardRenderer;

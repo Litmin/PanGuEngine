@@ -56,6 +56,7 @@ void Engine::Initialize(const EngineCreateInfo& engineCI)
 
     // Initilize Managers
     m_SceneManager = make_unique<SceneManager>();
+    m_ResourceManager = make_unique<ResourceManager>();
     m_vertexFactory = make_unique<VertexFactory>();
 
 	m_Initialized = true;
