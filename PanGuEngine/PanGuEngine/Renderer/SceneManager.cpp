@@ -92,6 +92,12 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 
 		m_LastMousePos = curMousePos;
 	}
+
+	if (Input::GetKeyDown(KeyCode::P))
+	{
+		Math::Quaternion newRotation(0.0f, 10.0f, 0.0f);
+		cameraGo->SetLocalRotation(newRotation);
+	}
 }
 
 void SceneManager::AddMeshRenderer(MeshRenderer* meshRenderer)

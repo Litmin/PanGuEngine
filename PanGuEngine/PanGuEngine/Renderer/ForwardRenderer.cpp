@@ -217,8 +217,10 @@ void ForwardRenderer::UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, v
 	float maxLength = Math::Length(Math::Vector3(sceneCameraCornersFloat3[0].x - sceneCameraCornersFloat3[6].x,
 												 sceneCameraCornersFloat3[0].y - sceneCameraCornersFloat3[6].y,
 												 sceneCameraCornersFloat3[0].z - sceneCameraCornersFloat3[6].z)) * 1.0f;
-	float orthoWidth = maxLength;
-	float orthoHeight = maxLength;
+	//float orthoWidth = maxLength;
+	//float orthoHeight = maxLength;
+	float orthoWidth = maxX - minX;
+	float orthoHeight = maxY - minY;
 	float nearPlane = 0.0f;
 	float farPlane = maxZ - minZ;
 
@@ -227,26 +229,26 @@ void ForwardRenderer::UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, v
 
 	// 让光源相机每次移动整数倍的纹素,也就是让光源相机位置是worldUnitsPertexel的整数倍
 	float WorldUnitsPerTexel = maxLength / m_ShadowMapSize;	// 一个纹素是多少Unit
-	nearPlaneCenter.x /= WorldUnitsPerTexel;
-	nearPlaneCenter.x = Math::Floor(nearPlaneCenter.x);
-	nearPlaneCenter.x *= WorldUnitsPerTexel;
-	nearPlaneCenter.y /= WorldUnitsPerTexel;
-	nearPlaneCenter.y = Math::Floor(nearPlaneCenter.y);
-	nearPlaneCenter.y *= WorldUnitsPerTexel;
+	//nearPlaneCenter.x /= WorldUnitsPerTexel;
+	//nearPlaneCenter.x = Math::Floor(nearPlaneCenter.x);
+	//nearPlaneCenter.x *= WorldUnitsPerTexel;
+	//nearPlaneCenter.y /= WorldUnitsPerTexel;
+	//nearPlaneCenter.y = Math::Floor(nearPlaneCenter.y);
+	//nearPlaneCenter.y *= WorldUnitsPerTexel;
 
 	DirectX::XMFLOAT3 lightCameraPos;
 	DirectX::XMStoreFloat3(&lightCameraPos, DirectX::XMVector4Transform(DirectX::XMLoadFloat3(&nearPlaneCenter), lightToWorld));
 
 
-	/*XMMATRIX shadowCameraView = XMMatrixMultiply(XMMatrixRotationQuaternion(light->GetGameObject()->WorldRotation()),
+	XMMATRIX shadowCameraView = XMMatrixMultiply(XMMatrixRotationQuaternion(light->GetGameObject()->WorldRotation()),
 		XMMatrixTranslation(lightCameraPos.x, lightCameraPos.y, lightCameraPos.z));
 	shadowCameraView = DirectX::XMMatrixInverse(&XMMatrixDeterminant(shadowCameraView), shadowCameraView);
-	XMMATRIX shadowCameraproj = XMMatrixOrthographicLH(orthoWidth, orthoHeight, nearPlane, farPlane);*/
+	XMMATRIX shadowCameraproj = XMMatrixOrthographicLH(orthoWidth, orthoHeight, nearPlane, farPlane);
 
-	XMMATRIX shadowCameraView = XMMatrixMultiply(XMMatrixRotationQuaternion(light->GetGameObject()->WorldRotation()),
-		XMMatrixTranslation(0.0f, 10.0f, -10.0f));
-	shadowCameraView = DirectX::XMMatrixInverse(&XMMatrixDeterminant(shadowCameraView), shadowCameraView);
-	XMMATRIX shadowCameraproj = XMMatrixOrthographicLH(30, 30, 1, 30);
+// 	XMMATRIX shadowCameraView = XMMatrixMultiply(XMMatrixRotationQuaternion(light->GetGameObject()->WorldRotation()),
+// 		XMMatrixTranslation(0.0f, 10.0f, -10.0f));
+// 	shadowCameraView = DirectX::XMMatrixInverse(&XMMatrixDeterminant(shadowCameraView), shadowCameraView);
+// 	XMMATRIX shadowCameraproj = XMMatrixOrthographicLH(30, 30, 1, 30);
 
 	XMMATRIX viewProj = XMMatrixMultiply(shadowCameraView, shadowCameraproj);
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(shadowCameraView), shadowCameraView);
