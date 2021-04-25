@@ -99,7 +99,7 @@ VertexOut VS(VertexIn IN)
 float PCSS(float2 shadowMapUV, float curDepth)
 {
     float shadowFactor = 1.0;
-    const float lightSize = 10.0;
+    const float lightSize = 1.0;
     uint width, height, numMips;
     ShadowMap.GetDimensions(0, width, height, numMips);
     float dx = 1.0f / (float)width;

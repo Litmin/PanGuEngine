@@ -88,7 +88,7 @@ namespace RHI
 		RHI::GpuResource* backBuffer = GetCurBackBuffer();
 		RHI::GraphicsContext& presentContext = RHI::GraphicsContext::Begin(L"Present");
 		presentContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
-		presentContext.Finish();
+		presentContext.Finish(false, true);
 
 		ThrowIfFailed(m_SwapChain->Present(1, 0));
 

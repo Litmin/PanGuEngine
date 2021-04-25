@@ -95,7 +95,7 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 
 	if (Input::GetKeyDown(KeyCode::P))
 	{
-		Math::Quaternion newRotation(0.0f, 10.0f, 0.0f);
+		Math::Quaternion newRotation(0.0f, XMConvertToRadians(10.0f), 0.0f);
 		cameraGo->SetLocalRotation(newRotation);
 	}
 }

@@ -22,6 +22,9 @@ Engine::Engine(HINSTANCE hInstance)
 Engine::~Engine()
 {
     // TODO: 释放GPU资源
+    m_CommandContextManager = nullptr;
+
+    m_RenderDevice->PurgeReleaseQueue(true);
 
     RHI::CommandListManager::GetSingleton().IdleGPU();
 }
