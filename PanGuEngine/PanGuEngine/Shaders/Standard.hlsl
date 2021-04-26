@@ -99,7 +99,7 @@ VertexOut VS(VertexIn IN)
 float PCSS(float2 shadowMapUV, float curDepth)
 {
     float shadowFactor = 1.0;
-    const float lightSize = 1.0;
+    const float lightSize = 5.0;
     uint width, height, numMips;
     ShadowMap.GetDimensions(0, width, height, numMips);
     float dx = 1.0f / (float)width;
@@ -143,6 +143,27 @@ float PCSS(float2 shadowMapUV, float curDepth)
     return shadowFactor;
 }
 
+float PCF(float2 shadowMapUV, float curDepth)
+{
+    float shadowFactor = 0.0;
+
+    uint width, height, numMips;
+    ShadowMap.GetDimensions(0, width, height, numMips);
+    float dx = 1.0f / (float)width;
+
+    for (int i = -3; i <= 3; ++i)
+    {
+        for (int j = -3; j <= 3; ++j)
+        {
+            // 使用硬件支持的PCF, LevelZero表示mip0
+            shadowFactor += ShadowMap.SampleCmpLevelZero(gsamShadow, shadowMapUV + dx * float2(i, j), curDepth).r;
+        }
+    }
+    shadowFactor /= 49.0;
+
+    return shadowFactor;
+}
+
 float4 PS(VertexOut IN) : SV_Target
 {
     float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
@@ -168,13 +189,16 @@ float4 PS(VertexOut IN) : SV_Target
     // PCSS
     //float shadowFactor = PCSS(shadowMapUV, curDepth);
 
-    // 使用硬件支持的PCF
-    float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
-    // Bias,使用硬件Bias
-    //depthInShadowMap += 0.01f;
-    float shadowFactor = 1.0f;
-    if (curDepth > depthInShadowMap)
-        shadowFactor = 0.0f;
+    // PCF
+    float shadowFactor = PCF(shadowMapUV, curDepth);
+
+    //// 使用硬件支持的PCF
+    //float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
+    //// Bias,使用硬件Bias
+    ////depthInShadowMap += 0.01f;
+    //float shadowFactor = 1.0f;
+    //if (curDepth > depthInShadowMap)
+    //    shadowFactor = 0.0f;
 
     col.rgb = (ambient + (diffuse + specular) * shadowFactor) * baseColor.rgb + emissiveColor.rgb;
 
