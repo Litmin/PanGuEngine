@@ -55,18 +55,21 @@ namespace RHI
 		// CommandContext由ContextManager创建,所以把构造函数的访问权限设为private
 	private:
 		CommandContext(D3D12_COMMAND_LIST_TYPE Type);
+
 		// 创建CommandContext时调用，该函数会创建一个CommandList，并请求一个Allocator
 		void Initialize();
 		// 复用CommandContext时调用，重置渲染状态，该函数会请求一个Allocator，并调用CommandList::Reset
 		void Reset();
 
 	public:
+		~CommandContext();
+
 		// 开始记录命令
 		 static CommandContext& Begin(const std::wstring ID = L"");
 		// Flush existing commands to the GPU but keep the context alive
 		uint64_t Flush(bool WaitForCompletion = false);
 		// 完成记录命令
-		uint64_t Finish(bool WaitForCompletion = false);
+		uint64_t Finish(bool WaitForCompletion = false, bool releaseDynamic = false);
 
 
 		// Graphic Context可以转换成Compute Context，但是Compute Context不能转换成Graphic Context

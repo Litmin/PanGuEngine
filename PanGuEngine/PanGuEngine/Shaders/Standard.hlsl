@@ -96,44 +96,10 @@ VertexOut VS(VertexIn IN)
     return o;
 }
 
-#define NumSample 25
-
-
-float4 PS(VertexOut IN) : SV_Target
+float PCSS(float2 shadowMapUV, float curDepth)
 {
-    float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
-    float4 emissiveColor = EmissiveTex.Sample(gsamLinearWrap, IN.uv);
-
-    float4 col = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    
-    float3 lightDir = -normalize(LightDir);
-
-    // 环境光
-    float3 ambient = 0.2f * LightColor;
-    // 漫反射
-    float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f) * LightColor;
-    // 高光
-    float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f) * LightColor;
-
-    // Shadow Map
-    float3 shadowPos = IN.ShadowPos.xyz / IN.ShadowPos.w;
-    float2 shadowMapUV = shadowPos.xy * 0.5 + 0.5;
-    shadowMapUV.y = 1 - shadowMapUV.y;
-    float curDepth = shadowPos.z;
-
-
-    // 使用硬件支持的PCF
-    //float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
-    // Bias,使用硬件Bias
-    //depthInShadowMap += 0.01f;
-    //float shadowFactor = 1.0f;
-    //if (curDepth > depthInShadowMap)
-    //    shadowFactor = 0.0f;
-
-
-    // PCSS
     float shadowFactor = 1.0;
-    const float lightSize = 10.0;
+    const float lightSize = 5.0;
     uint width, height, numMips;
     ShadowMap.GetDimensions(0, width, height, numMips);
     float dx = 1.0f / (float)width;
@@ -173,10 +139,68 @@ float4 PS(VertexOut IN) : SV_Target
         }
         shadowFactor /= 49.0;
     }
+
+    return shadowFactor;
+}
+
+float PCF(float2 shadowMapUV, float curDepth)
+{
+    float shadowFactor = 0.0;
+
+    uint width, height, numMips;
+    ShadowMap.GetDimensions(0, width, height, numMips);
+    float dx = 1.0f / (float)width;
+
+    for (int i = -3; i <= 3; ++i)
+    {
+        for (int j = -3; j <= 3; ++j)
+        {
+            // 使用硬件支持的PCF, LevelZero表示mip0
+            shadowFactor += ShadowMap.SampleCmpLevelZero(gsamShadow, shadowMapUV + dx * float2(i, j), curDepth).r;
+        }
+    }
+    shadowFactor /= 49.0;
+
+    return shadowFactor;
+}
+
+float4 PS(VertexOut IN) : SV_Target
+{
+    float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
+    float4 emissiveColor = EmissiveTex.Sample(gsamLinearWrap, IN.uv);
+
+    float4 col = float4(0.0f, 0.0f, 0.0f, 1.0f);
     
-    //shadowFactor = ShadowMap.SampleCmpLevelZero(gsamShadow, shadowMapUV, curDepth).r;
+    float3 lightDir = -normalize(LightDir);
+
+    // 环境光
+    float3 ambient = 0.2f * LightColor;
+    // 漫反射
+    float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f) * LightColor;
+    // 高光
+    float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f) * LightColor;
+
+    // Shadow Map
+    float3 shadowPos = IN.ShadowPos.xyz / IN.ShadowPos.w;
+    float2 shadowMapUV = shadowPos.xy * 0.5 + 0.5;
+    shadowMapUV.y = 1 - shadowMapUV.y;
+    float curDepth = shadowPos.z;
+
+    // PCSS
+    //float shadowFactor = PCSS(shadowMapUV, curDepth);
+
+    // PCF
+    float shadowFactor = PCF(shadowMapUV, curDepth);
+
+    //// 使用硬件支持的PCF
+    //float depthInShadowMap = ShadowMap.Sample(gsamLinearWrap, shadowMapUV).r;
+    //// Bias,使用硬件Bias
+    ////depthInShadowMap += 0.01f;
+    //float shadowFactor = 1.0f;
+    //if (curDepth > depthInShadowMap)
+    //    shadowFactor = 0.0f;
 
     col.rgb = (ambient + (diffuse + specular) * shadowFactor) * baseColor.rgb + emissiveColor.rgb;
-    //col.rgb = float3(shadowFactor, shadowFactor, shadowFactor);
+
     return col;
 }

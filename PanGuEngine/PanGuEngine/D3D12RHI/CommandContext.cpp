@@ -49,6 +49,14 @@ namespace RHI
 
 	}
 
+	CommandContext::~CommandContext()
+	{
+		// 释放分配的Dynamic Descriptor
+		m_DynamicGPUDescriptorAllocator.ReleaseAllocations();
+		// 释放分配的Dynamic Resource
+		m_DynamicResourceHeap.ReleaseAllocatedPages();
+	}
+
 	void CommandContext::Initialize()
 	{
 		CommandListManager::GetSingleton().CreateNewCommandList(m_Type, m_CommandList.GetAddressOf(), &m_CurrentAllocator);
@@ -92,7 +100,7 @@ namespace RHI
 		return FenceValue;
 	}
 
-	uint64_t CommandContext::Finish(bool WaitForCompletion /*= false*/)
+	uint64_t CommandContext::Finish(bool WaitForCompletion /*= false*/, bool releaseDynamic /*= false*/)
 	{
 		assert(m_Type == D3D12_COMMAND_LIST_TYPE_DIRECT || m_Type == D3D12_COMMAND_LIST_TYPE_COMPUTE);
 
@@ -105,13 +113,16 @@ namespace RHI
 		// 清理Release Queue
 		RenderDevice::GetSingleton().PurgeReleaseQueue(false);
 
-		// 释放分配的Dynamic Descriptor
-		m_DynamicGPUDescriptorAllocator.ReleaseAllocations();
+		// 在每帧的末尾释放动态资源
+		if (releaseDynamic)
+		{
+			// 释放分配的Dynamic Descriptor
+			m_DynamicGPUDescriptorAllocator.ReleaseAllocations();
 
-		// 释放分配的Dynamic Resource
-		m_DynamicResourceHeap.ReleaseAllocatedPages();
-
-
+			// 释放分配的Dynamic Resource
+			m_DynamicResourceHeap.ReleaseAllocatedPages();
+		}
+		
 		uint64_t FenceValue = Queue.ExecuteCommandList(m_CommandList.Get());
 		Queue.DiscardAllocator(FenceValue, m_CurrentAllocator);
 		m_CurrentAllocator = nullptr;
