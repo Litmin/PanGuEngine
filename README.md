@@ -15,11 +15,12 @@ Development Log：https://www.zhihu.com/column/c_1159801832779427840
 
 ### Shading
 - [ ] Physically Based Shading<br>
-- [ ] Soft Shadow<br>
+- [x] Percentage-Closer Soft Shadows<br>
+- [ ] Cascaded Shadow Mapping
 - [ ] Global Illumination
 
 ### Pipeline
-- [ ] Forward Renderer<br>
+- [x] Forward Renderer<br>
 - [ ] Deferred Renderer<br>
 - [ ] GPU Driven Pipeline<br>
 - [ ] Frame Graph<br>
