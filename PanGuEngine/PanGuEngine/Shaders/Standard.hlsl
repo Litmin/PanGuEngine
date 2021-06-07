@@ -176,9 +176,9 @@ float4 PS(VertexOut IN) : SV_Target
     // 环境光
     float3 ambient = 0.2f * LightColor;
     // 漫反射
-    float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f) * LightColor;
+    float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f)* LightColor;
     // 高光
-    float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f) * LightColor;
+    float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f)* LightColor;
 
     // Shadow Map
     float3 shadowPos = IN.ShadowPos.xyz / IN.ShadowPos.w;

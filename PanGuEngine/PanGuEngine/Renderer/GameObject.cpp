@@ -49,9 +49,10 @@ void GameObject::Translate(float x, float y, float z, Space relativeTo)
 		}
 	}
 
-	for (auto& component : m_Components)
+	OnTransformUpdate(this);
+	for (auto& child : m_Children)
 	{
-		component->OnTransformUpdate();
+		SetChildTransformDirty(child.get());
 	}
 }
 
@@ -70,9 +71,10 @@ void GameObject::Rotate(float xAngle, float yAngle, float zAngle, Space relative
 		m_Rotation = m_Rotation * ~m_DerivedRotation * Quaternion(XMConvertToRadians(xAngle), XMConvertToRadians(yAngle), XMConvertToRadians(zAngle)) * m_DerivedRotation;
 	}
 
-	for (auto& component : m_Components)
+	OnTransformUpdate(this);
+	for (auto& child : m_Children)
 	{
-		component->OnTransformUpdate();
+		SetChildTransformDirty(child.get());
 	}
 }
 
@@ -114,5 +116,28 @@ void GameObject::_UpdateFromParent()
 
 		XMMATRIX localToWorldMatrix = scale * rotate * translation;
 		XMStoreFloat4x4(&m_LocalToWorldMatrix, localToWorldMatrix);
+	}
+}
+
+void GameObject::OnTransformUpdate(GameObject* gameObject)
+{
+	for (auto& component : gameObject->m_Components)
+	{
+		component->OnTransformUpdate();
+	}
+
+	for (auto& child : gameObject->m_Children)
+	{
+		OnTransformUpdate(child.get());
+	}
+}
+
+void GameObject::SetChildTransformDirty(GameObject* gameObject)
+{
+	m_TransformDirty = true;
+
+	for (auto& child : gameObject->m_Children)
+	{
+		SetChildTransformDirty(child.get());
 	}
 }
