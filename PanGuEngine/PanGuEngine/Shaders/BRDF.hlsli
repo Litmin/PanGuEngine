@@ -36,12 +36,14 @@ SurfaceInfo GetSurfaceInfo(float4 BaseColor, float4 PhysicalDesc)
 
     surfaceInfo.PerceptualRoughness = clamp(PhysicalDesc.g, 0.0, 1.0);
     
-    surfaceInfo.DiffuseColor = BaseColor.rgb * (float3(1.0, 1.0, 1.0) - f0) * (1.0 - Metallic);
+    surfaceInfo.DiffuseColor = BaseColor.rgb * (float3(1.0, 1.0, 1.0) - noMetalF0) * (1.0 - metallic);
 
-    surfaceInfo.F0 = lerp(f0, BaseColor.rgb, metallic);
+    surfaceInfo.F0 = lerp(noMetalF0, BaseColor.rgb, metallic);
     float reflectance = max(max(surfaceInfo.F0.r, surfaceInfo.F0.g), surfaceInfo.F0.b);
     // Anything less than 2% is physically impossible and is instead considered to be shadowing. Compare to "Real-Time-Rendering" 4th editon on page 325.
     surfaceInfo.F90 = clamp(reflectance * 50.0, 0.0, 1.0) * float3(1.0, 1.0, 1.0);
+
+    return surfaceInfo;
 }
 
 // Lambertian Diffuse
@@ -72,6 +74,18 @@ float D_GGX(float a2, float NoH)
 	return a2 / (PI * d * d);					// 4 mul, 1 rcp
 }
 
+// Visibility = G(v,l,a) / (4 * (n,v) * (n,l))
+// see https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg)
+float SmithGGXVisibilityCorrelated(float NdotL, float NdotV, float AlphaRoughness)
+{
+    float a2 = AlphaRoughness * AlphaRoughness;
+
+    float GGXV = NdotL * sqrt(max(NdotV * NdotV * (1.0 - a2) + a2, 1e-7));
+    float GGXL = NdotV * sqrt(max(NdotL * NdotL * (1.0 - a2) + a2, 1e-7));
+
+    return 0.5 / (GGXV + GGXL);
+}
+
 void BRDF(AngularInfo angularInfo, SurfaceInfo surfaceInfo, out float3 diffuseContrib, out float3 specContrib)
 {
     diffuseContrib = float3(0.0, 0.0, 0.0);
@@ -82,11 +96,39 @@ void BRDF(AngularInfo angularInfo, SurfaceInfo surfaceInfo, out float3 diffuseCo
     // See eq. 3 in https://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
     float AlphaRoughness = surfaceInfo.PerceptualRoughness * surfaceInfo.PerceptualRoughness;
 
-    float F = F_Schlick(angularInfo.VdotH, surfaceInfo.F0, surfaceInfo.F90);
+    float3 F = F_Schlick(angularInfo.VdotH, surfaceInfo.F0, surfaceInfo.F90);
     float D = D_GGX(AlphaRoughness, angularInfo.NdotH);
+    // G项和4 * (n,v) * (n,l)同时考虑，合并为Visibility项
+    float Vis = SmithGGXVisibilityCorrelated(angularInfo.NdotL, angularInfo.NdotV, AlphaRoughness);
+
 
     diffuseContrib = (1.0 - F) * LambertianDiffuse(surfaceInfo.DiffuseColor);
-    specContrib = F * D;
+    specContrib = F * Vis * D;
+}
+
+float3 ApplyDirectionalLight(float3 lightDir, float3 lightColor, SurfaceInfo surfaceInfo, float3 normal, float3 view)
+{
+    float3 pointToLight = -lightDir;
+
+    float3 n = normalize(normal);
+    float3 v = normalize(view);
+    float3 l = normalize(pointToLight);
+    float3 h = normalize(l + v);
+
+    AngularInfo angularInfo;
+    angularInfo.NdotL = clamp(dot(n, l), 0.0, 1.0);
+    angularInfo.NdotV = clamp(dot(n, v), 0.0, 1.0);
+    angularInfo.NdotH = clamp(dot(n, h), 0.0, 1.0);
+    angularInfo.LdotH = clamp(dot(l, h), 0.0, 1.0);
+    angularInfo.VdotH = clamp(dot(v, h), 0.0, 1.0);
+
+    float3 diffuseContrib, specContrib;
+
+    BRDF(angularInfo, surfaceInfo, diffuseContrib, specContrib);
+
+    float3 shade = (diffuseContrib + specContrib) * angularInfo.NdotL;
+
+    return shade * lightColor;
 }
 
 

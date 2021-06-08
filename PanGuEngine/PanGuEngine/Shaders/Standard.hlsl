@@ -1,4 +1,5 @@
 
+#include "BRDF.hlsli"
 
 // Static
 cbuffer cbPerObject
@@ -45,6 +46,7 @@ cbuffer cbMaterial
 }
 
 Texture2D BaseColorTex;
+Texture2D MetallicRoughnessTex;
 Texture2D EmissiveTex;
 
 Texture2D ShadowMap;
@@ -167,18 +169,13 @@ float PCF(float2 shadowMapUV, float curDepth)
 float4 PS(VertexOut IN) : SV_Target
 {
     float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
+    float4 physicalDesc = MetallicRoughnessTex.Sample(gsamLinearWrap, IN.uv);
     float4 emissiveColor = EmissiveTex.Sample(gsamLinearWrap, IN.uv);
 
     float4 col = float4(0.0f, 0.0f, 0.0f, 1.0f);
     
-    float3 lightDir = -normalize(LightDir);
-
     // 环境光
-    float3 ambient = 0.2f * LightColor;
-    // 漫反射
-    float3 diffuse = max(dot(lightDir, IN.WorldNormal), 0.0f)* LightColor;
-    // 高光
-    float3 specular = pow(max(dot(IN.WorldNormal, normalize(IN.ViewDir)), 0.0f), 32.0f)* LightColor;
+    float3 ambient = 0.05f * LightColor;
 
     // Shadow Map
     float3 shadowPos = IN.ShadowPos.xyz / IN.ShadowPos.w;
@@ -200,7 +197,11 @@ float4 PS(VertexOut IN) : SV_Target
     //if (curDepth > depthInShadowMap)
     //    shadowFactor = 0.0f;
 
-    col.rgb = (ambient + (diffuse + specular) * shadowFactor) * baseColor.rgb + emissiveColor.rgb;
+    // Lighting
+    SurfaceInfo surfaceInfo = GetSurfaceInfo(baseColor, physicalDesc);
+    col.rgb += ApplyDirectionalLight(LightDir, LightColor, surfaceInfo, IN.WorldNormal, IN.ViewDir) * shadowFactor;
+    col.rgb += ambient * baseColor.rgb;
+    col.rgb += emissiveColor.rgb;
 
     return col;
 }
