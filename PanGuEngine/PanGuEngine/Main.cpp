@@ -22,13 +22,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		{
 			GameObject* rootNode = SceneManager::GetSingleton().GetRootNode();
 
-			//Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", rootNode);
+			GameObject* damagedHelmet = Resource::GLTFLoader::LoadGLTF("Resources/DamagedHelmet.gltf", rootNode);
+			damagedHelmet->Rotate(90.0f, 180.0f, 0.0f);
+			//damagedHelmet->Rotate(0, 180, 0, Space::Self);
 			//Resource::GLTFLoader::LoadGLTF("Resources/SciFiHelmet/SciFiHelmet.gltf", rootNode);
 			//Resource::GLTFLoader::LoadGLTF("Resources/Sponza/Sponza.gltf", rootNode);
-			GameObject* fish = Resource::GLTFLoader::LoadGLTF("Resources/BarramundiFish.glb", rootNode);
+			/*GameObject* fish = Resource::GLTFLoader::LoadGLTF("Resources/BarramundiFish.glb", rootNode);
 			fish->Translate(0.0f, 0.8f, 0.0f, Space::Self);
 			fish->Rotate(90.0f, 0.0f, 0.0f);
-			fish->SetLocalScale(Math::Vector3(10.0f, 10.0f, 10.0f));
+			fish->SetLocalScale(Math::Vector3(10.0f, 10.0f, 10.0f));*/
 
 			GameObject* cameraGo = rootNode->CreateChild();
 			Camera* camera = cameraGo->AddComponent<Camera>();
