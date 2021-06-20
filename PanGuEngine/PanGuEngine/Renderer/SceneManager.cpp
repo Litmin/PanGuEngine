@@ -43,7 +43,7 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 	GameObject* cameraGo = m_Camera->GetGameObject();
 
 	static float moveSpeed = 10.0f;
-	static float rotateSpeed = 10.0f;
+	static float rotateSpeed = 40.0f;
 
 	if (Input::GetKey(KeyCode::W))
 	{
@@ -79,7 +79,7 @@ void SceneManager::UpdateCameraMovement(float deltaTime)
 	{
 		m_LastMousePos = Input::GetMousePosition();
 	}
-
+	
 	if (Input::GetKey(KeyCode::Mouse0) || Input::GetKey(KeyCode::Mouse2))
 	{
 		XMINT2 curMousePos = Input::GetMousePosition();
