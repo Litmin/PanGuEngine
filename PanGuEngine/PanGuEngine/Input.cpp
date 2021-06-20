@@ -9,18 +9,21 @@ XMINT2 Input::m_MousePosition = XMINT2(0, 0);
 
 void Input::Update()
 {
-	for (KeyState& keyState : m_KeyStates)
-	{
-		if (((int)keyState & (int)KeyState::KeyUp) != 0)
-		{
-			keyState = KeyState::None;
-		}
+	UpdateKeyState(KeyCode::W, 'W');
+	UpdateKeyState(KeyCode::A, 'A');
+	UpdateKeyState(KeyCode::S, 'S');
+	UpdateKeyState(KeyCode::D, 'D');
+	UpdateKeyState(KeyCode::Q, 'Q');
+	UpdateKeyState(KeyCode::E, 'E');
+	UpdateKeyState(KeyCode::P, 'P');
+	UpdateKeyState(KeyCode::Escape, VK_ESCAPE);
+	UpdateKeyState(KeyCode::UpArrow, VK_UP);
+	UpdateKeyState(KeyCode::DownArrow, VK_DOWN);
+	UpdateKeyState(KeyCode::LeftArrow, VK_LEFT);
+	UpdateKeyState(KeyCode::RightArrow, VK_RIGHT);
+	UpdateKeyState(KeyCode::Mouse0, VK_LBUTTON);
+	UpdateKeyState(KeyCode::Mouse2, VK_RBUTTON);
 
-		if (((int)keyState & (int)KeyState::KeyDown) != 0)
-		{
-			keyState = KeyState::KeyHold;
-		}
-	}
 }
 
 bool Input::GetKey(KeyCode keyCode)
@@ -43,111 +46,22 @@ XMINT2 Input::GetMousePosition()
 	return m_MousePosition;
 }
 
-void Input::OnKeyUp(int key)
+void Input::UpdateKeyState(KeyCode keyCode, int windowsKeyCode)
 {
-	switch (key)
+	bool isKeyDown = GetAsyncKeyState(windowsKeyCode) & 0x0001;
+	bool isKeyHold = GetAsyncKeyState(windowsKeyCode) & 0x8000;
+
+	if (isKeyDown)
 	{
-	case VK_ESCAPE:
-		m_KeyStates[(int)KeyCode::Escape] = KeyState::KeyUp;
-		break;
-
-	case VK_UP:
-		m_KeyStates[(int)KeyCode::UpArrow] = KeyState::KeyUp;
-		break;
-
-	case VK_DOWN:
-		m_KeyStates[(int)KeyCode::DownArrow] = KeyState::KeyUp;
-		break;
-
-	case VK_LEFT:
-		m_KeyStates[(int)KeyCode::LeftArrow] = KeyState::KeyUp;
-		break;
-
-	case VK_RIGHT:
-		m_KeyStates[(int)KeyCode::RightArrow] = KeyState::KeyUp;
-		break;
-	
-	case 'W':
-		m_KeyStates[(int)KeyCode::W] = KeyState::KeyUp;
-		break;
-
-	case 'A':
-		m_KeyStates[(int)KeyCode::A] = KeyState::KeyUp;
-		break;
-
-	case 'S':
-		m_KeyStates[(int)KeyCode::S] = KeyState::KeyUp;
-		break;
-
-	case 'D':
-		m_KeyStates[(int)KeyCode::D] = KeyState::KeyUp;
-		break;
-
-	case 'Q':
-		m_KeyStates[(int)KeyCode::Q] = KeyState::KeyUp;
-		break;
-
-	case 'E':
-		m_KeyStates[(int)KeyCode::E] = KeyState::KeyUp;
-		break;
-
-	case 'P':
-		m_KeyStates[(int)KeyCode::P] = KeyState::KeyUp;
-		break;
+		m_KeyStates[(int)keyCode] = KeyState::KeyDown;
 	}
-}
-
-void Input::OnKeyDown(int key)
-{
-	switch (key)
+	else if (isKeyHold)
 	{
-	case VK_ESCAPE:
-		m_KeyStates[(int)KeyCode::Escape] = KeyState::KeyDown;
-		break;
-
-	case VK_UP:
-		m_KeyStates[(int)KeyCode::UpArrow] = KeyState::KeyDown;
-		break;
-
-	case VK_DOWN:
-		m_KeyStates[(int)KeyCode::DownArrow] = KeyState::KeyDown;
-		break;
-
-	case VK_LEFT:
-		m_KeyStates[(int)KeyCode::LeftArrow] = KeyState::KeyDown;
-		break;
-
-	case VK_RIGHT:
-		m_KeyStates[(int)KeyCode::RightArrow] = KeyState::KeyDown;
-		break;
-
-	case 'W':
-		m_KeyStates[(int)KeyCode::W] = KeyState::KeyDown;
-		break;
-
-	case 'A':
-		m_KeyStates[(int)KeyCode::A] = KeyState::KeyDown;
-		break;
-
-	case 'S':
-		m_KeyStates[(int)KeyCode::S] = KeyState::KeyDown;
-		break;
-
-	case 'D':
-		m_KeyStates[(int)KeyCode::D] = KeyState::KeyDown;
-		break;
-
-	case 'Q':
-		m_KeyStates[(int)KeyCode::Q] = KeyState::KeyDown;
-		break;
-
-	case 'E':
-		m_KeyStates[(int)KeyCode::E] = KeyState::KeyDown;
-		break;
-
-	case 'P':
-		m_KeyStates[(int)KeyCode::P] = KeyState::KeyDown;
-		break;
+		m_KeyStates[(int)keyCode] = KeyState::KeyHold;
+	}
+	else
+	{
+		m_KeyStates[(int)keyCode] = KeyState::KeyUp;
 	}
 }
 

@@ -81,9 +81,9 @@ void Engine::Update(float deltaTime)
 {
     CalculateFrameStats();
 
-    m_SceneManager->UpdateCameraMovement(deltaTime);
-    
     Input::Update();
+
+    m_SceneManager->UpdateCameraMovement(deltaTime);
 }
 
 void Engine::Render()
@@ -174,44 +174,8 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             ((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
             return 0;
 
-        case WM_LBUTTONDOWN:
-            Input::m_KeyStates[(int)KeyCode::Mouse0] = KeyState::KeyDown;
-            return 0;
-
-        case WM_MBUTTONDOWN:
-            Input::m_KeyStates[(int)KeyCode::Mouse1] = KeyState::KeyDown;
-            return 0;
-
-        case WM_RBUTTONDOWN:
-            Input::m_KeyStates[(int)KeyCode::Mouse2] = KeyState::KeyDown;
-            return 0;
-
-        case WM_LBUTTONUP:
-            Input::m_KeyStates[(int)KeyCode::Mouse0] = KeyState::KeyUp;
-            return 0;
-
-        case WM_MBUTTONUP:
-            Input::m_KeyStates[(int)KeyCode::Mouse1] = KeyState::KeyUp;
-            return 0;
-
-        case WM_RBUTTONUP:
-            Input::m_KeyStates[(int)KeyCode::Mouse2] = KeyState::KeyUp;
-            return 0;
-
         case WM_MOUSEMOVE:
             Input::OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            return 0;
-
-        case WM_KEYDOWN:
-            Input::OnKeyDown(wParam);
-            return 0;
-
-        case WM_KEYUP:
-            if (wParam == VK_ESCAPE)
-            {
-                PostQuitMessage(0);
-            }
-            Input::OnKeyUp(wParam);
             return 0;
         }
     }
