@@ -21,6 +21,7 @@ Development Log：https://www.zhihu.com/column/c_1159801832779427840
 - [ ] Volumetric Cloud
 - [ ] Sky Atmosphere
 - [ ] Realtime Global Illumination
+- [ ] Post process based on Compute Shader
 
 ### Pipeline
 - [x] Forward Renderer<br>
