@@ -17,7 +17,10 @@ Development Log：https://www.zhihu.com/column/c_1159801832779427840
 - [ ] Physically Based Shading<br>
 - [x] Percentage-Closer Soft Shadows<br>
 - [ ] Cascaded Shadow Mapping
-- [ ] Global Illumination
+- [ ] Volumetric Fog/Light
+- [ ] Volumetric Cloud
+- [ ] Sky Atmosphere
+- [ ] Realtime Global Illumination
 
 ### Pipeline
 - [x] Forward Renderer<br>
