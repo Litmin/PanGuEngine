@@ -14,7 +14,8 @@ Development Log：https://www.zhihu.com/column/c_1159801832779427840
 - [ ] Multi thread Rendering<br>
 
 ### Shading
-- [ ] Physically Based Shading<br>
+- [x] Physically Based Shading<br>
+- [ ] Image based Lighting
 - [x] Percentage-Closer Soft Shadows<br>
 - [ ] Cascaded Shadow Mapping
 - [ ] Volumetric Rendering: Fog/Light/Cloud
