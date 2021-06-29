@@ -112,7 +112,8 @@ void ForwardRenderer::Initialize()
 		shadowMapVariable->Set(m_ShadowMapSRV);
 
 	// Skybox
-	m_SkyboxTex = DirectX::CreateCubemapFromDDSPanGu(L"Resources/Textures/grasscube1024.dds");
+	std::shared_ptr<RHI::GpuCubemap> SkyboxTex = DirectX::CreateCubemapFromDDSPanGu(L"Resources/Textures/grasscube1024.dds");
+	m_SkyboxSRV = SkyboxTex->CreateSRV();
 }
 
 void ForwardRenderer::Render(SwapChain& swapChain)

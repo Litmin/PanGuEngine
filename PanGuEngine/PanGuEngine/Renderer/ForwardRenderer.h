@@ -53,6 +53,6 @@ private:
 	CD3DX12_RECT m_ShadowMapScissorRect;
 
 	// Skybox
-	std::shared_ptr<RHI::GpuCubemap> m_SkyboxTex;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_SkyboxSRV = nullptr;
 };
 

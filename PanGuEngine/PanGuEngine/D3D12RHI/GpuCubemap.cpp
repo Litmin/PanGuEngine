@@ -11,6 +11,7 @@ namespace RHI
 	{
 		// 首先拷贝初始数据
 		m_UsageState = D3D12_RESOURCE_STATE_COPY_DEST;
+		m_MipLevels = mipCount;
 
 		D3D12_RESOURCE_DESC texDesc = {};
 		texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -37,6 +38,25 @@ namespace RHI
 			m_UsageState, nullptr, IID_PPV_ARGS(&m_pResource)));
 
 		CommandContext::InitializeTexture(*this, 1, initData);
+	}
+
+	std::shared_ptr<GpuResourceDescriptor> GpuCubemap::CreateSRV()
+	{
+		std::shared_ptr<GpuResourceDescriptor> descriptor = std::make_shared<GpuResourceDescriptor>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, shared_from_this());
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = m_Format;
+		// TODO: WTF???
+		SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+
+		SRVDesc.TextureCube.MostDetailedMip = 0;
+		SRVDesc.TextureCube.MipLevels = m_MipLevels;
+		SRVDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+
+		RenderDevice::GetSingleton().GetD3D12Device()->CreateShaderResourceView(m_pResource.Get(), &SRVDesc, descriptor->GetCpuHandle());
+
+		return descriptor;
 	}
 
 }
