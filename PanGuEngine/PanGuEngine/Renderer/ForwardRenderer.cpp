@@ -9,6 +9,8 @@
 #include "D3D12RHI/GpuRenderTextureDepth.h"
 #include "SceneManager.h"
 #include "GameObject.h"
+#include "D3D12RHI/GpuCubemap.h"
+#include "Utility/DDSTextureLoader.h"
 
 using namespace RHI;
 
@@ -108,6 +110,9 @@ void ForwardRenderer::Initialize()
 	RHI::ShaderVariable* shadowMapVariable = m_MainPassPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "ShadowMap");
 	if (shadowMapVariable != nullptr)
 		shadowMapVariable->Set(m_ShadowMapSRV);
+
+	// Skybox
+	m_SkyboxTex = DirectX::CreateCubemapFromDDSPanGu(L"Resources/Textures/grasscube1024.dds");
 }
 
 void ForwardRenderer::Render(SwapChain& swapChain)

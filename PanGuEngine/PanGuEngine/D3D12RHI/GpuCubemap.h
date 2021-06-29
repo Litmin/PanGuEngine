@@ -12,7 +12,7 @@ namespace RHI
     {
     public:
 
-        GpuCubemap(UINT32 width, UINT32 height, D3D12_RESOURCE_DIMENSION dimension, DXGI_FORMAT format);
+        GpuCubemap(UINT32 width, UINT32 height, UINT16 mipCount, DXGI_FORMAT format, D3D12_SUBRESOURCE_DATA* initData);
 
     protected:
 

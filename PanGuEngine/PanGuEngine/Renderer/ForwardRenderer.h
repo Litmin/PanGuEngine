@@ -10,6 +10,7 @@ namespace RHI
 	class Shader;
 	class PipelineState;
 	class SwapChain;
+	class GpuCubemap;
 }
 
 class Light;
@@ -50,5 +51,8 @@ private:
 	const float m_ShadowMapSize = 4096.0f;
 	CD3DX12_VIEWPORT m_ShadowMapViewport;
 	CD3DX12_RECT m_ShadowMapScissorRect;
+
+	// Skybox
+	std::shared_ptr<RHI::GpuCubemap> m_SkyboxTex;
 };
 
