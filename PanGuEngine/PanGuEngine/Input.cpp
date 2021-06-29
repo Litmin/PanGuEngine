@@ -21,8 +21,8 @@ void Input::Update()
 	UpdateKeyState(KeyCode::DownArrow, VK_DOWN);
 	UpdateKeyState(KeyCode::LeftArrow, VK_LEFT);
 	UpdateKeyState(KeyCode::RightArrow, VK_RIGHT);
-	UpdateKeyState(KeyCode::Mouse0, VK_LBUTTON);
-	UpdateKeyState(KeyCode::Mouse2, VK_RBUTTON);
+	//UpdateKeyState(KeyCode::Mouse0, VK_LBUTTON);
+	//UpdateKeyState(KeyCode::Mouse2, VK_RBUTTON);
 
 }
 
@@ -63,6 +63,25 @@ void Input::UpdateKeyState(KeyCode keyCode, int windowsKeyCode)
 	{
 		m_KeyStates[(int)keyCode] = KeyState::KeyUp;
 	}
+}
+
+void Input::OnMouseDown(KeyCode MouseBtnCode)
+{
+	m_KeyStates[(int)MouseBtnCode] = KeyState::KeyDown;
+}
+
+void Input::OnMouseUp(KeyCode MouseBtnCode)
+{
+	m_KeyStates[(int)MouseBtnCode] = KeyState::KeyUp;
+}
+
+void Input::UpdateMouseState()
+{
+	if (m_KeyStates[(int)KeyCode::Mouse0] == KeyState::KeyDown)
+		m_KeyStates[(int)KeyCode::Mouse0] = KeyState::KeyHold;
+
+	if (m_KeyStates[(int)KeyCode::Mouse2] == KeyState::KeyDown)
+		m_KeyStates[(int)KeyCode::Mouse2] = KeyState::KeyHold;
 }
 
 void Input::OnMouseMove(int x, int y)

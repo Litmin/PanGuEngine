@@ -78,6 +78,9 @@ public:
 private:
 	static void UpdateKeyState(KeyCode keyCode, int windowsKeyCode);
 
+	static void OnMouseDown(KeyCode MouseBtnCode);
+	static void OnMouseUp(KeyCode MouseBtnCode);
+	static void UpdateMouseState();
 	static void OnMouseMove(int x, int y);
 
 private:

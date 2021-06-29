@@ -26,7 +26,7 @@ namespace RHI
 		Desc.Alignment = 0;
 		Desc.DepthOrArraySize = 1;
 		Desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		Desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		Desc.Format = GetBaseFormat(format);
 		Desc.Height = (UINT)m_Height;
 		Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;

@@ -90,7 +90,7 @@ namespace RHI
 		presentContext.TransitionResource(*backBuffer, D3D12_RESOURCE_STATE_PRESENT);
 		presentContext.Finish(false, true);
 
-		ThrowIfFailed(m_SwapChain->Present(0, 0));
+		ThrowIfFailed(m_SwapChain->Present(1, 0));
 
 		m_CurrBackBuffer = (m_CurrBackBuffer + 1) % SwapChainBufferCount;
 	}
