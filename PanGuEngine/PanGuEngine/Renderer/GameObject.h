@@ -17,6 +17,10 @@ public:
 	GameObject(GameObject* parent);
 	~GameObject();
 
+	// 因为含有unique_ptr的成员，所以默认就是delete的
+	//GameObject(const GameObject&) = delete;
+	//GameObject& operator = (const GameObject& rhs) = delete;
+
 	// 创建子节点
 	GameObject* CreateChild();
 	// 删除所有子节点

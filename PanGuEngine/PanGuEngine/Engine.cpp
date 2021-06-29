@@ -84,6 +84,8 @@ void Engine::Update(float deltaTime)
     Input::Update();
 
     m_SceneManager->UpdateCameraMovement(deltaTime);
+
+    Input::UpdateMouseState();
 }
 
 void Engine::Render()
@@ -176,6 +178,14 @@ LRESULT Engine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_MOUSEMOVE:
             Input::OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+
+		case WM_LBUTTONDOWN:
+            Input::OnMouseDown(KeyCode::Mouse0);
+			return 0;
+
+		case WM_LBUTTONUP:
+            Input::OnMouseUp(KeyCode::Mouse0);
             return 0;
         }
     }
