@@ -37,7 +37,9 @@ namespace RHI
 		ThrowIfFailed(RenderDevice::GetSingleton().GetD3D12Device()->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
 			m_UsageState, nullptr, IID_PPV_ARGS(&m_pResource)));
 
-		CommandContext::InitializeTexture(*this, 1, initData);
+		const UINT num2DSubresources = texDesc.DepthOrArraySize * texDesc.MipLevels;
+
+		CommandContext::InitializeTexture(*this, num2DSubresources, initData);
 	}
 
 	std::shared_ptr<GpuResourceDescriptor> GpuCubemap::CreateSRV()
