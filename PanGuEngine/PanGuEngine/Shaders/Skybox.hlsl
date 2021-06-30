@@ -56,6 +56,8 @@ VertexOut VS(VertexIn IN)
     VertexOut o;
 
     o.ObjectPos = IN.Position;
+    // 从ktx导出的，y轴是反的
+    o.ObjectPos.y = - o.ObjectPos.y;
 
     //float4 worldPos = mul(float4(IN.Position, 1.0f), ObjectToWorld);
     o.Position = mul(float4(IN.Position + gEyePosW, 1.0), gViewProj).xyww;
