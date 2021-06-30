@@ -15,6 +15,7 @@ namespace RHI
 
 class Light;
 class Camera;
+class Mesh;
 
 class ForwardRenderer
 {
@@ -54,5 +55,9 @@ private:
 
 	// Skybox
 	std::shared_ptr<RHI::GpuResourceDescriptor> m_SkyboxSRV = nullptr;
+	std::shared_ptr<RHI::Shader> m_SkyboxVS = nullptr;
+	std::shared_ptr<RHI::Shader> m_SkyboxPS = nullptr;
+	std::unique_ptr<RHI::PipelineState> m_SkyboxPSO = nullptr;
+	std::shared_ptr<Mesh> m_SkyboxMesh = nullptr;
 };
 
