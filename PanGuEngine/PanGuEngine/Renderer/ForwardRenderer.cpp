@@ -130,6 +130,7 @@ void ForwardRenderer::Initialize()
 	PSODesc.GraphicsPipeline.PixelShader = m_SkyboxPS;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 1;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	PSODesc.VariableConfig.Variables.clear();
 

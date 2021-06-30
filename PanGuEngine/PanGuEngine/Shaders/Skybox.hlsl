@@ -58,7 +58,7 @@ VertexOut VS(VertexIn IN)
     o.ObjectPos = IN.Position;
 
     //float4 worldPos = mul(float4(IN.Position, 1.0f), ObjectToWorld);
-    o.Position = mul(float4(IN.Position, 1.0), gViewProj).xyww;
+    o.Position = mul(float4(IN.Position + gEyePosW, 1.0), gViewProj).xyww;
 
     return o;
 }
