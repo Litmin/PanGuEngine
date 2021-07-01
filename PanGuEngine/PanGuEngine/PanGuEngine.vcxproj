@@ -207,6 +207,7 @@
     <ClCompile Include="Resource\Image.cpp" />
     <ClCompile Include="Resource\ResourceManager.cpp" />
     <ClCompile Include="Utility\d3dUtil.cpp" />
+    <ClCompile Include="Utility\DDSTextureLoader.cpp" />
     <ClCompile Include="Utility\Debug.cpp" />
     <ClCompile Include="Utility\DxException.cpp" />
     <ClCompile Include="Utility\GeometryFactory.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="Resource\tiny_gltf.h" />
     <ClInclude Include="Utility\d3dUtil.h" />
     <ClInclude Include="Utility\d3dx12.h" />
+    <ClInclude Include="Utility\DDSTextureLoader.h" />
     <ClInclude Include="Utility\Debug.h" />
     <ClInclude Include="Utility\DxException.h" />
     <ClInclude Include="Utility\GeometryFactory.h" />

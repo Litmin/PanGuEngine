@@ -276,6 +276,7 @@ namespace RHI
 		assert(PSO != nullptr);
 
 		m_CurPSO = PSO;
+		m_CurSRB = nullptr;
 
 		// °ó¶¨PSO
 		m_CommandList->SetPipelineState(PSO->GetD3D12PipelineState());

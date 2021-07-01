@@ -10,10 +10,12 @@ namespace RHI
 	class Shader;
 	class PipelineState;
 	class SwapChain;
+	class GpuCubemap;
 }
 
 class Light;
 class Camera;
+class Mesh;
 
 class ForwardRenderer
 {
@@ -50,5 +52,12 @@ private:
 	const float m_ShadowMapSize = 4096.0f;
 	CD3DX12_VIEWPORT m_ShadowMapViewport;
 	CD3DX12_RECT m_ShadowMapScissorRect;
+
+	// Skybox
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_SkyboxSRV = nullptr;
+	std::shared_ptr<RHI::Shader> m_SkyboxVS = nullptr;
+	std::shared_ptr<RHI::Shader> m_SkyboxPS = nullptr;
+	std::unique_ptr<RHI::PipelineState> m_SkyboxPSO = nullptr;
+	std::shared_ptr<Mesh> m_SkyboxMesh = nullptr;
 };
 

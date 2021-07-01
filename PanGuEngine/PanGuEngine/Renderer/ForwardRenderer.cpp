@@ -9,6 +9,10 @@
 #include "D3D12RHI/GpuRenderTextureDepth.h"
 #include "SceneManager.h"
 #include "GameObject.h"
+#include "D3D12RHI/GpuCubemap.h"
+#include "Utility/DDSTextureLoader.h"
+#include "Utility/GeometryFactory.h"
+#include "Mesh.h"
 
 using namespace RHI;
 
@@ -108,6 +112,39 @@ void ForwardRenderer::Initialize()
 	RHI::ShaderVariable* shadowMapVariable = m_MainPassPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "ShadowMap");
 	if (shadowMapVariable != nullptr)
 		shadowMapVariable->Set(m_ShadowMapSRV);
+
+	// Skybox
+	std::shared_ptr<RHI::GpuCubemap> SkyboxTex = DirectX::CreateCubemapFromDDSPanGu(L"Resources/Textures/StarSkybox.dds");
+	m_SkyboxSRV = SkyboxTex->CreateSRV();
+
+	shaderCI.FilePath = L"Shaders\\Skybox.hlsl";
+	shaderCI.entryPoint = "VS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
+	m_SkyboxVS = std::make_shared<RHI::Shader>(shaderCI);
+
+	shaderCI.entryPoint = "PS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_PIXEL;
+	m_SkyboxPS = std::make_shared<RHI::Shader>(shaderCI);
+
+	PSODesc.GraphicsPipeline.VertexShader = m_SkyboxVS;
+	PSODesc.GraphicsPipeline.PixelShader = m_SkyboxPS;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 1;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	PSODesc.VariableConfig.Variables.clear();
+
+	m_SkyboxPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+
+	//RHI::ShaderVariable* perDrawVariable2 = m_SkyboxPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPerObject");
+	//perDrawVariable2->Set(m_PerDrawCB);
+	RHI::ShaderVariable* perPassVariable2 = m_SkyboxPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
+	perPassVariable2->Set(m_PerPassCB);
+	RHI::ShaderVariable* skyboxVariable = m_SkyboxPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "Skybox");
+	if (skyboxVariable != nullptr)
+		skyboxVariable->Set(m_SkyboxSRV);
+
+	m_SkyboxMesh = GeometryFactory::CreateSphere(0.5f, 20, 20);
 }
 
 void ForwardRenderer::Render(SwapChain& swapChain)
@@ -180,6 +217,14 @@ void ForwardRenderer::Render(SwapChain& swapChain)
 		void* pPerDrawCB = m_PerDrawCB->Map(graphicContext, 256);
 		drawList[i]->Render(graphicContext, pPerDrawCB);
 	}
+
+	// Skybox
+	graphicContext.SetPipelineState(m_SkyboxPSO.get());
+
+	graphicContext.SetVertexBuffer(0, m_SkyboxMesh->VertexBufferView());
+	graphicContext.SetIndexBuffer(m_SkyboxMesh->IndexBufferView());
+
+	graphicContext.DrawIndexedInstanced(m_SkyboxMesh->IndexCount(), 1, 0, 0, 0);
 
 	graphicContext.Finish();
 }
