@@ -312,3 +312,8 @@ void ForwardRenderer::UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, v
 
 	memcpy(shadowPerPassCB, &m_ShadowMapPassCBData, sizeof(PerPassConstants));
 }
+
+void ForwardRenderer::PrecomputeIrradianceMap()
+{
+
+}

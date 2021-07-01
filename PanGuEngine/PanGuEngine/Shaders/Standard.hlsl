@@ -169,6 +169,7 @@ float PCF(float2 shadowMapUV, float curDepth)
 float4 PS(VertexOut IN) : SV_Target
 {
     float4 baseColor = BaseColorTex.Sample(gsamLinearWrap, IN.uv);
+    baseColor = pow(baseColor, 2.2);
     float4 physicalDesc = MetallicRoughnessTex.Sample(gsamLinearWrap, IN.uv);
     float4 emissiveColor = EmissiveTex.Sample(gsamLinearWrap, IN.uv);
 
@@ -202,6 +203,8 @@ float4 PS(VertexOut IN) : SV_Target
     col.rgb += ApplyDirectionalLight(LightDir, LightColor, surfaceInfo, IN.WorldNormal, IN.ViewDir) * shadowFactor;
     col.rgb += ambient * baseColor.rgb;
     col.rgb += emissiveColor.rgb;
+
+    col.rgb = pow(col.rgb, 1 / 2.2);
 
     return col;
 }

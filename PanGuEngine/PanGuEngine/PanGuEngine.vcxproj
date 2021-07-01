@@ -162,6 +162,7 @@
     <ClCompile Include="D3D12RHI\GpuCubemap.cpp" />
     <ClCompile Include="D3D12RHI\GpuRenderTexture.cpp" />
     <ClCompile Include="D3D12RHI\GpuRenderTextureColor.cpp" />
+    <ClCompile Include="D3D12RHI\GpuRenderTextureCube.cpp" />
     <ClCompile Include="D3D12RHI\GpuRenderTextureDepth.cpp" />
     <ClCompile Include="D3D12RHI\GpuResource.cpp" />
     <ClCompile Include="D3D12RHI\GpuResourceDescriptor.cpp" />
@@ -228,6 +229,7 @@
     <ClInclude Include="D3D12RHI\GpuCubemap.h" />
     <ClInclude Include="D3D12RHI\GpuRenderTexture.h" />
     <ClInclude Include="D3D12RHI\GpuRenderTextureColor.h" />
+    <ClInclude Include="D3D12RHI\GpuRenderTextureCube.h" />
     <ClInclude Include="D3D12RHI\GpuRenderTextureDepth.h" />
     <ClInclude Include="D3D12RHI\GpuResource.h" />
     <ClInclude Include="D3D12RHI\GpuResourceDescriptor.h" />
