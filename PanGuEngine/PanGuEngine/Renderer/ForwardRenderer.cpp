@@ -114,7 +114,7 @@ void ForwardRenderer::Initialize()
 		shadowMapVariable->Set(m_ShadowMapSRV);
 
 	// Skybox
-	std::shared_ptr<RHI::GpuCubemap> SkyboxTex = DirectX::CreateCubemapFromDDSPanGu(L"Resources/Textures/skybox.dds");
+	std::shared_ptr<RHI::GpuCubemap> SkyboxTex = DirectX::CreateCubemapFromDDSPanGu(L"Resources/Textures/StarSkybox.dds");
 	m_SkyboxSRV = SkyboxTex->CreateSRV();
 
 	shaderCI.FilePath = L"Shaders\\Skybox.hlsl";
