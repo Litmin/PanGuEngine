@@ -185,6 +185,9 @@
     <ClCompile Include="Utility\DDSTextureLoader.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="D3D12RHI\GpuRenderTextureCube.cpp">
+      <Filter>D3D12RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -410,6 +413,9 @@
     </ClInclude>
     <ClInclude Include="Utility\DDSTextureLoader.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D12RHI\GpuRenderTextureCube.h">
+      <Filter>D3D12RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

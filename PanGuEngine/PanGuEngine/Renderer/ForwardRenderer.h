@@ -11,6 +11,7 @@ namespace RHI
 	class PipelineState;
 	class SwapChain;
 	class GpuCubemap;
+	class GpuRenderTextureCube;
 }
 
 class Light;
@@ -25,6 +26,10 @@ public:
 
 private:
 	void UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, void* shadowPerPassCB);
+
+	void PrecomputeIrradianceMap();
+	void PrefilterEnvironmentMap();
+	void PrecomputeBRDF();
 
 	// Main Pass
 	std::shared_ptr<RHI::GpuDynamicBuffer> m_PerDrawCB = nullptr;
@@ -59,5 +64,24 @@ private:
 	std::shared_ptr<RHI::Shader> m_SkyboxPS = nullptr;
 	std::unique_ptr<RHI::PipelineState> m_SkyboxPSO = nullptr;
 	std::shared_ptr<Mesh> m_SkyboxMesh = nullptr;
+
+	// IBL
+	static constexpr DXGI_FORMAT IrradianceCubeFmt    = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	static constexpr DXGI_FORMAT PrefilteredEnvMapFmt = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	static constexpr UINT32         IrradianceCubeDim = 64;
+	static constexpr UINT32         PrefilteredEnvMapDim = 256;
+
+	// Irradiance map
+	std::shared_ptr<RHI::GpuRenderTextureCube> m_IrradianceMap = nullptr;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_IrradianceMapSRV = nullptr;
+
+	std::shared_ptr<RHI::Shader> m_PrecomputeIrradianceVS = nullptr;
+	std::shared_ptr<RHI::Shader> m_PrecomputeIrradiancePS = nullptr;
+	std::unique_ptr<RHI::PipelineState> m_PrecomputeIrradianceMapPSO = nullptr;
+
+	// Pre-filter Environment map
+
+
+	// Precomputed BRDF
 };
 
