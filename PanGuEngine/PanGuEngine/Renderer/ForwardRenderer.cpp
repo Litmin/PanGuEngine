@@ -7,6 +7,7 @@
 #include "D3D12RHI/SwapChain.h"
 #include "D3D12RHI/CommandContext.h"
 #include "D3D12RHI/GpuRenderTextureDepth.h"
+#include "D3D12RHI/GpuRenderTextureCube.h"
 #include "SceneManager.h"
 #include "GameObject.h"
 #include "D3D12RHI/GpuCubemap.h"
@@ -145,6 +146,31 @@ void ForwardRenderer::Initialize()
 		skyboxVariable->Set(m_SkyboxSRV);
 
 	m_SkyboxMesh = GeometryFactory::CreateSphere(0.5f, 20, 20);
+
+	// IBL
+	shaderCI.FilePath = L"Shaders\\PreComputeIrradianceMap.hlsl";
+	shaderCI.entryPoint = "VS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
+	m_PrecomputeIrradianceVS = std::make_shared<RHI::Shader>(shaderCI);
+
+	shaderCI.entryPoint = "PS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_PIXEL;
+	m_PrecomputeIrradiancePS = std::make_shared<RHI::Shader>(shaderCI);
+
+	PSODesc.GraphicsPipeline.VertexShader = m_PrecomputeIrradianceVS;
+	PSODesc.GraphicsPipeline.PixelShader = m_PrecomputeIrradiancePS;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = IrradianceCubeFmt;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	PSODesc.VariableConfig.Variables.clear();
+
+	m_PrecomputeIrradianceMapPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+
+	// Mipmap填0，会自动计算有多少个Mipmap
+	m_IrradianceMap = std::make_shared<RHI::GpuRenderTextureCube>(IrradianceCubeDim, IrradianceCubeDim, 0, IrradianceCubeFmt, Color(0.0f, 0.0f, 0.0f, 0.0f));
+	m_IrradianceMapSRV = m_IrradianceMap->CreateSRV();
+
+	PrecomputeIrradianceMap();
 }
 
 void ForwardRenderer::Render(SwapChain& swapChain)
@@ -315,5 +341,5 @@ void ForwardRenderer::UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, v
 
 void ForwardRenderer::PrecomputeIrradianceMap()
 {
-
+	
 }
