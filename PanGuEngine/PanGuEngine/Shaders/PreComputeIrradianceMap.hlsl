@@ -71,5 +71,5 @@ VertexOut VS(VertexIn IN)
 
 float4 PS(VertexOut IN) : SV_Target
 {
-    return pow(Skybox.Sample(gsamLinearWrap, IN.ObjectPos), 1/2.2);
+    return pow(Skybox.Sample(gsamLinearWrap, IN.ObjectPos), 1/2.2) * float4(1, 0.5, 0.5, 1);
 }

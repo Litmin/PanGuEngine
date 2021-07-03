@@ -71,6 +71,8 @@ private:
 	static constexpr UINT32         IrradianceCubeDim = 64;
 	static constexpr UINT32         PrefilteredEnvMapDim = 256;
 
+	std::shared_ptr<Mesh> m_CubeMesh = nullptr;
+
 	// Irradiance map
 	std::shared_ptr<RHI::GpuRenderTextureCube> m_IrradianceMap = nullptr;
 	std::shared_ptr<RHI::GpuResourceDescriptor> m_IrradianceMapSRV = nullptr;

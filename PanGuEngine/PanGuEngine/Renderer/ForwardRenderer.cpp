@@ -148,6 +148,8 @@ void ForwardRenderer::Initialize()
 	m_SkyboxMesh = GeometryFactory::CreateSphere(0.5f, 20, 20);
 
 	// IBL
+	m_CubeMesh = GeometryFactory::CreateBox(1, 1, 1, 1);
+
 	shaderCI.FilePath = L"Shaders\\PreComputeIrradianceMap.hlsl";
 	shaderCI.entryPoint = "VS";
 	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
@@ -160,6 +162,9 @@ void ForwardRenderer::Initialize()
 	PSODesc.GraphicsPipeline.VertexShader = m_PrecomputeIrradianceVS;
 	PSODesc.GraphicsPipeline.PixelShader = m_PrecomputeIrradiancePS;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	// 关闭深度和模板测试
+	PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState.DepthEnable = false;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState.StencilEnable = false;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = IrradianceCubeFmt;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	PSODesc.VariableConfig.Variables.clear();
@@ -341,5 +346,59 @@ void ForwardRenderer::UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, v
 
 void ForwardRenderer::PrecomputeIrradianceMap()
 {
+	PerPassConstants perPassConstants;
+
+	XMMATRIX projMatrix = XMMatrixPerspectiveFovLH(MathHelper::Pi / 2.0f, 1, 0.001, 100);
+
+
+	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"PreComputeIrradianceMap");
+
+	CD3DX12_VIEWPORT irradianceViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(IrradianceCubeDim), static_cast<float>(IrradianceCubeDim));
+	CD3DX12_RECT irradianceScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(IrradianceCubeDim), static_cast<LONG>(IrradianceCubeDim));
+
+	ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
+	ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
+	graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
+
+	graphicContext.TransitionResource(*m_IrradianceMap, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	graphicContext.SetViewport(irradianceViewport);
+	graphicContext.SetScissor(irradianceScissorRect);
+
+	graphicContext.SetPipelineState(m_PrecomputeIrradianceMapPSO.get());
+
+	graphicContext.SetVertexBuffer(0, m_CubeMesh->VertexBufferView());
+	graphicContext.SetIndexBuffer(m_CubeMesh->IndexBufferView());
+
+
+	UINT16 mipLevels = m_IrradianceMap->GetResource()->GetDesc().MipLevels;
+
+	// 每级Mipmap
+	for (UINT mip = 0; mip < mipLevels; ++mip)
+	{
+		// 每个面
+		for (UINT face = 0; face < 6; ++face)
+		{
+			std::shared_ptr<GpuResourceDescriptor> rtv = m_IrradianceMap->CreateRTV(face, mip);
+			GpuResourceDescriptor* pRTV = rtv.get();
+
+			graphicContext.ClearColor(*rtv, Colors::Transparent);
+			graphicContext.SetRenderTargets(1, &pRTV, nullptr);
+
+			// 旋转相机
+			XMStoreFloat4x4(&perPassConstants.View, XMMatrixTranspose(shadowCameraView));
+			XMStoreFloat4x4(&perPassConstants.InvView, XMMatrixTranspose(invView));
+			XMStoreFloat4x4(&perPassConstants.Proj, XMMatrixTranspose(shadowCameraproj));
+			XMStoreFloat4x4(&perPassConstants.InvProj, XMMatrixTranspose(invProj));
+			XMStoreFloat4x4(&perPassConstants.ViewProj, XMMatrixTranspose(viewProj));
+			XMStoreFloat4x4(&perPassConstants.InvViewProj, XMMatrixTranspose(invViewProj));
+
+			graphicContext.DrawIndexedInstanced(m_CubeMesh->IndexCount(), 1, 0, 0, 0);
+		}
+	}
+
 	
+	graphicContext.TransitionResource(*m_IrradianceMap, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+	graphicContext.Finish();
 }
