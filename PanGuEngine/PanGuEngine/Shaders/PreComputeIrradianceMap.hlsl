@@ -64,12 +64,39 @@ VertexOut VS(VertexIn IN)
 
     o.ObjectPos = IN.Position;
 
-    o.Position = mul(float4(IN.Position + gEyePosW, 1.0), gViewProj).xyww;
+    o.Position = mul(float4(IN.Position, 1.0), gViewProj);
 
     return o;
 }
 
 float4 PS(VertexOut IN) : SV_Target
 {
-    return pow(Skybox.Sample(gsamLinearWrap, IN.ObjectPos), 1/2.2) * float4(1, 0.5, 0.5, 1);
+    const float PI = 3.141592653;
+
+    float3 N = normalize(IN.ObjectPos);     // Y
+    // 跟Billboard一样的算法,先有鸡还是先有蛋
+    float3 up = float3(0, 1, 0);
+    //float3 up = abs(N.y) < 0.999f ? float3(0.0, 1.0, 0.0) : float3(0.0, 0.0, 1.0);
+    float3 right = normalize(cross(up, N)); // X
+    up = normalize(cross(N, right));        // Z
+
+    float3 irradiance = float3(0, 0, 0);
+    float sampleDelta = 0.025;
+    float numSamples = 0;
+
+    for (float phi = 0; phi < 2 * PI; phi += sampleDelta)
+    {
+        for (float theta = 0; theta < 0.5 * PI; theta += sampleDelta)
+        {
+            float3 tangentSample = float3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+            // 转到世界空间
+            float3 sampleDir = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
+
+            irradiance += EnvironmentMap.Sample(gsamLinearWrap, sampleDir).rgb * sin(theta) * cos(theta);
+
+            numSamples += 1.0;
+        }
+    }
+
+    return float4(PI * irradiance / numSamples, 1.0);
 }

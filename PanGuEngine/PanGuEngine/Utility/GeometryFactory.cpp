@@ -14,7 +14,6 @@ std::shared_ptr<Mesh> GeometryFactory::CreateBox(float width, float height, floa
 	std::vector<XMFLOAT3> normals;
 	std::vector<XMFLOAT4> tangents;
 	std::vector<XMFLOAT2> uvs;
-	std::vector<UINT32> indices;
 
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(width, height, depth, numSubdivisions);
@@ -46,10 +45,6 @@ std::shared_ptr<Mesh> GeometryFactory::CreateBox(float width, float height, floa
 
 	indexCount = box.Indices32.size();
 	auto& boxIndices = box.Indices32;
-	for (auto& index : boxIndices)
-	{
-		indices.push_back(index);
-	}
 
 	std::shared_ptr<Mesh> boxMesh = std::make_shared<Mesh>(vertexCount, (const float*)positions.data(), nullptr,
 		(const float*)normals.data(), nullptr, (const float*)uvs.data(), nullptr, nullptr, nullptr,
@@ -66,7 +61,6 @@ std::shared_ptr<Mesh> GeometryFactory::CreateSphere(float radius, UINT32 sliceCo
 	std::vector<XMFLOAT3> normals;
 	std::vector<XMFLOAT4> tangents;
 	std::vector<XMFLOAT2> uvs;
-	std::vector<UINT32> indices;
 
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateSphere(radius, sliceCount, stackCount);
@@ -98,14 +92,25 @@ std::shared_ptr<Mesh> GeometryFactory::CreateSphere(float radius, UINT32 sliceCo
 
 	indexCount = box.Indices32.size();
 	auto& boxIndices = box.Indices32;
-	for (auto& index : boxIndices)
-	{
-		indices.push_back(index);
-	}
 
 	std::shared_ptr<Mesh> sphereMesh = std::make_shared<Mesh>(vertexCount, (const float*)positions.data(), nullptr,
 		(const float*)normals.data(), nullptr, (const float*)uvs.data(), nullptr, nullptr, nullptr,
 		indexCount, boxIndices.data());
 
 	return sphereMesh;
+}
+
+std::shared_ptr<Mesh> GeometryFactory::CreateFullScreenTriangle()
+{
+	UINT vertexCount = 3, indexCount = 3;
+	std::vector<XMFLOAT3> positions = { {-1, 3, 0}, {3, -1, 0}, {-1, -1, 0} };
+	std::vector<XMFLOAT3> normals = { {0, 0, 1}, {0, 0, 1}, {0, 0, 1}};
+	std::vector<XMFLOAT2> uvs = { {0, -1}, {2, 1}, {0, 1}};
+	std::vector<UINT32> indices = { 0, 1, 2 };
+
+	std::shared_ptr<Mesh> fullScreenTriangle = std::make_shared<Mesh>(vertexCount, (const float*)positions.data(), nullptr,
+		(const float*)normals.data(), nullptr, (const float*)uvs.data(), nullptr, nullptr, nullptr,
+		indexCount, indices.data());
+
+	return fullScreenTriangle;
 }

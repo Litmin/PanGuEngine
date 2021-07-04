@@ -30,7 +30,7 @@ namespace RHI
 		Desc.Format = GetBaseFormat(format);
 		Desc.Height = (UINT)m_Height;
 		Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		Desc.MipLevels = 0;
+		Desc.MipLevels = 1;
 		Desc.SampleDesc.Count = 1;
 		Desc.SampleDesc.Quality = 0;
 		Desc.Width = (UINT64)m_Width;

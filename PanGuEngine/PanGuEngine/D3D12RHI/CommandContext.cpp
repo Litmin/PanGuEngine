@@ -342,8 +342,8 @@ namespace RHI
 		FlushResourceBarriers();
 
 		const GpuResource* resource = RTV.GetResource();
-		const GpuRenderTextureColor* rt = dynamic_cast<const GpuRenderTextureColor*>(resource);
-		if (rt != nullptr)
+		//const GpuRenderTextureColor* rt = dynamic_cast<const GpuRenderTextureColor*>(resource);
+		//if (rt != nullptr)
 			m_CommandList->ClearRenderTargetView(RTV.GetCpuHandle(), Colour.GetPtr(), (Rect == nullptr) ? 0 : 1, Rect);
 	}
 

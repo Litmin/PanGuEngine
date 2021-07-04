@@ -86,3 +86,11 @@ struct PBRMaterialConstants
 	float  RoughnessFactor = 1.0f;
 };
 
+struct PrefilterEnvmapConstants
+{
+    float    Roughness;
+    float    EnvMapSize;
+    UINT32   NumSamples;
+    float    padding0;
+};
+

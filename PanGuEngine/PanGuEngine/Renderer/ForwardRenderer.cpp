@@ -7,6 +7,7 @@
 #include "D3D12RHI/SwapChain.h"
 #include "D3D12RHI/CommandContext.h"
 #include "D3D12RHI/GpuRenderTextureDepth.h"
+#include "D3D12RHI/GpuRenderTextureColor.h"
 #include "D3D12RHI/GpuRenderTextureCube.h"
 #include "SceneManager.h"
 #include "GameObject.h"
@@ -142,14 +143,15 @@ void ForwardRenderer::Initialize()
 	RHI::ShaderVariable* perPassVariable2 = m_SkyboxPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
 	perPassVariable2->Set(m_PerPassCB);
 	RHI::ShaderVariable* skyboxVariable = m_SkyboxPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "Skybox");
-	if (skyboxVariable != nullptr)
-		skyboxVariable->Set(m_SkyboxSRV);
+	//if (skyboxVariable != nullptr)
+	//	skyboxVariable->Set(m_SkyboxSRV);
 
 	m_SkyboxMesh = GeometryFactory::CreateSphere(0.5f, 20, 20);
 
 	// IBL
-	m_CubeMesh = GeometryFactory::CreateBox(1, 1, 1, 1);
+	m_CubeMesh = GeometryFactory::CreateBox(1, 1, 1, 0);
 
+	// ----------------irradiance map-----------------------------
 	shaderCI.FilePath = L"Shaders\\PreComputeIrradianceMap.hlsl";
 	shaderCI.entryPoint = "VS";
 	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
@@ -162,20 +164,77 @@ void ForwardRenderer::Initialize()
 	PSODesc.GraphicsPipeline.VertexShader = m_PrecomputeIrradianceVS;
 	PSODesc.GraphicsPipeline.PixelShader = m_PrecomputeIrradiancePS;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// 关闭深度和模板测试
 	PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState.DepthEnable = false;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.DepthStencilState.StencilEnable = false;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 1;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = IrradianceCubeFmt;
 	PSODesc.GraphicsPipeline.GraphicPipelineState.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	PSODesc.VariableConfig.Variables.clear();
 
 	m_PrecomputeIrradianceMapPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+	RHI::ShaderVariable* irradianceMapEnvVariable = m_PrecomputeIrradianceMapPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "EnvironmentMap");
+	if(irradianceMapEnvVariable != nullptr)
+		irradianceMapEnvVariable->Set(m_SkyboxSRV);
 
 	// Mipmap填0，会自动计算有多少个Mipmap
 	m_IrradianceMap = std::make_shared<RHI::GpuRenderTextureCube>(IrradianceCubeDim, IrradianceCubeDim, 0, IrradianceCubeFmt, Color(0.0f, 0.0f, 0.0f, 0.0f));
 	m_IrradianceMapSRV = m_IrradianceMap->CreateSRV();
+	// ----------------irradiance map-----------------------------
 
-	PrecomputeIrradianceMap();
+	// ----------------Prefilter Environment map-----------------------------
+	shaderCI.FilePath = L"Shaders\\PrefilterEnvironmentMap.hlsl";
+	shaderCI.entryPoint = "VS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
+	m_PrefilterEnvVS = std::make_shared<RHI::Shader>(shaderCI);
+
+	shaderCI.entryPoint = "PS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_PIXEL;
+	m_PrefilterEnvPS = std::make_shared<RHI::Shader>(shaderCI);
+
+	PSODesc.GraphicsPipeline.VertexShader = m_PrefilterEnvVS;
+	PSODesc.GraphicsPipeline.PixelShader = m_PrefilterEnvPS;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 1;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = PrefilteredEnvMapFmt;
+	PSODesc.VariableConfig.Variables.clear();
+
+	m_PrefilterEnvPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+	RHI::ShaderVariable* prefilterEnvVariable = m_PrefilterEnvPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "EnvironmentMap");
+	prefilterEnvVariable->Set(m_SkyboxSRV);
+
+	m_PrefilterEnvMap = std::make_shared<RHI::GpuRenderTextureCube>(PrefilteredEnvMapDim, PrefilteredEnvMapDim, 0, PrefilteredEnvMapFmt, Color(0.0f, 0.0f, 0.0f, 0.0f));
+	m_PrefilterEnvSRV = m_PrefilterEnvMap->CreateSRV();
+	// ----------------Prefilter Environment map-----------------------------
+
+	// ----------------BRDF-----------------------------
+	m_BRDF_Lut = std::make_shared<RHI::GpuRenderTextureColor>(BRDF_LUT_Dim, BRDF_LUT_Dim, D3D12_RESOURCE_DIMENSION_TEXTURE2D, PrecomputeBRDFFmt);
+	m_BRDF_Lut_SRV = m_BRDF_Lut->CreateSRV();
+
+	shaderCI.FilePath = L"Shaders\\PreComputeBRDF.hlsl";
+	shaderCI.entryPoint = "VS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_VERTEX;
+	m_PrecomputeBRDFVS = std::make_shared<RHI::Shader>(shaderCI);
+
+	shaderCI.entryPoint = "PS";
+	shaderCI.Desc.ShaderType = RHI::SHADER_TYPE_PIXEL;
+	m_PrecomputeBRDFPS = std::make_shared<RHI::Shader>(shaderCI);
+
+	PSODesc.GraphicsPipeline.VertexShader = m_PrecomputeBRDFVS;
+	PSODesc.GraphicsPipeline.PixelShader = m_PrecomputeBRDFPS;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.NumRenderTargets = 1;
+	PSODesc.GraphicsPipeline.GraphicPipelineState.RTVFormats[0] = PrecomputeBRDFFmt;
+	PSODesc.VariableConfig.Variables.clear();
+	m_PrecomputeBRDFPSO = std::make_unique<RHI::PipelineState>(&RHI::RenderDevice::GetSingleton(), PSODesc);
+
+
+	// ----------------BRDF-----------------------------
+
+	ComputeIrradianceMapAndFilterEnvMap();
+	PrecomputeBRDF();
+
+
+	skyboxVariable->Set(m_PrefilterEnvSRV);
 }
 
 void ForwardRenderer::Render(SwapChain& swapChain)
@@ -344,61 +403,181 @@ void ForwardRenderer::UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, v
 	memcpy(shadowPerPassCB, &m_ShadowMapPassCBData, sizeof(PerPassConstants));
 }
 
-void ForwardRenderer::PrecomputeIrradianceMap()
+void ForwardRenderer::ComputeIrradianceMapAndFilterEnvMap()
 {
 	PerPassConstants perPassConstants;
 
-	XMMATRIX projMatrix = XMMatrixPerspectiveFovLH(MathHelper::Pi / 2.0f, 1, 0.001, 100);
+	std::array<XMMATRIX, 6> viewMatrices = {
+		DirectX::XMMatrixRotationRollPitchYaw(0.0f, -MathHelper::Pi / 2.0f, 0.0f),	/* +X */
+		DirectX::XMMatrixRotationRollPitchYaw(0.0f, MathHelper::Pi / 2.0f, 0.0f),	/* -X */
+		DirectX::XMMatrixRotationRollPitchYaw(MathHelper::Pi / 2.0f, 0.0f, 0.0f),	/* +Y */
+		DirectX::XMMatrixRotationRollPitchYaw(-MathHelper::Pi / 2.0f, 0.0f, 0.0f),	/* -Y */
+		DirectX::XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f),					/* +Z */
+		DirectX::XMMatrixRotationRollPitchYaw(0.0f, -MathHelper::Pi, 0.0f)			/* -Z */
+	};
+	XMMATRIX projMatrix = DirectX::XMMatrixPerspectiveFovLH(MathHelper::Pi / 2.0f, 1, 0.001f, 100);
 
+	perPassConstants.EyePosW = {0.0f, 0.0f, 0.0f};
+	perPassConstants.NearZ = 0.001f;
+	perPassConstants.FarZ = 100;
 
-	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"PreComputeIrradianceMap");
+	std::shared_ptr<RHI::GpuDynamicBuffer> perPassCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PerPassConstants));
 
-	CD3DX12_VIEWPORT irradianceViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(IrradianceCubeDim), static_cast<float>(IrradianceCubeDim));
-	CD3DX12_RECT irradianceScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(IrradianceCubeDim), static_cast<LONG>(IrradianceCubeDim));
+	RHI::ShaderVariable* irradiancePerPassVariable = m_PrecomputeIrradianceMapPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
+	irradiancePerPassVariable->Set(perPassCB);
+
+	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"ComputeIrradianceMapAndFilterEnvMap");
 
 	ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
 	ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
 	graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
 
+	// ------------------------------Precompute irradiance map--------------------------------------------------------------------
 	graphicContext.TransitionResource(*m_IrradianceMap, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-	graphicContext.SetViewport(irradianceViewport);
-	graphicContext.SetScissor(irradianceScissorRect);
 
 	graphicContext.SetPipelineState(m_PrecomputeIrradianceMapPSO.get());
 
 	graphicContext.SetVertexBuffer(0, m_CubeMesh->VertexBufferView());
 	graphicContext.SetIndexBuffer(m_CubeMesh->IndexBufferView());
-
+	graphicContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	UINT16 mipLevels = m_IrradianceMap->GetResource()->GetDesc().MipLevels;
 
-	// 每级Mipmap
 	for (UINT mip = 0; mip < mipLevels; ++mip)
 	{
-		// 每个面
+		// 注意设置Viewport和Scissor
+		UINT32 mipRTSize = IrradianceCubeDim / Math::Pow(2, mip);
+		CD3DX12_VIEWPORT irradianceViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(mipRTSize), static_cast<float>(mipRTSize));
+		CD3DX12_RECT irradianceScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(mipRTSize), static_cast<LONG>(mipRTSize));
+		graphicContext.SetViewport(irradianceViewport);
+		graphicContext.SetScissor(irradianceScissorRect);
+
 		for (UINT face = 0; face < 6; ++face)
 		{
 			std::shared_ptr<GpuResourceDescriptor> rtv = m_IrradianceMap->CreateRTV(face, mip);
 			GpuResourceDescriptor* pRTV = rtv.get();
 
-			graphicContext.ClearColor(*rtv, Colors::Transparent);
+			graphicContext.ClearColor(*rtv, Colors::Blue);
 			graphicContext.SetRenderTargets(1, &pRTV, nullptr);
 
 			// 旋转相机
-			XMStoreFloat4x4(&perPassConstants.View, XMMatrixTranspose(shadowCameraView));
+			XMMATRIX viewProj = XMMatrixMultiply(viewMatrices[face], projMatrix);
+			XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(viewMatrices[face]), viewMatrices[face]);
+			XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(projMatrix), projMatrix);
+			XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+
+			XMStoreFloat4x4(&perPassConstants.View, XMMatrixTranspose(viewMatrices[face]));
 			XMStoreFloat4x4(&perPassConstants.InvView, XMMatrixTranspose(invView));
-			XMStoreFloat4x4(&perPassConstants.Proj, XMMatrixTranspose(shadowCameraproj));
+			XMStoreFloat4x4(&perPassConstants.Proj, XMMatrixTranspose(projMatrix));
 			XMStoreFloat4x4(&perPassConstants.InvProj, XMMatrixTranspose(invProj));
 			XMStoreFloat4x4(&perPassConstants.ViewProj, XMMatrixTranspose(viewProj));
 			XMStoreFloat4x4(&perPassConstants.InvViewProj, XMMatrixTranspose(invViewProj));
+
+			void* pIrradiancePerPassCB = perPassCB->Map(graphicContext, 256);
+			memcpy(pIrradiancePerPassCB, &perPassConstants, sizeof(PerPassConstants));
 
 			graphicContext.DrawIndexedInstanced(m_CubeMesh->IndexCount(), 1, 0, 0, 0);
 		}
 	}
 
-	
 	graphicContext.TransitionResource(*m_IrradianceMap, D3D12_RESOURCE_STATE_GENERIC_READ);
+	// ------------------------------Precompute irradiance map--------------------------------------------------------------------
+
+	// ------------------------------Pre filter Env map--------------------------------------------------------------------
+	RHI::ShaderVariable* prefilterPerPassVariable = m_PrefilterEnvPSO->GetStaticVariableByName(RHI::SHADER_TYPE_VERTEX, "cbPass");
+	prefilterPerPassVariable->Set(perPassCB);
+
+	PrefilterEnvmapConstants prefilterConstants = {};
+	std::shared_ptr<RHI::GpuDynamicBuffer> preFilterCB = std::make_shared<RHI::GpuDynamicBuffer>(1, sizeof(PrefilterEnvmapConstants));
+	RHI::ShaderVariable* prefilterEnvVariable = m_PrefilterEnvPSO->GetStaticVariableByName(RHI::SHADER_TYPE_PIXEL, "cbPrefilterEnv");
+	if(prefilterEnvVariable != nullptr)
+		prefilterEnvVariable->Set(preFilterCB);
+
+	graphicContext.TransitionResource(*m_PrefilterEnvMap, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	graphicContext.SetPipelineState(m_PrefilterEnvPSO.get());
+
+	mipLevels = m_PrefilterEnvMap->GetResource()->GetDesc().MipLevels;
+	for (UINT mip = 0; mip < mipLevels; ++mip)
+	{
+		for (UINT face = 0; face < 6; ++face)
+		{
+			UINT32 mipRTSize = PrefilteredEnvMapDim / Math::Pow(2, mip);
+			CD3DX12_VIEWPORT prefilterEnvViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(mipRTSize), static_cast<float>(mipRTSize));
+			CD3DX12_RECT prefilterEnvScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(mipRTSize), static_cast<LONG>(mipRTSize));
+			graphicContext.SetViewport(prefilterEnvViewport);
+			graphicContext.SetScissor(prefilterEnvScissorRect);
+
+			std::shared_ptr<GpuResourceDescriptor> rtv = m_PrefilterEnvMap->CreateRTV(face, mip);
+			GpuResourceDescriptor* pRTV = rtv.get();
+
+			graphicContext.ClearColor(*rtv, Colors::Blue);
+			graphicContext.SetRenderTargets(1, &pRTV, nullptr);
+
+			// 旋转相机
+			XMMATRIX viewProj = XMMatrixMultiply(viewMatrices[face], projMatrix);
+			XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(viewMatrices[face]), viewMatrices[face]);
+			XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(projMatrix), projMatrix);
+			XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+
+			XMStoreFloat4x4(&perPassConstants.View, XMMatrixTranspose(viewMatrices[face]));
+			XMStoreFloat4x4(&perPassConstants.InvView, XMMatrixTranspose(invView));
+			XMStoreFloat4x4(&perPassConstants.Proj, XMMatrixTranspose(projMatrix));
+			XMStoreFloat4x4(&perPassConstants.InvProj, XMMatrixTranspose(invProj));
+			XMStoreFloat4x4(&perPassConstants.ViewProj, XMMatrixTranspose(viewProj));
+			XMStoreFloat4x4(&perPassConstants.InvViewProj, XMMatrixTranspose(invViewProj));
+
+			void* pPrefilterPerPassCB = perPassCB->Map(graphicContext, 256);
+			memcpy(pPrefilterPerPassCB, &perPassConstants, sizeof(PerPassConstants));
+
+			prefilterConstants.EnvMapSize = PrefilteredEnvMapDim;
+			prefilterConstants.NumSamples = 256;
+			prefilterConstants.Roughness = 0.9f;// (float)mip / (float)mipLevels;
+
+			void* pPrefilterCB = preFilterCB->Map(graphicContext, 256);
+			memcpy(pPrefilterCB, &prefilterConstants, sizeof(PrefilterEnvmapConstants));
+
+			graphicContext.DrawIndexedInstanced(m_CubeMesh->IndexCount(), 1, 0, 0, 0);
+		}
+	}
+
+	graphicContext.TransitionResource(*m_PrefilterEnvMap, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+
+	graphicContext.Finish();
+}
+
+void ForwardRenderer::PrecomputeBRDF()
+{
+	m_FullScreenTriangle = GeometryFactory::CreateFullScreenTriangle();
+	std::shared_ptr<RHI::GpuResourceDescriptor> lutRTV = m_BRDF_Lut->CreateRTV();
+	RHI::GpuResourceDescriptor* plutRTV = lutRTV.get();
+
+	RHI::GraphicsContext& graphicContext = RHI::GraphicsContext::Begin(L"PreComputeBRDF");
+
+	ID3D12DescriptorHeap* cbvsrvuavHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetD3D12DescriptorHeap();
+	ID3D12DescriptorHeap* samplerHeap = RHI::RenderDevice::GetSingleton().GetGPUDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER).GetD3D12DescriptorHeap();
+	graphicContext.SetDescriptorHeap(cbvsrvuavHeap, samplerHeap);
+
+	graphicContext.TransitionResource(*m_BRDF_Lut, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	graphicContext.SetPipelineState(m_PrecomputeBRDFPSO.get());
+
+	graphicContext.ClearColor(*plutRTV, Colors::Blue);
+	graphicContext.SetRenderTargets(1, &plutRTV, nullptr);
+
+	graphicContext.SetVertexBuffer(0, m_FullScreenTriangle->VertexBufferView());
+	graphicContext.SetIndexBuffer(m_FullScreenTriangle->IndexBufferView());
+	graphicContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	CD3DX12_VIEWPORT brdfViewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(BRDF_LUT_Dim), static_cast<float>(BRDF_LUT_Dim));
+	CD3DX12_RECT brdfScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(BRDF_LUT_Dim), static_cast<LONG>(BRDF_LUT_Dim));
+	graphicContext.SetViewport(brdfViewport);
+	graphicContext.SetScissor(brdfScissorRect);
+
+	graphicContext.DrawIndexedInstanced(m_FullScreenTriangle->IndexCount(), 1, 0, 0, 0);
+
+	graphicContext.TransitionResource(*m_BRDF_Lut, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	graphicContext.Finish();
 }

@@ -6,6 +6,7 @@ namespace RHI
 	class GpuTexture2D;
 	class GpuDynamicBuffer;
 	class GpuRenderTextureDepth;
+	class GpuRenderTextureColor;
 	class GpuResourceDescriptor;
 	class Shader;
 	class PipelineState;
@@ -27,7 +28,7 @@ public:
 private:
 	void UpdateShadowPerPassCB(Light* light, Camera* sceneCamera, void* shadowPerPassCB);
 
-	void PrecomputeIrradianceMap();
+	void ComputeIrradianceMapAndFilterEnvMap();
 	void PrefilterEnvironmentMap();
 	void PrecomputeBRDF();
 
@@ -66,12 +67,15 @@ private:
 	std::shared_ptr<Mesh> m_SkyboxMesh = nullptr;
 
 	// IBL
-	static constexpr DXGI_FORMAT IrradianceCubeFmt    = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	static constexpr DXGI_FORMAT PrefilteredEnvMapFmt = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	static constexpr UINT32         IrradianceCubeDim = 64;
-	static constexpr UINT32         PrefilteredEnvMapDim = 256;
+	static constexpr DXGI_FORMAT IrradianceCubeFmt		= DXGI_FORMAT_R32G32B32A32_FLOAT;
+	static constexpr DXGI_FORMAT PrefilteredEnvMapFmt	= DXGI_FORMAT_R16G16B16A16_FLOAT;
+	static constexpr DXGI_FORMAT PrecomputeBRDFFmt		= DXGI_FORMAT_R16G16_FLOAT;
+	static constexpr UINT32      IrradianceCubeDim		= 128;
+	static constexpr UINT32      PrefilteredEnvMapDim	= 256;
+	static constexpr UINT32		 BRDF_LUT_Dim			= 512;
 
 	std::shared_ptr<Mesh> m_CubeMesh = nullptr;
+	std::shared_ptr<Mesh> m_FullScreenTriangle = nullptr;
 
 	// Irradiance map
 	std::shared_ptr<RHI::GpuRenderTextureCube> m_IrradianceMap = nullptr;
@@ -82,8 +86,21 @@ private:
 	std::unique_ptr<RHI::PipelineState> m_PrecomputeIrradianceMapPSO = nullptr;
 
 	// Pre-filter Environment map
+	std::shared_ptr<RHI::GpuRenderTextureCube> m_PrefilterEnvMap = nullptr;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_PrefilterEnvSRV = nullptr;
+
+	std::shared_ptr<RHI::Shader> m_PrefilterEnvVS = nullptr;
+	std::shared_ptr<RHI::Shader> m_PrefilterEnvPS = nullptr;
+	std::unique_ptr<RHI::PipelineState> m_PrefilterEnvPSO = nullptr;
 
 
 	// Precomputed BRDF
+	std::shared_ptr<RHI::GpuRenderTextureColor> m_BRDF_Lut = nullptr;
+	std::shared_ptr<RHI::GpuResourceDescriptor> m_BRDF_Lut_SRV = nullptr;
+
+	std::shared_ptr<RHI::Shader> m_PrecomputeBRDFVS = nullptr;
+	std::shared_ptr<RHI::Shader> m_PrecomputeBRDFPS = nullptr;
+	std::unique_ptr<RHI::PipelineState> m_PrecomputeBRDFPSO = nullptr;
+
 };
 

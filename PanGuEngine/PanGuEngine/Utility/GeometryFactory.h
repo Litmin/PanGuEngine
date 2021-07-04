@@ -10,4 +10,5 @@ public:
 
 	static std::shared_ptr<Mesh> CreateSphere(float radius, UINT32 sliceCount, UINT32 stackCount);
 
+	static std::shared_ptr<Mesh> CreateFullScreenTriangle();
 };

@@ -55,7 +55,7 @@ namespace RHI
 		SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 
 		SRVDesc.TextureCube.MostDetailedMip = 0;
-		SRVDesc.TextureCube.MipLevels = m_MipLevels;
+		SRVDesc.TextureCube.MipLevels = -1;	// -1表示所有的mipmap
 		SRVDesc.TextureCube.ResourceMinLODClamp = 0.0f;
 
 		RenderDevice::GetSingleton().GetD3D12Device()->CreateShaderResourceView(m_pResource.Get(), &SRVDesc, descriptor->GetCpuHandle());
